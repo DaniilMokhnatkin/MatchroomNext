@@ -242,7 +242,8 @@ class History:
             self.db.execute("INSERT OR REPLACE INTO settings VALUES ('owner_steam_id',?)", (latest_owner,))
             self.db.commit()
         self.revision = time.time_ns()
-        self.status = {'scanning': False, 'checked': 0, 'errors': [], 'last_scan': None}
+        self.status = {'scanning': False, 'checked': 0, 'errors': [],
+                       'folder_errors': [], 'replay_errors': [], 'last_scan': None}
         self.stop_event = threading.Event()
         self.thread = None
         self.seen = {}
@@ -1152,19 +1153,19 @@ class History:
             config = dict(self.config)
         if not config['enabled']:
             return
-        errors, checked = [], 0
+        folder_errors, replay_errors, checked = [], [], 0
         with self.lock:
             self.status['scanning'] = True
         active = set()
         for folder in config['folders']:
             directory = Path(folder)
             if not directory.is_dir():
-                errors.append(f'Папка недоступна: {folder}')
+                folder_errors.append(f'Папка недоступна: {folder}')
                 continue
             try:
                 paths = list(directory.glob('*.fwr'))
             except OSError as exc:
-                errors.append(str(exc))
+                folder_errors.append(str(exc))
                 continue
             for path in paths:
                 if self.stop_event.is_set():
@@ -1213,15 +1214,17 @@ class History:
                         self.seen[key] = fingerprint
                 except (OSError, ValueError) as exc:
                     # Retry on later scans, including files completed in place.
-                    if len(errors) < 5:
-                        errors.append(f'{path.name}: {exc}')
+                    if len(replay_errors) < 5:
+                        replay_errors.append(f'{path.name}: {exc}')
         self.pending = {k: v for k, v in self.pending.items() if k in active}
         self.seen = {k: v for k, v in self.seen.items() if k in active}
         self.header_seen.intersection_update(active)
         for folder in config['folders']:
             self.sync_commander_log(folder)
         with self.lock:
-            self.status = {'scanning': False, 'checked': checked, 'errors': errors,
+            self.status = {'scanning': False, 'checked': checked,
+                           'errors': (folder_errors + replay_errors)[:5],
+                           'folder_errors': folder_errors, 'replay_errors': replay_errors,
                            'last_scan': time.time()}
 
     def start(self):
@@ -1231,7 +1234,8 @@ class History:
                     self.scan_once()
                 except Exception as exc:
                     with self.lock:
-                        self.status.update(scanning=False, errors=[str(exc)])
+                        self.status.update(scanning=False, errors=[str(exc)],
+                                           folder_errors=[], replay_errors=[])
                 self.stop_event.wait(1)
         self.thread = threading.Thread(target=run, name='replay-watcher', daemon=True)
         self.thread.start()

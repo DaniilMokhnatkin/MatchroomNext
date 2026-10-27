@@ -65,7 +65,9 @@ function listPane(state, ctx, filtered, selectedId) {
   }
   const watch = state.app.watch || { enabled: false, folders: [] };
   const errors = state.app.status?.errors || [];
-  const watchState = !watch.folders?.length ? 'missing' : errors.length ? 'error' : watch.enabled ? 'on' : 'off';
+  const watchState = !watch.folders?.length ? 'missing' : !watch.enabled ? 'off' : errors.length ? 'error' : 'on';
+  const watchError = state.app.status?.folder_errors?.length ? 'watchFolderError'
+    : state.app.status?.replay_errors?.length ? 'watchReplayError' : 'watchError';
   const opponentName = ui.opponent ? nameOf(ui.opponent, state) || state.matches.flatMap(m => m.players || []).find(p => p.steam_id === ui.opponent)?.name || ui.opponent : '';
 
   return h('aside', { class: 'list-pane', 'aria-label': t('matchArchive') },
@@ -101,7 +103,7 @@ function listPane(state, ctx, filtered, selectedId) {
       button({ label: state.ui.importing ? t('importing') : t('addReplay'), icon: 'upload', busy: !!state.ui.importing, onClick: () => ctx.pickFiles(), className: 'list-add' }),
       h('div', { class: 'watch-line', 'data-state': watchState, title: errors.join('\n') || (watch.folders || []).join('\n') },
         h('span', { class: 'status-dot', 'aria-hidden': 'true' }),
-        h('span', { class: 'ellipsis' }, t({ missing: 'watchMissing', error: 'watchError', on: 'watchOn', off: 'watchOff' }[watchState])),
+        h('span', { class: 'ellipsis' }, t({ missing: 'watchMissing', error: watchError, on: 'watchOn', off: 'watchOff' }[watchState])),
         watchState === 'missing'
           ? button({ label: t('configure'), variant: 'link', size: 'sm', onClick: openSettings })
           : button({ label: t(watch.enabled ? 'pause' : 'resume'), variant: 'link', size: 'sm', onClick: toggleWatch }))));

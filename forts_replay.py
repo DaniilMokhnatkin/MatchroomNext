@@ -1,4 +1,4 @@
-"""Read Forts v1.38.2 / FWR format 5 player metadata. Standard library only.
+"""Read Forts 1.38.2 and 1.39.0 / FWR format 5 player metadata.
 
 This parses the player table, not the simulation. See FORMAT.md for the
 independently verified Steam ID encoding and the limits of this reader.
@@ -19,6 +19,9 @@ RECORD_SIZE = 101
 STEAM_XOR = 0x314E62818B5F1701
 TABLE_END = b"\xa1" * 4
 HEADER_END = b"\xed\xd1\xed\xd1"
+# Observed in real 1.38.2 and 1.39.0 replays respectively. Both retain the
+# format-5 header length, client table and Steam ID encoding.
+FWR_SIGNATURES = {0x67, 0x6E}
 ROLES = {"self": "Вы / автор реплея", "opponent": "Соперник",
          "ally": "Союзник", "observer": "Наблюдатель", "player": "Игрок"}
 
@@ -88,8 +91,8 @@ def read_replay_winner(path: Path) -> tuple[int | None, str]:
 def header_length(prefix: bytes) -> int:
     if len(prefix) < 17:
         raise ReplayError("Файл слишком короткий: нет заголовка FWR.")
-    if prefix[0] != 0x67 or struct.unpack_from("<I", prefix, 1)[0] != 5:
-        raise ReplayError("Неизвестный формат. Поддерживается FWR format 5 (проверен на Forts 1.38.2).")
+    if prefix[0] not in FWR_SIGNATURES or struct.unpack_from("<I", prefix, 1)[0] != 5:
+        raise ReplayError("Неизвестный формат реплея. Поддерживаются Forts 1.38.2 и 1.39.0 (FWR format 5).")
     length = struct.unpack_from("<I", prefix, 13)[0]
     if not 17 <= length <= MAX_HEADER:
         raise ReplayError("Некорректная длина заголовка FWR.")
@@ -183,10 +186,10 @@ def parse_replay(data: bytes, filename: str = "replay.fwr", my_id: str | None = 
             player["role"] = "ally" if player["side"] == local["side"] else "opponent"
     if local is None and not my_id:
         warnings.append("Автор реплея не найден в таблице; показан список участников без определения соперников.")
-    map_match = re.search(rb"maps/[^\x00\r\n]{1,1024}\.fwe", data[:start])
+    map_match = re.search(rb"(?:maps[/\\]|[0-9]{6,}[/\\])[^\x00\r\n]{1,1024}\.fwe", data[:start])
     map_path = map_match.group().decode("utf-8", errors="replace") if map_match else None
     return {"file": filename, "format_version": 5, "header_bytes": length,
-            "map": map_path.rsplit("/", 1)[-1][:-4] if map_path else None,
+            "map": re.split(r"[/\\]", map_path)[-1][:-4] if map_path else None,
             "perspective": "specified_steam_id" if my_id else "replay_recorder",
             "recorder_client_id": local_id, "recorder_team": local_team,
             "players": players, "warnings": warnings}

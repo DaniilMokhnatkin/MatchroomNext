@@ -11,7 +11,7 @@ import sys
 
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT / 'shell'))
-VERSION = 'v0.9'
+VERSION = 'v0.10'
 NAME = f'Matchroom Next {VERSION}'
 SERVICE_NAME = 'MatchroomService'
 # (source, destination inside the bundle). Client tests are not shipped.
