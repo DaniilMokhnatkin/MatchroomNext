@@ -1,0 +1,3841 @@
+{
+  "schema": 2,
+  "fetched_at": "2026-10-04T14:57:08.594790+00:00",
+  "seasons": [
+    40,
+    41,
+    42,
+    43
+  ],
+  "rank_limit": 80,
+  "sources": [
+    {
+      "season": 40,
+      "board_id": "18977380",
+      "url": "https://steamcommunity.com/stats/410900/leaderboards/18977380/?xml=1&start=1&end=80"
+    },
+    {
+      "season": 41,
+      "board_id": "19497676",
+      "url": "https://steamcommunity.com/stats/410900/leaderboards/19497676/?xml=1&start=1&end=80"
+    },
+    {
+      "season": 42,
+      "board_id": "20046061",
+      "url": "https://steamcommunity.com/stats/410900/leaderboards/20046061/?xml=1&start=1&end=80"
+    },
+    {
+      "season": 43,
+      "board_id": "20548400",
+      "url": "https://steamcommunity.com/stats/410900/leaderboards/20548400/?xml=1&start=1&end=80"
+    },
+    {
+      "kind": "game_medal_registry",
+      "path": "db/medals.lua",
+      "pack": "packs/dynamic_startup_9_2.pack",
+      "registry_sha256": "15c3d3adead930f89950e682bc76d78e9d095e6d8f246212f01010487c4006e2"
+    }
+  ],
+  "players": [
+    {
+      "steam_id": "76561199218136214",
+      "seasons": [
+        {
+          "rank": 1,
+          "score": 4539,
+          "season": 40
+        },
+        {
+          "rank": 18,
+          "score": 4399,
+          "season": 41
+        },
+        {
+          "rank": 15,
+          "score": 4457,
+          "season": 42
+        },
+        {
+          "rank": 5,
+          "score": 4597,
+          "season": 43
+        }
+      ],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/cb4d3fd3-e7fa-4ad5-97b4-697253348b4a"
+        }
+      ],
+      "name": "Ryabzyk"
+    },
+    {
+      "steam_id": "76561199079030272",
+      "seasons": [
+        {
+          "rank": 2,
+          "score": 4489,
+          "season": 40
+        },
+        {
+          "rank": 2,
+          "score": 4579,
+          "season": 41
+        },
+        {
+          "rank": 5,
+          "score": 4612,
+          "season": 42
+        }
+      ],
+      "fpl": [
+        {
+          "kind": "medal",
+          "name": "Forts Pro League Champion Season 6",
+          "texture": "ui/textures/medals/medal_fpl.dds",
+          "url": "https://www.youtube.com/watch?v=OdzSIOAyhbs",
+          "season": 6
+        },
+        {
+          "kind": "medal",
+          "name": "Forts Pro League Champion Season 7",
+          "texture": "ui/textures/medals/medal_fpl.dds",
+          "url": "https://www.youtube.com/watch?v=CpNEnPYHADQ",
+          "season": 7
+        },
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/31a09bc6-dd10-428b-92f4-3edb4d63e0ad"
+        }
+      ],
+      "name": "Nils"
+    },
+    {
+      "steam_id": "76561199071618876",
+      "seasons": [
+        {
+          "rank": 3,
+          "score": 4485,
+          "season": 40
+        },
+        {
+          "rank": 1,
+          "score": 4634,
+          "season": 41
+        },
+        {
+          "rank": 4,
+          "score": 4618,
+          "season": 42
+        },
+        {
+          "rank": 2,
+          "score": 4704,
+          "season": 43
+        }
+      ],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/35fce8ec-7188-491e-985d-289d1b6790e9"
+        }
+      ],
+      "name": "Александр"
+    },
+    {
+      "steam_id": "76561198255668008",
+      "seasons": [
+        {
+          "rank": 4,
+          "score": 4449,
+          "season": 40
+        },
+        {
+          "rank": 8,
+          "score": 4423,
+          "season": 41
+        },
+        {
+          "rank": 8,
+          "score": 4519,
+          "season": 42
+        },
+        {
+          "rank": 6,
+          "score": 4587,
+          "season": 43
+        }
+      ],
+      "fpl": [
+        {
+          "kind": "medal",
+          "name": "Forts Pro League Champion Season 3",
+          "texture": "ui/textures/medals/medal_fpl.dds",
+          "url": "https://www.youtube.com/live/cAfORIGsT5w?si=EUEejRsn0pUslBav",
+          "season": 3
+        },
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/b629499b-f44d-4330-b195-1762ce2eeb58"
+        }
+      ],
+      "name": "I am myself"
+    },
+    {
+      "steam_id": "76561199146302497",
+      "seasons": [
+        {
+          "rank": 5,
+          "score": 4448,
+          "season": 40
+        },
+        {
+          "rank": 19,
+          "score": 4397,
+          "season": 41
+        }
+      ],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/a0a259ea-71ff-4dda-91dd-9f0507dca34b"
+        }
+      ],
+      "name": "Alesio"
+    },
+    {
+      "steam_id": "76561199246690947",
+      "seasons": [
+        {
+          "rank": 6,
+          "score": 4432,
+          "season": 40
+        },
+        {
+          "rank": 16,
+          "score": 4401,
+          "season": 41
+        },
+        {
+          "rank": 32,
+          "score": 4353,
+          "season": 42
+        }
+      ],
+      "fpl": [
+        {
+          "kind": "medal",
+          "name": "Forts Pro League Champion Season 4",
+          "texture": "ui/textures/medals/medal_fpl.dds",
+          "url": "https://www.youtube.com/live/O0beFupZyfw?si=t9KueR212vgXwqqp&t=3353",
+          "season": 4
+        },
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/faea28a3-b93e-416c-a14f-7a07a20ded84"
+        }
+      ],
+      "name": "Dranistian"
+    },
+    {
+      "steam_id": "76561199216912457",
+      "seasons": [
+        {
+          "rank": 7,
+          "score": 4432,
+          "season": 40
+        },
+        {
+          "rank": 5,
+          "score": 4472,
+          "season": 41
+        },
+        {
+          "rank": 33,
+          "score": 4353,
+          "season": 42
+        },
+        {
+          "rank": 39,
+          "score": 4382,
+          "season": 43
+        }
+      ],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/08495dfa-fcdd-44bf-922a-e32f2ac0ea61"
+        }
+      ],
+      "name": "Aleksib"
+    },
+    {
+      "steam_id": "76561199556926678",
+      "seasons": [
+        {
+          "rank": 8,
+          "score": 4428,
+          "season": 40
+        },
+        {
+          "rank": 3,
+          "score": 4558,
+          "season": 41
+        },
+        {
+          "rank": 46,
+          "score": 4309,
+          "season": 42
+        },
+        {
+          "rank": 13,
+          "score": 4504,
+          "season": 43
+        }
+      ],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/67fbe6fb-e35c-4d2e-8702-648b9033d789"
+        }
+      ],
+      "name": "The Snake"
+    },
+    {
+      "steam_id": "76561198901275495",
+      "seasons": [
+        {
+          "rank": 9,
+          "score": 4379,
+          "season": 40
+        },
+        {
+          "rank": 22,
+          "score": 4387,
+          "season": 41
+        },
+        {
+          "rank": 17,
+          "score": 4451,
+          "season": 42
+        },
+        {
+          "rank": 9,
+          "score": 4513,
+          "season": 43
+        }
+      ],
+      "fpl": [
+        {
+          "kind": "medal",
+          "name": "Forts Pro League Champion Season 3",
+          "texture": "ui/textures/medals/medal_fpl.dds",
+          "url": "https://www.youtube.com/live/cAfORIGsT5w?si=EUEejRsn0pUslBav",
+          "season": 3
+        },
+        {
+          "kind": "medal",
+          "name": "Forts Pro League Champion Season 5",
+          "texture": "ui/textures/medals/medal_fpl.dds",
+          "url": "https://www.youtube.com/live/b5TnfPIYbOQ?si=XIN70nMQp5JBKcvu",
+          "season": 5
+        },
+        {
+          "kind": "medal",
+          "name": "MVP Forts Pro League Playoffs Season 5",
+          "texture": "ui/textures/medals/medal_mvp.dds",
+          "url": "https://youtu.be/e1Tdr4P9gfI?si=DmgSjQm3OnXrFdSF",
+          "season": 5
+        },
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/75630ddf-bee5-47f6-930e-53180b280118"
+        }
+      ],
+      "name": "klaualles"
+    },
+    {
+      "steam_id": "76561199481530822",
+      "seasons": [
+        {
+          "rank": 10,
+          "score": 4367,
+          "season": 40
+        },
+        {
+          "rank": 17,
+          "score": 4400,
+          "season": 41
+        },
+        {
+          "rank": 23,
+          "score": 4417,
+          "season": 42
+        },
+        {
+          "rank": 19,
+          "score": 4494,
+          "season": 43
+        }
+      ],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/db586eb9-6c2a-458d-b776-6c604edb714a"
+        }
+      ],
+      "name": "Brucepixar"
+    },
+    {
+      "steam_id": "76561198384357721",
+      "seasons": [
+        {
+          "rank": 11,
+          "score": 4365,
+          "season": 40
+        },
+        {
+          "rank": 32,
+          "score": 4277,
+          "season": 41
+        },
+        {
+          "rank": 28,
+          "score": 4365,
+          "season": 42
+        },
+        {
+          "rank": 12,
+          "score": 4505,
+          "season": 43
+        }
+      ],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/f8cbef44-1172-49d9-91a7-ab55a37b058d"
+        }
+      ],
+      "name": "Rachel Corrie"
+    },
+    {
+      "steam_id": "76561199153762895",
+      "seasons": [
+        {
+          "rank": 12,
+          "score": 4364,
+          "season": 40
+        },
+        {
+          "rank": 30,
+          "score": 4284,
+          "season": 41
+        }
+      ],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/843381e6-a00b-4431-b179-bf5edf677f59"
+        }
+      ],
+      "name": "[BÄH] Hype"
+    },
+    {
+      "steam_id": "76561198974455664",
+      "seasons": [
+        {
+          "rank": 13,
+          "score": 4364,
+          "season": 40
+        },
+        {
+          "rank": 20,
+          "score": 4395,
+          "season": 41
+        },
+        {
+          "rank": 21,
+          "score": 4428,
+          "season": 42
+        },
+        {
+          "rank": 16,
+          "score": 4498,
+          "season": 43
+        }
+      ],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/a154faf7-fc37-4f3b-bbc2-4647f43bdf5c"
+        }
+      ],
+      "name": "BaumstaenderTTV"
+    },
+    {
+      "steam_id": "76561199507205564",
+      "seasons": [
+        {
+          "rank": 14,
+          "score": 4358,
+          "season": 40
+        },
+        {
+          "rank": 4,
+          "score": 4558,
+          "season": 41
+        },
+        {
+          "rank": 1,
+          "score": 4665,
+          "season": 42
+        }
+      ],
+      "fpl": [
+        {
+          "kind": "medal",
+          "name": "Forts Pro League Champion Season 6",
+          "texture": "ui/textures/medals/medal_fpl.dds",
+          "url": "https://www.youtube.com/watch?v=OdzSIOAyhbs",
+          "season": 6
+        },
+        {
+          "kind": "medal",
+          "name": "Forts Pro League Champion Season 7",
+          "texture": "ui/textures/medals/medal_fpl.dds",
+          "url": "https://www.youtube.com/watch?v=CpNEnPYHADQ",
+          "season": 7
+        },
+        {
+          "kind": "medal",
+          "name": "MVP Forts Pro League Playoffs Season 7",
+          "texture": "ui/textures/medals/medal_mvp.dds",
+          "url": "https://www.youtube.com/watch?v=CpNEnPYHADQ",
+          "season": 7
+        },
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/9e848e0a-783e-4652-9a7e-4762390279c0"
+        }
+      ],
+      "name": "Julian"
+    },
+    {
+      "steam_id": "76561198405738377",
+      "seasons": [
+        {
+          "rank": 15,
+          "score": 4358,
+          "season": 40
+        },
+        {
+          "rank": 11,
+          "score": 4409,
+          "season": 41
+        },
+        {
+          "rank": 27,
+          "score": 4368,
+          "season": 42
+        },
+        {
+          "rank": 58,
+          "score": 4333,
+          "season": 43
+        }
+      ],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/01d09c0a-79e0-4a8d-88f5-d5870b98e90a"
+        }
+      ],
+      "name": "alt acont"
+    },
+    {
+      "steam_id": "76561198838485404",
+      "seasons": [
+        {
+          "rank": 16,
+          "score": 4354,
+          "season": 40
+        },
+        {
+          "rank": 12,
+          "score": 4407,
+          "season": 41
+        },
+        {
+          "rank": 19,
+          "score": 4441,
+          "season": 42
+        },
+        {
+          "rank": 20,
+          "score": 4494,
+          "season": 43
+        }
+      ],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/257574d5-ca59-449e-a3cc-cab9c23439b9"
+        }
+      ],
+      "name": "Hopser"
+    },
+    {
+      "steam_id": "76561199053664960",
+      "seasons": [
+        {
+          "rank": 17,
+          "score": 4352,
+          "season": 40
+        },
+        {
+          "rank": 9,
+          "score": 4419,
+          "season": 41
+        },
+        {
+          "rank": 22,
+          "score": 4420,
+          "season": 42
+        },
+        {
+          "rank": 3,
+          "score": 4630,
+          "season": 43
+        }
+      ],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/48fe534f-1b46-4679-a44d-2933e1e37bf7"
+        }
+      ],
+      "name": "D1mared"
+    },
+    {
+      "steam_id": "76561199277655368",
+      "seasons": [
+        {
+          "rank": 18,
+          "score": 4351,
+          "season": 40
+        },
+        {
+          "rank": 47,
+          "score": 4219,
+          "season": 41
+        },
+        {
+          "rank": 57,
+          "score": 4335,
+          "season": 43
+        }
+      ],
+      "fpl": [],
+      "name": "Dozaa"
+    },
+    {
+      "steam_id": "76561199249675932",
+      "seasons": [
+        {
+          "rank": 19,
+          "score": 4351,
+          "season": 40
+        },
+        {
+          "rank": 15,
+          "score": 4403,
+          "season": 41
+        },
+        {
+          "rank": 12,
+          "score": 4466,
+          "season": 42
+        },
+        {
+          "rank": 22,
+          "score": 4491,
+          "season": 43
+        }
+      ],
+      "fpl": [],
+      "name": "Cheese cat"
+    },
+    {
+      "steam_id": "76561199210804332",
+      "seasons": [
+        {
+          "rank": 20,
+          "score": 4348,
+          "season": 40
+        },
+        {
+          "rank": 60,
+          "score": 4195,
+          "season": 41
+        }
+      ],
+      "fpl": [],
+      "name": "Matzi2.0"
+    },
+    {
+      "steam_id": "76561198121578208",
+      "seasons": [
+        {
+          "rank": 21,
+          "score": 4348,
+          "season": 40
+        },
+        {
+          "rank": 6,
+          "score": 4457,
+          "season": 41
+        },
+        {
+          "rank": 11,
+          "score": 4475,
+          "season": 42
+        },
+        {
+          "rank": 4,
+          "score": 4623,
+          "season": 43
+        }
+      ],
+      "fpl": [],
+      "name": "Megared"
+    },
+    {
+      "steam_id": "76561198973099647",
+      "seasons": [
+        {
+          "rank": 22,
+          "score": 4336,
+          "season": 40
+        },
+        {
+          "rank": 21,
+          "score": 4393,
+          "season": 41
+        },
+        {
+          "rank": 3,
+          "score": 4622,
+          "season": 42
+        },
+        {
+          "rank": 37,
+          "score": 4388,
+          "season": 43
+        }
+      ],
+      "fpl": [],
+      "name": "90315"
+    },
+    {
+      "steam_id": "76561199002114636",
+      "seasons": [
+        {
+          "rank": 23,
+          "score": 4317,
+          "season": 40
+        }
+      ],
+      "fpl": [],
+      "name": "Noha"
+    },
+    {
+      "steam_id": "76561198992078291",
+      "seasons": [
+        {
+          "rank": 24,
+          "score": 4297,
+          "season": 40
+        },
+        {
+          "rank": 56,
+          "score": 4205,
+          "season": 41
+        }
+      ],
+      "fpl": [],
+      "name": "RobberFox"
+    },
+    {
+      "steam_id": "76561198081548043",
+      "seasons": [
+        {
+          "rank": 25,
+          "score": 4266,
+          "season": 40
+        },
+        {
+          "rank": 54,
+          "score": 4209,
+          "season": 41
+        },
+        {
+          "rank": 58,
+          "score": 4275,
+          "season": 42
+        },
+        {
+          "rank": 29,
+          "score": 4444,
+          "season": 43
+        }
+      ],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/18597fd3-00e1-49e6-aeab-5a0ff28ec53b"
+        }
+      ],
+      "name": "Horus"
+    },
+    {
+      "steam_id": "76561198123156306",
+      "seasons": [
+        {
+          "rank": 26,
+          "score": 4262,
+          "season": 40
+        },
+        {
+          "rank": 24,
+          "score": 4373,
+          "season": 41
+        },
+        {
+          "rank": 34,
+          "score": 4344,
+          "season": 42
+        },
+        {
+          "rank": 17,
+          "score": 4498,
+          "season": 43
+        }
+      ],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/6658c919-e115-43c4-a44b-2fe20eaff950"
+        }
+      ],
+      "name": "og"
+    },
+    {
+      "steam_id": "76561198280732792",
+      "seasons": [
+        {
+          "rank": 27,
+          "score": 4259,
+          "season": 40
+        },
+        {
+          "rank": 23,
+          "score": 4379,
+          "season": 41
+        },
+        {
+          "rank": 6,
+          "score": 4571,
+          "season": 42
+        },
+        {
+          "rank": 1,
+          "score": 4714,
+          "season": 43
+        }
+      ],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/5a173eaa-349c-4832-a0bd-27b9a414d70a"
+        }
+      ],
+      "name": "ニャミ•キメラ"
+    },
+    {
+      "steam_id": "76561199041800967",
+      "seasons": [
+        {
+          "rank": 28,
+          "score": 4253,
+          "season": 40
+        },
+        {
+          "rank": 34,
+          "score": 4271,
+          "season": 41
+        },
+        {
+          "rank": 48,
+          "score": 4305,
+          "season": 42
+        },
+        {
+          "rank": 21,
+          "score": 4492,
+          "season": 43
+        }
+      ],
+      "fpl": [],
+      "name": "TITAN4IK"
+    },
+    {
+      "steam_id": "76561199218689700",
+      "seasons": [
+        {
+          "rank": 29,
+          "score": 4245,
+          "season": 40
+        },
+        {
+          "rank": 40,
+          "score": 4255,
+          "season": 41
+        },
+        {
+          "rank": 36,
+          "score": 4333,
+          "season": 42
+        },
+        {
+          "rank": 23,
+          "score": 4486,
+          "season": 43
+        }
+      ],
+      "fpl": [],
+      "name": "Lumos"
+    },
+    {
+      "steam_id": "76561198739813526",
+      "seasons": [
+        {
+          "rank": 30,
+          "score": 4244,
+          "season": 40
+        }
+      ],
+      "fpl": [],
+      "name": "Mayodaynoche"
+    },
+    {
+      "steam_id": "76561199622952723",
+      "seasons": [
+        {
+          "rank": 31,
+          "score": 4240,
+          "season": 40
+        },
+        {
+          "rank": 73,
+          "score": 4171,
+          "season": 41
+        }
+      ],
+      "fpl": [],
+      "name": "broken"
+    },
+    {
+      "steam_id": "76561198344521313",
+      "seasons": [
+        {
+          "rank": 32,
+          "score": 4232,
+          "season": 40
+        },
+        {
+          "rank": 7,
+          "score": 4437,
+          "season": 41
+        },
+        {
+          "rank": 25,
+          "score": 4379,
+          "season": 42
+        }
+      ],
+      "fpl": [
+        {
+          "kind": "medal",
+          "name": "Forts Pro League Champion Season 5",
+          "texture": "ui/textures/medals/medal_fpl.dds",
+          "url": "https://www.twitch.tv/videos/2467340455",
+          "season": 5
+        }
+      ],
+      "name": "[BOG]#Kriegeule #Salzierteeule"
+    },
+    {
+      "steam_id": "76561198915329940",
+      "seasons": [
+        {
+          "rank": 33,
+          "score": 4230,
+          "season": 40
+        }
+      ],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/b2231c9f-a105-42b6-8b37-900acc87cfbb"
+        }
+      ],
+      "name": "kurems"
+    },
+    {
+      "steam_id": "76561199850150358",
+      "seasons": [
+        {
+          "rank": 34,
+          "score": 4225,
+          "season": 40
+        },
+        {
+          "rank": 63,
+          "score": 4263,
+          "season": 42
+        },
+        {
+          "rank": 56,
+          "score": 4338,
+          "season": 43
+        }
+      ],
+      "fpl": [],
+      "name": "Keira Metz"
+    },
+    {
+      "steam_id": "76561198421255590",
+      "seasons": [
+        {
+          "rank": 35,
+          "score": 4216,
+          "season": 40
+        },
+        {
+          "rank": 42,
+          "score": 4239,
+          "season": 41
+        },
+        {
+          "rank": 52,
+          "score": 4284,
+          "season": 42
+        }
+      ],
+      "fpl": [],
+      "name": "Salami TV"
+    },
+    {
+      "steam_id": "76561199688935279",
+      "seasons": [
+        {
+          "rank": 36,
+          "score": 4215,
+          "season": 40
+        },
+        {
+          "rank": 69,
+          "score": 4174,
+          "season": 41
+        },
+        {
+          "rank": 30,
+          "score": 4363,
+          "season": 42
+        },
+        {
+          "rank": 75,
+          "score": 4295,
+          "season": 43
+        }
+      ],
+      "fpl": [],
+      "name": "Jie_wei"
+    },
+    {
+      "steam_id": "76561198381964865",
+      "seasons": [
+        {
+          "rank": 37,
+          "score": 4215,
+          "season": 40
+        },
+        {
+          "rank": 61,
+          "score": 4329,
+          "season": 43
+        }
+      ],
+      "fpl": [],
+      "name": "[HAM] felixwoelmuis"
+    },
+    {
+      "steam_id": "76561198726277442",
+      "seasons": [
+        {
+          "rank": 38,
+          "score": 4206,
+          "season": 40
+        },
+        {
+          "rank": 27,
+          "score": 4341,
+          "season": 41
+        },
+        {
+          "rank": 37,
+          "score": 4332,
+          "season": 42
+        },
+        {
+          "rank": 24,
+          "score": 4477,
+          "season": 43
+        }
+      ],
+      "fpl": [],
+      "name": "Killer"
+    },
+    {
+      "steam_id": "76561199281039717",
+      "seasons": [
+        {
+          "rank": 39,
+          "score": 4189,
+          "season": 40
+        },
+        {
+          "rank": 13,
+          "score": 4406,
+          "season": 41
+        },
+        {
+          "rank": 68,
+          "score": 4315,
+          "season": 43
+        }
+      ],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/f0c76797-08a8-443f-b496-eafff39438ba"
+        }
+      ],
+      "name": "elijah"
+    },
+    {
+      "steam_id": "76561199186145838",
+      "seasons": [
+        {
+          "rank": 40,
+          "score": 4188,
+          "season": 40
+        },
+        {
+          "rank": 61,
+          "score": 4195,
+          "season": 41
+        },
+        {
+          "rank": 45,
+          "score": 4310,
+          "season": 42
+        },
+        {
+          "rank": 43,
+          "score": 4367,
+          "season": 43
+        }
+      ],
+      "fpl": [],
+      "name": "2140750271"
+    },
+    {
+      "steam_id": "76561199236267325",
+      "seasons": [
+        {
+          "rank": 41,
+          "score": 4183,
+          "season": 40
+        },
+        {
+          "rank": 62,
+          "score": 4193,
+          "season": 41
+        },
+        {
+          "rank": 47,
+          "score": 4306,
+          "season": 42
+        },
+        {
+          "rank": 42,
+          "score": 4368,
+          "season": 43
+        }
+      ],
+      "fpl": [],
+      "name": "fufufu"
+    },
+    {
+      "steam_id": "76561198813391771",
+      "seasons": [
+        {
+          "rank": 42,
+          "score": 4178,
+          "season": 40
+        }
+      ],
+      "fpl": [],
+      "name": "lett"
+    },
+    {
+      "steam_id": "76561199249071994",
+      "seasons": [
+        {
+          "rank": 43,
+          "score": 4176,
+          "season": 40
+        }
+      ],
+      "fpl": [],
+      "name": "Blaz"
+    },
+    {
+      "steam_id": "76561199078107447",
+      "seasons": [
+        {
+          "rank": 44,
+          "score": 4172,
+          "season": 40
+        },
+        {
+          "rank": 58,
+          "score": 4204,
+          "season": 41
+        }
+      ],
+      "fpl": [],
+      "name": "Pliar34"
+    },
+    {
+      "steam_id": "76561198774919392",
+      "seasons": [
+        {
+          "rank": 45,
+          "score": 4170,
+          "season": 40
+        }
+      ],
+      "fpl": [],
+      "name": "Jack Layton"
+    },
+    {
+      "steam_id": "76561198114764718",
+      "seasons": [
+        {
+          "rank": 46,
+          "score": 4169,
+          "season": 40
+        }
+      ],
+      "fpl": [],
+      "name": "Trekjeft"
+    },
+    {
+      "steam_id": "76561199845011762",
+      "seasons": [
+        {
+          "rank": 47,
+          "score": 4168,
+          "season": 40
+        }
+      ],
+      "fpl": [],
+      "name": "&lt;3"
+    },
+    {
+      "steam_id": "76561198042474767",
+      "seasons": [
+        {
+          "rank": 48,
+          "score": 4168,
+          "season": 40
+        },
+        {
+          "rank": 71,
+          "score": 4173,
+          "season": 41
+        },
+        {
+          "rank": 25,
+          "score": 4460,
+          "season": 43
+        }
+      ],
+      "fpl": [],
+      "name": "Dragon on fire"
+    },
+    {
+      "steam_id": "76561198312821353",
+      "seasons": [
+        {
+          "rank": 49,
+          "score": 4164,
+          "season": 40
+        }
+      ],
+      "fpl": [],
+      "name": "Shmoo"
+    },
+    {
+      "steam_id": "76561199005331452",
+      "seasons": [
+        {
+          "rank": 50,
+          "score": 4163,
+          "season": 40
+        }
+      ],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/b25d94e9-dde0-4356-a714-d0b12754fd13"
+        }
+      ],
+      "name": "voprof"
+    },
+    {
+      "steam_id": "76561199520741329",
+      "seasons": [
+        {
+          "rank": 51,
+          "score": 4153,
+          "season": 40
+        },
+        {
+          "rank": 69,
+          "score": 4251,
+          "season": 42
+        }
+      ],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/3ccd3070-4e67-4e76-a188-15aa68a9d00f"
+        }
+      ],
+      "name": "Marskreatur"
+    },
+    {
+      "steam_id": "76561198811742931",
+      "seasons": [
+        {
+          "rank": 52,
+          "score": 4151,
+          "season": 40
+        }
+      ],
+      "fpl": [],
+      "name": "Oduvan"
+    },
+    {
+      "steam_id": "76561199558246423",
+      "seasons": [
+        {
+          "rank": 53,
+          "score": 4150,
+          "season": 40
+        }
+      ],
+      "fpl": [],
+      "name": "michael"
+    },
+    {
+      "steam_id": "76561199091654628",
+      "seasons": [
+        {
+          "rank": 54,
+          "score": 4146,
+          "season": 40
+        }
+      ],
+      "fpl": [],
+      "name": "[SUI]SaureDrops"
+    },
+    {
+      "steam_id": "76561198817630416",
+      "seasons": [
+        {
+          "rank": 55,
+          "score": 4139,
+          "season": 40
+        },
+        {
+          "rank": 57,
+          "score": 4205,
+          "season": 41
+        },
+        {
+          "rank": 43,
+          "score": 4312,
+          "season": 42
+        }
+      ],
+      "fpl": [],
+      "name": "surströmming"
+    },
+    {
+      "steam_id": "76561198119435314",
+      "seasons": [
+        {
+          "rank": 56,
+          "score": 4138,
+          "season": 40
+        }
+      ],
+      "fpl": [],
+      "name": "ente7600"
+    },
+    {
+      "steam_id": "76561198163758072",
+      "seasons": [
+        {
+          "rank": 57,
+          "score": 4137,
+          "season": 40
+        },
+        {
+          "rank": 67,
+          "score": 4176,
+          "season": 41
+        }
+      ],
+      "fpl": [],
+      "name": "NOSP_tv"
+    },
+    {
+      "steam_id": "76561199071871611",
+      "seasons": [
+        {
+          "rank": 58,
+          "score": 4135,
+          "season": 40
+        }
+      ],
+      "fpl": [],
+      "name": "The_Fermi_Paradox"
+    },
+    {
+      "steam_id": "76561198969577343",
+      "seasons": [
+        {
+          "rank": 59,
+          "score": 4130,
+          "season": 40
+        }
+      ],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/cbdb10ed-7384-466e-9da2-740e2b06488e"
+        }
+      ],
+      "name": "pur"
+    },
+    {
+      "steam_id": "76561198781433814",
+      "seasons": [
+        {
+          "rank": 60,
+          "score": 4130,
+          "season": 40
+        },
+        {
+          "rank": 43,
+          "score": 4237,
+          "season": 41
+        },
+        {
+          "rank": 70,
+          "score": 4246,
+          "season": 42
+        },
+        {
+          "rank": 50,
+          "score": 4356,
+          "season": 43
+        }
+      ],
+      "fpl": [],
+      "name": "レム"
+    },
+    {
+      "steam_id": "76561199196012964",
+      "seasons": [
+        {
+          "rank": 61,
+          "score": 4128,
+          "season": 40
+        },
+        {
+          "rank": 41,
+          "score": 4323,
+          "season": 42
+        },
+        {
+          "rank": 54,
+          "score": 4341,
+          "season": 43
+        }
+      ],
+      "fpl": [],
+      "name": "绿帽逼神"
+    },
+    {
+      "steam_id": "76561199411284874",
+      "seasons": [
+        {
+          "rank": 62,
+          "score": 4127,
+          "season": 40
+        },
+        {
+          "rank": 61,
+          "score": 4269,
+          "season": 42
+        }
+      ],
+      "fpl": [],
+      "name": "EricZou"
+    },
+    {
+      "steam_id": "76561199055712090",
+      "seasons": [
+        {
+          "rank": 63,
+          "score": 4126,
+          "season": 40
+        },
+        {
+          "rank": 78,
+          "score": 4236,
+          "season": 42
+        }
+      ],
+      "fpl": [],
+      "name": "计划A"
+    },
+    {
+      "steam_id": "76561199129920454",
+      "seasons": [
+        {
+          "rank": 64,
+          "score": 4123,
+          "season": 40
+        },
+        {
+          "rank": 42,
+          "score": 4318,
+          "season": 42
+        }
+      ],
+      "fpl": [],
+      "name": "皎邬"
+    },
+    {
+      "steam_id": "76561199804279333",
+      "seasons": [
+        {
+          "rank": 65,
+          "score": 4120,
+          "season": 40
+        }
+      ],
+      "fpl": [],
+      "name": "Benc"
+    },
+    {
+      "steam_id": "76561199588431080",
+      "seasons": [
+        {
+          "rank": 66,
+          "score": 4120,
+          "season": 40
+        },
+        {
+          "rank": 63,
+          "score": 4191,
+          "season": 41
+        },
+        {
+          "rank": 55,
+          "score": 4275,
+          "season": 42
+        },
+        {
+          "rank": 41,
+          "score": 4375,
+          "season": 43
+        }
+      ],
+      "fpl": [],
+      "name": "Time_Dust"
+    },
+    {
+      "steam_id": "76561199465663005",
+      "seasons": [
+        {
+          "rank": 67,
+          "score": 4120,
+          "season": 40
+        },
+        {
+          "rank": 45,
+          "score": 4229,
+          "season": 41
+        }
+      ],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/466a51b5-80ad-46a6-a693-68eff972f280"
+        }
+      ],
+      "name": "Fruit1Juice"
+    },
+    {
+      "steam_id": "76561199557017857",
+      "seasons": [
+        {
+          "rank": 68,
+          "score": 4119,
+          "season": 40
+        }
+      ],
+      "fpl": [],
+      "name": "GenusDev"
+    },
+    {
+      "steam_id": "76561198034651175",
+      "seasons": [
+        {
+          "rank": 69,
+          "score": 4119,
+          "season": 40
+        },
+        {
+          "rank": 44,
+          "score": 4312,
+          "season": 42
+        }
+      ],
+      "fpl": [],
+      "name": "Ahrgh"
+    },
+    {
+      "steam_id": "76561199220378246",
+      "seasons": [
+        {
+          "rank": 70,
+          "score": 4117,
+          "season": 40
+        },
+        {
+          "rank": 14,
+          "score": 4404,
+          "season": 41
+        },
+        {
+          "rank": 31,
+          "score": 4359,
+          "season": 42
+        },
+        {
+          "rank": 30,
+          "score": 4443,
+          "season": 43
+        }
+      ],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/671240dd-f6b6-4b5a-be23-d7d15e0178f1"
+        }
+      ],
+      "name": "Gonnetz"
+    },
+    {
+      "steam_id": "76561199837525971",
+      "seasons": [
+        {
+          "rank": 71,
+          "score": 4115,
+          "season": 40
+        }
+      ],
+      "fpl": [],
+      "name": "Гетан 0_0"
+    },
+    {
+      "steam_id": "76561198262761837",
+      "seasons": [
+        {
+          "rank": 72,
+          "score": 4114,
+          "season": 40
+        }
+      ],
+      "fpl": [
+        {
+          "kind": "medal",
+          "name": "Forts Pro League Champion Season 5",
+          "texture": "ui/textures/medals/medal_fpl.dds",
+          "url": "https://www.youtube.com/watch?v=yeuypB3NeWs",
+          "season": 5
+        }
+      ],
+      "name": "Korbi1710"
+    },
+    {
+      "steam_id": "76561197998688251",
+      "seasons": [
+        {
+          "rank": 73,
+          "score": 4109,
+          "season": 40
+        },
+        {
+          "rank": 73,
+          "score": 4242,
+          "season": 42
+        },
+        {
+          "rank": 79,
+          "score": 4291,
+          "season": 43
+        }
+      ],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/3e2c0d02-a832-4b2a-b463-18748a97ddf9"
+        }
+      ],
+      "name": "Karaba"
+    },
+    {
+      "steam_id": "76561199131610217",
+      "seasons": [
+        {
+          "rank": 74,
+          "score": 4105,
+          "season": 40
+        },
+        {
+          "rank": 39,
+          "score": 4257,
+          "season": 41
+        },
+        {
+          "rank": 66,
+          "score": 4260,
+          "season": 42
+        },
+        {
+          "rank": 72,
+          "score": 4299,
+          "season": 43
+        }
+      ],
+      "fpl": [],
+      "name": "Hugo"
+    },
+    {
+      "steam_id": "76561198146156371",
+      "seasons": [
+        {
+          "rank": 75,
+          "score": 4104,
+          "season": 40
+        },
+        {
+          "rank": 50,
+          "score": 4216,
+          "season": 41
+        },
+        {
+          "rank": 60,
+          "score": 4271,
+          "season": 42
+        }
+      ],
+      "fpl": [],
+      "name": "Malgeris"
+    },
+    {
+      "steam_id": "76561198103160427",
+      "seasons": [
+        {
+          "rank": 76,
+          "score": 4102,
+          "season": 40
+        }
+      ],
+      "fpl": [],
+      "name": "Goldjunge"
+    },
+    {
+      "steam_id": "76561198978813812",
+      "seasons": [
+        {
+          "rank": 77,
+          "score": 4101,
+          "season": 40
+        },
+        {
+          "rank": 67,
+          "score": 4260,
+          "season": 42
+        }
+      ],
+      "fpl": [],
+      "name": "Jake"
+    },
+    {
+      "steam_id": "76561198839812228",
+      "seasons": [
+        {
+          "rank": 78,
+          "score": 4101,
+          "season": 40
+        },
+        {
+          "rank": 37,
+          "score": 4258,
+          "season": 41
+        },
+        {
+          "rank": 35,
+          "score": 4337,
+          "season": 42
+        },
+        {
+          "rank": 31,
+          "score": 4414,
+          "season": 43
+        }
+      ],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/ea6f9ba2-3691-4966-8940-f8d8414f1838"
+        }
+      ],
+      "name": "Backpackathon"
+    },
+    {
+      "steam_id": "76561199736709262",
+      "seasons": [
+        {
+          "rank": 79,
+          "score": 4099,
+          "season": 40
+        }
+      ],
+      "fpl": [],
+      "name": "摸脸"
+    },
+    {
+      "steam_id": "76561199249804899",
+      "seasons": [
+        {
+          "rank": 80,
+          "score": 4097,
+          "season": 40
+        },
+        {
+          "rank": 52,
+          "score": 4213,
+          "season": 41
+        },
+        {
+          "rank": 49,
+          "score": 4303,
+          "season": 42
+        }
+      ],
+      "fpl": [],
+      "name": "Petrino_lfg"
+    },
+    {
+      "steam_id": "76561199817588356",
+      "seasons": [
+        {
+          "rank": 10,
+          "score": 4417,
+          "season": 41
+        },
+        {
+          "rank": 10,
+          "score": 4476,
+          "season": 42
+        }
+      ],
+      "fpl": [],
+      "name": "Гетан 0_0"
+    },
+    {
+      "steam_id": "76561199013347108",
+      "seasons": [
+        {
+          "rank": 25,
+          "score": 4367,
+          "season": 41
+        },
+        {
+          "rank": 29,
+          "score": 4364,
+          "season": 42
+        },
+        {
+          "rank": 11,
+          "score": 4505,
+          "season": 43
+        }
+      ],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/2a3b6e18-f1d1-4647-9fff-e043ef4a4b0f"
+        }
+      ],
+      "name": "Clud_"
+    },
+    {
+      "steam_id": "76561199178597307",
+      "seasons": [
+        {
+          "rank": 26,
+          "score": 4345,
+          "season": 41
+        }
+      ],
+      "fpl": [],
+      "name": "Nokimia"
+    },
+    {
+      "steam_id": "76561199801824607",
+      "seasons": [
+        {
+          "rank": 28,
+          "score": 4299,
+          "season": 41
+        }
+      ],
+      "fpl": [],
+      "name": "Kriegskeule"
+    },
+    {
+      "steam_id": "76561198997814837",
+      "seasons": [
+        {
+          "rank": 29,
+          "score": 4287,
+          "season": 41
+        },
+        {
+          "rank": 39,
+          "score": 4327,
+          "season": 42
+        },
+        {
+          "rank": 34,
+          "score": 4393,
+          "season": 43
+        }
+      ],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/4c4f337a-e95c-436d-b4fc-33a291ed4e57"
+        }
+      ],
+      "name": "tron0_0"
+    },
+    {
+      "steam_id": "76561199603126845",
+      "seasons": [
+        {
+          "rank": 31,
+          "score": 4282,
+          "season": 41
+        }
+      ],
+      "fpl": [],
+      "name": "Bonga Bonga"
+    },
+    {
+      "steam_id": "76561198401206343",
+      "seasons": [
+        {
+          "rank": 33,
+          "score": 4272,
+          "season": 41
+        },
+        {
+          "rank": 76,
+          "score": 4295,
+          "season": 43
+        }
+      ],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/1a399444-e4c4-48ce-940b-2779bb007563"
+        }
+      ],
+      "name": "tho15rider"
+    },
+    {
+      "steam_id": "76561199031062104",
+      "seasons": [
+        {
+          "rank": 35,
+          "score": 4267,
+          "season": 41
+        },
+        {
+          "rank": 13,
+          "score": 4463,
+          "season": 42
+        },
+        {
+          "rank": 15,
+          "score": 4502,
+          "season": 43
+        }
+      ],
+      "fpl": [],
+      "name": "金凌Jin_Ling"
+    },
+    {
+      "steam_id": "76561198710330429",
+      "seasons": [
+        {
+          "rank": 36,
+          "score": 4260,
+          "season": 41
+        },
+        {
+          "rank": 26,
+          "score": 4368,
+          "season": 42
+        }
+      ],
+      "fpl": [],
+      "name": "AuraFarming"
+    },
+    {
+      "steam_id": "76561198383377095",
+      "seasons": [
+        {
+          "rank": 38,
+          "score": 4258,
+          "season": 41
+        },
+        {
+          "rank": 20,
+          "score": 4439,
+          "season": 42
+        },
+        {
+          "rank": 18,
+          "score": 4496,
+          "season": 43
+        }
+      ],
+      "fpl": [],
+      "name": "badeds"
+    },
+    {
+      "steam_id": "76561199682784199",
+      "seasons": [
+        {
+          "rank": 41,
+          "score": 4250,
+          "season": 41
+        }
+      ],
+      "fpl": [],
+      "name": "Zloveshiy StPiter"
+    },
+    {
+      "steam_id": "76561198039033675",
+      "seasons": [
+        {
+          "rank": 44,
+          "score": 4237,
+          "season": 41
+        }
+      ],
+      "fpl": [],
+      "name": "cyrv"
+    },
+    {
+      "steam_id": "76561199603144864",
+      "seasons": [
+        {
+          "rank": 46,
+          "score": 4224,
+          "season": 41
+        }
+      ],
+      "fpl": [],
+      "name": "ArmpitSniffer"
+    },
+    {
+      "steam_id": "76561199006430885",
+      "seasons": [
+        {
+          "rank": 48,
+          "score": 4217,
+          "season": 41
+        }
+      ],
+      "fpl": [],
+      "name": "Schuka"
+    },
+    {
+      "steam_id": "76561198442876482",
+      "seasons": [
+        {
+          "rank": 49,
+          "score": 4217,
+          "season": 41
+        }
+      ],
+      "fpl": [],
+      "name": "Of Many Names"
+    },
+    {
+      "steam_id": "76561199337720991",
+      "seasons": [
+        {
+          "rank": 51,
+          "score": 4215,
+          "season": 41
+        },
+        {
+          "rank": 62,
+          "score": 4266,
+          "season": 42
+        }
+      ],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/cee2747f-4577-4d6c-8ab1-52b112602658"
+        }
+      ],
+      "name": "BanaBanMan"
+    },
+    {
+      "steam_id": "76561199635511160",
+      "seasons": [
+        {
+          "rank": 53,
+          "score": 4212,
+          "season": 41
+        },
+        {
+          "rank": 38,
+          "score": 4329,
+          "season": 42
+        },
+        {
+          "rank": 73,
+          "score": 4298,
+          "season": 43
+        }
+      ],
+      "fpl": [],
+      "name": "哈基米哟南北路多"
+    },
+    {
+      "steam_id": "76561199866368644",
+      "seasons": [
+        {
+          "rank": 55,
+          "score": 4207,
+          "season": 41
+        }
+      ],
+      "fpl": [],
+      "name": "27048467"
+    },
+    {
+      "steam_id": "76561198794831691",
+      "seasons": [
+        {
+          "rank": 59,
+          "score": 4198,
+          "season": 41
+        }
+      ],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/4846ae3b-3bb1-4d27-8845-c093cf06457a"
+        }
+      ],
+      "name": "TTC @YT"
+    },
+    {
+      "steam_id": "76561198974162489",
+      "seasons": [
+        {
+          "rank": 64,
+          "score": 4191,
+          "season": 41
+        }
+      ],
+      "fpl": [],
+      "name": "spaghetsie"
+    },
+    {
+      "steam_id": "76561199466776038",
+      "seasons": [
+        {
+          "rank": 65,
+          "score": 4188,
+          "season": 41
+        }
+      ],
+      "fpl": [],
+      "name": "matveeyv"
+    },
+    {
+      "steam_id": "76561198370330577",
+      "seasons": [
+        {
+          "rank": 66,
+          "score": 4180,
+          "season": 41
+        }
+      ],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/7f999570-da8f-4f67-a3cf-179f8d904deb"
+        }
+      ],
+      "name": "PileRouillée"
+    },
+    {
+      "steam_id": "76561198131620528",
+      "seasons": [
+        {
+          "rank": 68,
+          "score": 4176,
+          "season": 41
+        }
+      ],
+      "fpl": [],
+      "name": "MrVilsa"
+    },
+    {
+      "steam_id": "76561198215802637",
+      "seasons": [
+        {
+          "rank": 70,
+          "score": 4174,
+          "season": 41
+        }
+      ],
+      "fpl": [],
+      "name": "javiorpas"
+    },
+    {
+      "steam_id": "76561198371226491",
+      "seasons": [
+        {
+          "rank": 72,
+          "score": 4172,
+          "season": 41
+        }
+      ],
+      "fpl": [],
+      "name": "Пётр Первый"
+    },
+    {
+      "steam_id": "76561199064247483",
+      "seasons": [
+        {
+          "rank": 74,
+          "score": 4165,
+          "season": 41
+        }
+      ],
+      "fpl": [],
+      "name": "FunGame"
+    },
+    {
+      "steam_id": "76561198364178296",
+      "seasons": [
+        {
+          "rank": 75,
+          "score": 4162,
+          "season": 41
+        }
+      ],
+      "fpl": [],
+      "name": "FallenLorien"
+    },
+    {
+      "steam_id": "76561198389471633",
+      "seasons": [
+        {
+          "rank": 76,
+          "score": 4154,
+          "season": 41
+        }
+      ],
+      "fpl": [],
+      "name": "zelt42"
+    },
+    {
+      "steam_id": "76561199106188315",
+      "seasons": [
+        {
+          "rank": 77,
+          "score": 4151,
+          "season": 41
+        }
+      ],
+      "fpl": [],
+      "name": "117snow"
+    },
+    {
+      "steam_id": "76561198823720090",
+      "seasons": [
+        {
+          "rank": 78,
+          "score": 4150,
+          "season": 41
+        },
+        {
+          "rank": 64,
+          "score": 4263,
+          "season": 42
+        },
+        {
+          "rank": 53,
+          "score": 4346,
+          "season": 43
+        }
+      ],
+      "fpl": [],
+      "name": "Ems"
+    },
+    {
+      "steam_id": "76561198720308476",
+      "seasons": [
+        {
+          "rank": 79,
+          "score": 4150,
+          "season": 41
+        },
+        {
+          "rank": 74,
+          "score": 4241,
+          "season": 42
+        },
+        {
+          "rank": 70,
+          "score": 4304,
+          "season": 43
+        }
+      ],
+      "fpl": [],
+      "name": "Canrain"
+    },
+    {
+      "steam_id": "76561198362608810",
+      "seasons": [
+        {
+          "rank": 80,
+          "score": 4150,
+          "season": 41
+        }
+      ],
+      "fpl": [],
+      "name": "lijo ^-^ [collmunistic]"
+    },
+    {
+      "steam_id": "76561199017041651",
+      "seasons": [
+        {
+          "rank": 2,
+          "score": 4631,
+          "season": 42
+        }
+      ],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/fdc939f6-a105-47f1-b576-0ff6df5b301a"
+        }
+      ],
+      "name": "中二病"
+    },
+    {
+      "steam_id": "76561198370261109",
+      "seasons": [
+        {
+          "rank": 7,
+          "score": 4524,
+          "season": 42
+        },
+        {
+          "rank": 78,
+          "score": 4293,
+          "season": 43
+        }
+      ],
+      "fpl": [],
+      "name": "Helicopter"
+    },
+    {
+      "steam_id": "76561199238657639",
+      "seasons": [
+        {
+          "rank": 9,
+          "score": 4482,
+          "season": 42
+        },
+        {
+          "rank": 38,
+          "score": 4385,
+          "season": 43
+        }
+      ],
+      "fpl": [],
+      "name": "打帅币"
+    },
+    {
+      "steam_id": "76561199034665936",
+      "seasons": [
+        {
+          "rank": 14,
+          "score": 4458,
+          "season": 42
+        },
+        {
+          "rank": 49,
+          "score": 4357,
+          "season": 43
+        }
+      ],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/3ccd3070-4e67-4e76-a188-15aa68a9d00f"
+        }
+      ],
+      "name": "Domy"
+    },
+    {
+      "steam_id": "76561199465570518",
+      "seasons": [
+        {
+          "rank": 16,
+          "score": 4454,
+          "season": 42
+        },
+        {
+          "rank": 8,
+          "score": 4518,
+          "season": 43
+        }
+      ],
+      "fpl": [],
+      "name": "Shorekeeper"
+    },
+    {
+      "steam_id": "76561198984124808",
+      "seasons": [
+        {
+          "rank": 18,
+          "score": 4447,
+          "season": 42
+        }
+      ],
+      "fpl": [
+        {
+          "kind": "medal",
+          "name": "Forts Pro League Champion Season 1",
+          "texture": "ui/textures/medals/medal_fpl.dds",
+          "url": "https://www.youtube.com/live/Q2p1BMT_MfQ",
+          "season": 1
+        },
+        {
+          "kind": "medal",
+          "name": "MVP Forts Pro League Playoffs Season 4",
+          "texture": "ui/textures/medals/medal_mvp.dds",
+          "url": "https://www.youtube.com/live/O0beFupZyfw?si=t9KueR212vgXwqqp&t=3353",
+          "season": 4
+        },
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/edc2fc95-e8d8-426e-bd5b-b3c29a2125fc"
+        }
+      ],
+      "name": "[BOG]#Der Benzinpreisvergleicher"
+    },
+    {
+      "steam_id": "76561199868610564",
+      "seasons": [
+        {
+          "rank": 24,
+          "score": 4382,
+          "season": 42
+        }
+      ],
+      "fpl": [],
+      "name": "georgien"
+    },
+    {
+      "steam_id": "76561198433999633",
+      "seasons": [
+        {
+          "rank": 40,
+          "score": 4327,
+          "season": 42
+        }
+      ],
+      "fpl": [],
+      "name": "Nolan糯团君"
+    },
+    {
+      "steam_id": "76561199790350754",
+      "seasons": [
+        {
+          "rank": 50,
+          "score": 4299,
+          "season": 42
+        }
+      ],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/36c56227-d4fb-4b30-9fb1-ee67329ed7b4"
+        }
+      ],
+      "name": "1218917220"
+    },
+    {
+      "steam_id": "76561198835501994",
+      "seasons": [
+        {
+          "rank": 51,
+          "score": 4290,
+          "season": 42
+        }
+      ],
+      "fpl": [],
+      "name": "DDDDUJJU"
+    },
+    {
+      "steam_id": "76561199002324136",
+      "seasons": [
+        {
+          "rank": 53,
+          "score": 4281,
+          "season": 42
+        }
+      ],
+      "fpl": [],
+      "name": "佩切沃Pechivo"
+    },
+    {
+      "steam_id": "76561198986347765",
+      "seasons": [
+        {
+          "rank": 54,
+          "score": 4279,
+          "season": 42
+        },
+        {
+          "rank": 40,
+          "score": 4378,
+          "season": 43
+        }
+      ],
+      "fpl": [],
+      "name": "W11AWA"
+    },
+    {
+      "steam_id": "76561198986054984",
+      "seasons": [
+        {
+          "rank": 56,
+          "score": 4275,
+          "season": 42
+        }
+      ],
+      "fpl": [],
+      "name": "juNyu"
+    },
+    {
+      "steam_id": "76561198961444035",
+      "seasons": [
+        {
+          "rank": 57,
+          "score": 4275,
+          "season": 42
+        },
+        {
+          "rank": 69,
+          "score": 4315,
+          "season": 43
+        }
+      ],
+      "fpl": [],
+      "name": "Spytko"
+    },
+    {
+      "steam_id": "76561198723082840",
+      "seasons": [
+        {
+          "rank": 59,
+          "score": 4272,
+          "season": 42
+        }
+      ],
+      "fpl": [],
+      "name": "行"
+    },
+    {
+      "steam_id": "76561199062618241",
+      "seasons": [
+        {
+          "rank": 65,
+          "score": 4262,
+          "season": 42
+        }
+      ],
+      "fpl": [],
+      "name": "HK417"
+    },
+    {
+      "steam_id": "76561198972530411",
+      "seasons": [
+        {
+          "rank": 68,
+          "score": 4255,
+          "season": 42
+        }
+      ],
+      "fpl": [],
+      "name": "blblbbb"
+    },
+    {
+      "steam_id": "76561199208615225",
+      "seasons": [
+        {
+          "rank": 71,
+          "score": 4243,
+          "season": 42
+        },
+        {
+          "rank": 80,
+          "score": 4290,
+          "season": 43
+        }
+      ],
+      "fpl": [],
+      "name": "哔哩哔哩釉猪Asider"
+    },
+    {
+      "steam_id": "76561199056982835",
+      "seasons": [
+        {
+          "rank": 72,
+          "score": 4243,
+          "season": 42
+        },
+        {
+          "rank": 33,
+          "score": 4400,
+          "season": 43
+        }
+      ],
+      "fpl": [],
+      "name": "BHD"
+    },
+    {
+      "steam_id": "76561198302245548",
+      "seasons": [
+        {
+          "rank": 75,
+          "score": 4241,
+          "season": 42
+        }
+      ],
+      "fpl": [],
+      "name": "gigaIQman"
+    },
+    {
+      "steam_id": "76561199049547843",
+      "seasons": [
+        {
+          "rank": 76,
+          "score": 4237,
+          "season": 42
+        }
+      ],
+      "fpl": [],
+      "name": "阿木"
+    },
+    {
+      "steam_id": "76561199169825161",
+      "seasons": [
+        {
+          "rank": 77,
+          "score": 4236,
+          "season": 42
+        }
+      ],
+      "fpl": [],
+      "name": "Falconry"
+    },
+    {
+      "steam_id": "76561199871379325",
+      "seasons": [
+        {
+          "rank": 79,
+          "score": 4234,
+          "season": 42
+        }
+      ],
+      "fpl": [],
+      "name": "克莉希亚"
+    },
+    {
+      "steam_id": "76561199820043198",
+      "seasons": [
+        {
+          "rank": 80,
+          "score": 4233,
+          "season": 42
+        },
+        {
+          "rank": 28,
+          "score": 4444,
+          "season": 43
+        }
+      ],
+      "fpl": [],
+      "name": "♥♥♥♥ EWG"
+    },
+    {
+      "steam_id": "76561199730766166",
+      "seasons": [
+        {
+          "rank": 7,
+          "score": 4552,
+          "season": 43
+        }
+      ],
+      "fpl": [],
+      "name": "maxismovO2"
+    },
+    {
+      "steam_id": "76561199836032329",
+      "seasons": [
+        {
+          "rank": 10,
+          "score": 4507,
+          "season": 43
+        }
+      ],
+      "fpl": [],
+      "name": "Доброе утро"
+    },
+    {
+      "steam_id": "76561198633873751",
+      "seasons": [
+        {
+          "rank": 14,
+          "score": 4503,
+          "season": 43
+        }
+      ],
+      "fpl": [],
+      "name": "Спецуха"
+    },
+    {
+      "steam_id": "76561198656000264",
+      "seasons": [
+        {
+          "rank": 26,
+          "score": 4452,
+          "season": 43
+        }
+      ],
+      "fpl": [],
+      "name": "John Ranked"
+    },
+    {
+      "steam_id": "76561199567537085",
+      "seasons": [
+        {
+          "rank": 27,
+          "score": 4450,
+          "season": 43
+        }
+      ],
+      "fpl": [],
+      "name": "卍解"
+    },
+    {
+      "steam_id": "76561199037110168",
+      "seasons": [
+        {
+          "rank": 32,
+          "score": 4407,
+          "season": 43
+        }
+      ],
+      "fpl": [],
+      "name": "mizsen"
+    },
+    {
+      "steam_id": "76561199022896257",
+      "seasons": [
+        {
+          "rank": 35,
+          "score": 4392,
+          "season": 43
+        }
+      ],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/4f9603ae-de2b-415c-8259-273a06acc22f"
+        }
+      ],
+      "name": "turtlepazooka"
+    },
+    {
+      "steam_id": "76561198964994463",
+      "seasons": [
+        {
+          "rank": 36,
+          "score": 4389,
+          "season": 43
+        }
+      ],
+      "fpl": [],
+      "name": "Selkeyd"
+    },
+    {
+      "steam_id": "76561199078100050",
+      "seasons": [
+        {
+          "rank": 44,
+          "score": 4367,
+          "season": 43
+        }
+      ],
+      "fpl": [],
+      "name": "Komugi.hana"
+    },
+    {
+      "steam_id": "76561199004732981",
+      "seasons": [
+        {
+          "rank": 45,
+          "score": 4366,
+          "season": 43
+        }
+      ],
+      "fpl": [],
+      "name": "Velsory"
+    },
+    {
+      "steam_id": "76561198310546409",
+      "seasons": [
+        {
+          "rank": 46,
+          "score": 4362,
+          "season": 43
+        }
+      ],
+      "fpl": [],
+      "name": "StarKoff"
+    },
+    {
+      "steam_id": "76561199029622594",
+      "seasons": [
+        {
+          "rank": 47,
+          "score": 4359,
+          "season": 43
+        }
+      ],
+      "fpl": [],
+      "name": "why只会玩香草"
+    },
+    {
+      "steam_id": "76561199498556819",
+      "seasons": [
+        {
+          "rank": 48,
+          "score": 4358,
+          "season": 43
+        }
+      ],
+      "fpl": [],
+      "name": "Ruby^凛2"
+    },
+    {
+      "steam_id": "76561199485462864",
+      "seasons": [
+        {
+          "rank": 51,
+          "score": 4347,
+          "season": 43
+        }
+      ],
+      "fpl": [],
+      "name": "Checanka"
+    },
+    {
+      "steam_id": "76561198838188159",
+      "seasons": [
+        {
+          "rank": 52,
+          "score": 4346,
+          "season": 43
+        }
+      ],
+      "fpl": [],
+      "name": "Lunasia"
+    },
+    {
+      "steam_id": "76561198864249608",
+      "seasons": [
+        {
+          "rank": 55,
+          "score": 4339,
+          "season": 43
+        }
+      ],
+      "fpl": [],
+      "name": "bombandośik"
+    },
+    {
+      "steam_id": "76561198758339150",
+      "seasons": [
+        {
+          "rank": 59,
+          "score": 4331,
+          "season": 43
+        }
+      ],
+      "fpl": [],
+      "name": "76561198758339150"
+    },
+    {
+      "steam_id": "76561198686715065",
+      "seasons": [
+        {
+          "rank": 60,
+          "score": 4330,
+          "season": 43
+        }
+      ],
+      "fpl": [],
+      "name": "maggot-v3"
+    },
+    {
+      "steam_id": "76561199077112987",
+      "seasons": [
+        {
+          "rank": 62,
+          "score": 4328,
+          "season": 43
+        }
+      ],
+      "fpl": [],
+      "name": "rtvac"
+    },
+    {
+      "steam_id": "76561199122834188",
+      "seasons": [
+        {
+          "rank": 63,
+          "score": 4323,
+          "season": 43
+        }
+      ],
+      "fpl": [],
+      "name": "Kartofel"
+    },
+    {
+      "steam_id": "76561199122808966",
+      "seasons": [
+        {
+          "rank": 64,
+          "score": 4323,
+          "season": 43
+        }
+      ],
+      "fpl": [],
+      "name": "ts"
+    },
+    {
+      "steam_id": "76561199229943651",
+      "seasons": [
+        {
+          "rank": 65,
+          "score": 4322,
+          "season": 43
+        }
+      ],
+      "fpl": [],
+      "name": "Pug Z"
+    },
+    {
+      "steam_id": "76561199543764083",
+      "seasons": [
+        {
+          "rank": 66,
+          "score": 4317,
+          "season": 43
+        }
+      ],
+      "fpl": [],
+      "name": "阿巴阿巴兽"
+    },
+    {
+      "steam_id": "76561198791406213",
+      "seasons": [
+        {
+          "rank": 67,
+          "score": 4317,
+          "season": 43
+        }
+      ],
+      "fpl": [],
+      "name": "絞肉機"
+    },
+    {
+      "steam_id": "76561199435810996",
+      "seasons": [
+        {
+          "rank": 71,
+          "score": 4301,
+          "season": 43
+        }
+      ],
+      "fpl": [],
+      "name": "kapeica2002"
+    },
+    {
+      "steam_id": "76561199027026533",
+      "seasons": [
+        {
+          "rank": 74,
+          "score": 4298,
+          "season": 43
+        }
+      ],
+      "fpl": [],
+      "name": "The Lamp"
+    },
+    {
+      "steam_id": "76561199837340207",
+      "seasons": [
+        {
+          "rank": 77,
+          "score": 4294,
+          "season": 43
+        }
+      ],
+      "fpl": [],
+      "name": "mrPipiskin"
+    },
+    {
+      "steam_id": "76561199162603191",
+      "seasons": [],
+      "fpl": [
+        {
+          "kind": "medal",
+          "name": "Forts Pro League Champion Season 1",
+          "texture": "ui/textures/medals/medal_fpl.dds",
+          "url": "https://www.youtube.com/live/Q2p1BMT_MfQ",
+          "season": 1
+        },
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/f0bcb2fb-1bc9-49d6-8b68-aa7e334bb11a"
+        }
+      ],
+      "name": "Bonwo♿"
+    },
+    {
+      "steam_id": "76561198998970344",
+      "seasons": [],
+      "fpl": [
+        {
+          "kind": "medal",
+          "name": "MVP Forts Pro League Playoffs Season 1",
+          "texture": "ui/textures/medals/medal_mvp.dds",
+          "url": "https://www.youtube.com/live/Q2p1BMT_MfQ",
+          "season": 1
+        }
+      ],
+      "name": "Amburulo"
+    },
+    {
+      "steam_id": "76561198129879742",
+      "seasons": [],
+      "fpl": [
+        {
+          "kind": "medal",
+          "name": "Forts Pro League Champion Season 2",
+          "texture": "ui/textures/medals/medal_fpl.dds",
+          "url": "https://www.youtube.com/watch?v=HjbxkkUK3Do",
+          "season": 2
+        },
+        {
+          "kind": "medal",
+          "name": "MVP Forts Pro League Playoffs Season 2",
+          "texture": "ui/textures/medals/medal_mvp.dds",
+          "url": "https://www.youtube.com/watch?v=HjbxkkUK3Do",
+          "season": 2
+        },
+        {
+          "kind": "medal",
+          "name": "Forts Pro League Champion Season 4",
+          "texture": "ui/textures/medals/medal_fpl.dds",
+          "url": "https://www.youtube.com/live/O0beFupZyfw?si=t9KueR212vgXwqqp&t=3353",
+          "season": 4
+        },
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/0032d2cf-1eaf-4ec4-8a5a-a7a627d2e1ae"
+        }
+      ],
+      "name": "EtaN"
+    },
+    {
+      "steam_id": "76561199023550447",
+      "seasons": [],
+      "fpl": [
+        {
+          "kind": "medal",
+          "name": "Forts Pro League Champion Season 2",
+          "texture": "ui/textures/medals/medal_fpl.dds",
+          "url": "https://www.youtube.com/watch?v=HjbxkkUK3Do",
+          "season": 2
+        },
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/afe719d1-d050-4ff4-aa74-013b722f2ad0"
+        }
+      ],
+      "name": "Firework"
+    },
+    {
+      "steam_id": "76561198355214576",
+      "seasons": [],
+      "fpl": [
+        {
+          "kind": "medal",
+          "name": "MVP Forts Pro League Playoffs Season 3",
+          "texture": "ui/textures/medals/medal_mvp.dds",
+          "url": "https://www.youtube.com/live/cAfORIGsT5w?si=EUEejRsn0pUslBav",
+          "season": 3
+        }
+      ],
+      "name": "Malme"
+    },
+    {
+      "steam_id": "76561198312698327",
+      "seasons": [],
+      "fpl": [
+        {
+          "kind": "medal",
+          "name": "Forts Pro League Champion Season 6",
+          "texture": "ui/textures/medals/medal_fpl.dds",
+          "url": "https://www.youtube.com/watch?v=OdzSIOAyhbs",
+          "season": 6
+        }
+      ],
+      "name": "Woodymeister"
+    },
+    {
+      "steam_id": "76561198842090504",
+      "seasons": [],
+      "fpl": [
+        {
+          "kind": "medal",
+          "name": "MVP Forts Pro League Playoffs Season 6",
+          "texture": "ui/textures/medals/medal_mvp.dds",
+          "url": "https://www.youtube.com/watch?v=OdzSIOAyhbs",
+          "season": 6
+        },
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/aa424eca-2a9f-41a2-adb3-98795aff4471"
+        }
+      ],
+      "name": "Tar"
+    },
+    {
+      "steam_id": "76561199013452725",
+      "seasons": [],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/4decf9e1-919d-482a-b2b5-e7834fce2309"
+        }
+      ],
+      "name": "lukeybear"
+    },
+    {
+      "steam_id": "76561198811847532",
+      "seasons": [],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/0f333e11-6a52-4866-be33-bd8f1c60b5fb"
+        }
+      ],
+      "name": "The Mole"
+    },
+    {
+      "steam_id": "76561198822384361",
+      "seasons": [],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/teams/2be3ef86-c9cc-4ca7-b06e-08dd5c274c21"
+        }
+      ],
+      "name": "addpepito"
+    },
+    {
+      "steam_id": "76561198847317524",
+      "seasons": [],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/0484f700-2a03-403d-91c0-43109e1cb11e"
+        }
+      ],
+      "name": "For the Glory Of Merlin"
+    },
+    {
+      "steam_id": "76561199350711573",
+      "seasons": [],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/c96f270f-0b74-4752-a987-5b4bd5967143"
+        }
+      ],
+      "name": "squirtle_rules55"
+    },
+    {
+      "steam_id": "76561198152748006",
+      "seasons": [],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/f0045fad-59ff-4b04-b724-723e23dd675a"
+        }
+      ],
+      "name": "DovahkiinSegundo"
+    },
+    {
+      "steam_id": "76561199098831164",
+      "seasons": [],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/4d1e7c0a-4f06-4d38-9de2-0b30cd2c6e20"
+        }
+      ],
+      "name": "Queijo brie"
+    },
+    {
+      "steam_id": "76561199521552355",
+      "seasons": [],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/d82b1e06-a50b-4564-8214-e9bb2c290ec1"
+        }
+      ],
+      "name": "Whooper"
+    },
+    {
+      "steam_id": "76561198971139011",
+      "seasons": [],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/7b87d29a-d74e-4192-bdd2-4de3c0925e57"
+        }
+      ],
+      "name": "TurfyBeta"
+    },
+    {
+      "steam_id": "76561199177246472",
+      "seasons": [],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/9a64b5dc-fd90-43bd-835a-2c1607c6500a"
+        }
+      ],
+      "name": "Stein6ock"
+    },
+    {
+      "steam_id": "76561198302256498",
+      "seasons": [],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/91758611-6417-4dae-93bf-1eed15992ad0"
+        }
+      ],
+      "name": "yergres"
+    },
+    {
+      "steam_id": "76561198168678117",
+      "seasons": [],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/da043808-6c14-4cb8-9c03-1bc5c96a4444"
+        }
+      ],
+      "name": "Alexse1"
+    },
+    {
+      "steam_id": "76561198175331130",
+      "seasons": [],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/d1e828e6-36aa-42c2-8106-7f01ae8811e3"
+        }
+      ],
+      "name": "Skyar_"
+    },
+    {
+      "steam_id": "76561199161633752",
+      "seasons": [],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/4c1ae0dc-4da8-416f-9556-23c7b52ab30c"
+        }
+      ],
+      "name": "[CSN] A  lazy_lad"
+    },
+    {
+      "steam_id": "76561198873783683",
+      "seasons": [],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/159f4b59-7725-43ff-a863-facdf5cce8db"
+        }
+      ],
+      "name": "[CSN] lentil"
+    },
+    {
+      "steam_id": "76561198350324150",
+      "seasons": [],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/af7596d7-8b9c-4fa2-b9be-44ce44e4ff6d"
+        }
+      ],
+      "name": "TreeForce"
+    },
+    {
+      "steam_id": "76561199202284420",
+      "seasons": [],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/a66dd0d1-5ad9-4021-b56d-103559ec313d"
+        }
+      ],
+      "name": "kulipa0627"
+    },
+    {
+      "steam_id": "76561199628767440",
+      "seasons": [],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/f85835d8-7dcb-4147-89cc-b41584f9c9e7"
+        }
+      ],
+      "name": "Obtuce Angle"
+    },
+    {
+      "steam_id": "76561198811273424",
+      "seasons": [],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/e1a308e8-ff0f-44dd-8bcd-d23ac7a60efe"
+        }
+      ],
+      "name": "Chelsea"
+    },
+    {
+      "steam_id": "76561198979243509",
+      "seasons": [],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/e31e7793-28dc-4822-a4d0-1238ff77e28a"
+        }
+      ],
+      "name": "[BÄH] Renega"
+    },
+    {
+      "steam_id": "76561199032639300",
+      "seasons": [],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/0e04434a-d979-45f4-bec9-dbc72085b66a"
+        }
+      ],
+      "name": "Luis"
+    },
+    {
+      "steam_id": "76561198878913939",
+      "seasons": [],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/88dca398-163d-4965-aae4-9d7d06d5e287"
+        }
+      ],
+      "name": "Speedfyyre"
+    },
+    {
+      "steam_id": "76561198354936932",
+      "seasons": [],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/5f8083bc-13b5-41e3-a50b-236c4033267c"
+        }
+      ],
+      "name": "Luna &lt;3"
+    },
+    {
+      "steam_id": "76561198724603141",
+      "seasons": [],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/2dd47e15-2821-47cf-9140-51050f85ada3"
+        }
+      ],
+      "name": "netanyahu"
+    },
+    {
+      "steam_id": "76561198106924162",
+      "seasons": [],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/68c50fab-99bf-430f-bc9e-0671f8c1c9e7"
+        }
+      ],
+      "name": "Vykro"
+    },
+    {
+      "steam_id": "76561198384111099",
+      "seasons": [],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/3d127087-ee3f-4162-8a3a-a2a2445d1103"
+        }
+      ],
+      "name": "Pan W"
+    },
+    {
+      "steam_id": "76561199832396438",
+      "seasons": [],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com"
+        }
+      ],
+      "name": "yahu'sleftballsack"
+    },
+    {
+      "steam_id": "76561198856334854",
+      "seasons": [],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/06c114e7-a449-4d30-8429-2190d9b11e46"
+        }
+      ],
+      "name": "nutellafish"
+    },
+    {
+      "steam_id": "76561198987795243",
+      "seasons": [],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/1e587455-2201-425e-980f-25c782793d64"
+        }
+      ],
+      "name": "Toothpaste_Man"
+    },
+    {
+      "steam_id": "76561199127847904",
+      "seasons": [],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/556b723b-bd3e-4d0d-9c0a-2c64f299b418"
+        }
+      ],
+      "name": "brenssc"
+    },
+    {
+      "steam_id": "76561199567061186",
+      "seasons": [],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/de41f836-e8a8-445f-ab28-8c6a473ce281"
+        }
+      ],
+      "name": "Doriepixar"
+    },
+    {
+      "steam_id": "76561199381810192",
+      "seasons": [],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/01fbee50-caf7-4b41-b3ee-fc39652218e5"
+        }
+      ],
+      "name": "ChiefKeef"
+    },
+    {
+      "steam_id": "76561198882396604",
+      "seasons": [],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/d1dc381a-bb8a-45ec-81b6-20aa1d279167"
+        }
+      ],
+      "name": "FireFox"
+    },
+    {
+      "steam_id": "76561198012676009",
+      "seasons": [],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/85d14da7-9680-4fe2-84ae-b113c319ae46"
+        }
+      ],
+      "name": "Captain"
+    },
+    {
+      "steam_id": "76561199199145563",
+      "seasons": [],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/035cfdd5-816e-4886-bcc5-7f0fe5bdfff1"
+        }
+      ],
+      "name": "Carrot"
+    },
+    {
+      "steam_id": "76561199378096725",
+      "seasons": [],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/da096fbe-554b-45f2-a3db-8902241e363b"
+        }
+      ],
+      "name": "TwoWig"
+    },
+    {
+      "steam_id": "76561199773908319",
+      "seasons": [],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/5a203b1d-96bf-42ae-af69-e101d9a9fda9"
+        }
+      ],
+      "name": "Nemopixar"
+    },
+    {
+      "steam_id": "76561199874192422",
+      "seasons": [],
+      "fpl": [
+        {
+          "kind": "participant",
+          "name": "Forts Pro League Competitor",
+          "texture": "ui/textures/medals/icon_fpl_competitor.dds",
+          "url": "https://www.challengermode.com/users/14933334-826c-489b-8784-c010a8ed133b"
+        }
+      ],
+      "name": "Marlinpixar"
+    },
+    {
+      "steam_id": "76561198319945306",
+      "seasons": [],
+      "fpl": [
+        {
+          "kind": "medal",
+          "name": "Reloflex Pro League {$Season} 1",
+          "texture": "ui/textures/medals/medal_fpl_1.dds",
+          "url": "https://www.twitch.tv/collections/kCZQhnHhWBYuWA",
+          "season": 1
+        }
+      ],
+      "name": "Bobereto"
+    },
+    {
+      "steam_id": "76561198370261108",
+      "seasons": [],
+      "fpl": [
+        {
+          "kind": "medal",
+          "name": "Reloflex Pro League {$Season} 1",
+          "texture": "ui/textures/medals/medal_fpl_1.dds",
+          "url": "https://www.twitch.tv/collections/kCZQhnHhWBYuWA",
+          "season": 1
+        },
+        {
+          "kind": "medal",
+          "name": "Reloflex Pro League {$Season} 2",
+          "texture": "ui/textures/medals/medal_fpl_2.dds",
+          "url": "https://www.twitch.tv/videos/1132169170",
+          "season": 2
+        }
+      ],
+      "name": "76561198370261108"
+    },
+    {
+      "steam_id": "76561198131128006",
+      "seasons": [],
+      "fpl": [
+        {
+          "kind": "medal",
+          "name": "Reloflex Pro League {$Season} 2",
+          "texture": "ui/textures/medals/medal_fpl_2.dds",
+          "url": "https://www.twitch.tv/videos/1132169170",
+          "season": 2
+        }
+      ],
+      "name": "Cronkhinator"
+    }
+  ]
+}

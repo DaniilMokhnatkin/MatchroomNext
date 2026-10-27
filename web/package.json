@@ -1,0 +1,6 @@
+{
+  "name": "matchroom-next-web",
+  "private": true,
+  "type": "module",
+  "description": "Matchroom Next client. Native ES modules, no build step; served by app_server.py."
+}

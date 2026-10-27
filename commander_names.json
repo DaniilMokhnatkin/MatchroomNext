@@ -1,0 +1,106 @@
+{
+  "source_game": "Forts 1.38.2",
+  "source_files": [
+    "data/db/mods.lua (complete enabled commander ID list)",
+    "data/mods/language-{English,Russian}/mods/<commander>/strings.lua",
+    "workshop/content/410900/1492181905/mods/language-{English,Russian}/mods/commander-cf-*/strings.lua"
+  ],
+  "commanders": {
+    "commander-bpo-scattershot": {
+      "log_code": "commander-bpo-scattershot",
+      "string_group": "Scattershot",
+      "en": "Scattershot",
+      "ru": "Скаттершот"
+    },
+    "commander-bpo-seep": {
+      "log_code": "commander-bpo-seep",
+      "string_group": "Seep",
+      "en": "Seep",
+      "ru": "Сип"
+    },
+    "commander-bpo-shockenaugh": {
+      "log_code": "commander-bpo-shockenaugh",
+      "string_group": "Shockenaugh",
+      "en": "Shockenaugh",
+      "ru": "Шокенафф"
+    },
+    "commander-cf-buster": {
+      "log_code": "commander-cf-buster",
+      "string_group": "Buster",
+      "en": "Buster",
+      "ru": "Buster"
+    },
+    "commander-cf-moonshine": {
+      "log_code": "commander-cf-moonshine",
+      "string_group": "Moonshine",
+      "en": "Moonshine",
+      "ru": "Moonshine"
+    },
+    "commander-cf-phantom": {
+      "log_code": "commander-cf-phantom",
+      "string_group": "Phantom",
+      "en": "Phantom",
+      "ru": "Phantom"
+    },
+    "commander-da-builder": {
+      "log_code": "commander-da-builder",
+      "string_group": "Architect",
+      "en": "Architect",
+      "ru": "Архитектор"
+    },
+    "commander-da-overclocker": {
+      "log_code": "commander-da-overclocker",
+      "string_group": "Overclocker",
+      "en": "Overdrive",
+      "ru": "Овердрайв"
+    },
+    "commander-da-speed-demon": {
+      "log_code": "commander-da-speed-demon",
+      "string_group": "SpeedDemon",
+      "en": "Hurricane",
+      "ru": "Ураган"
+    },
+    "commander-ee-fireman": {
+      "log_code": "commander-ee-fireman",
+      "string_group": "Fireman",
+      "en": "Firebird",
+      "ru": "Жар-птица"
+    },
+    "commander-ee-heavy-weapons": {
+      "log_code": "commander-ee-heavy-weapons",
+      "string_group": "HeavyWeapons",
+      "en": "Warthog",
+      "ru": "Бородавочник"
+    },
+    "commander-ee-marksman": {
+      "log_code": "commander-ee-marksman",
+      "string_group": "EagleEye",
+      "en": "Eagle Eye",
+      "ru": "Орлиный глаз"
+    },
+    "commander-fb-fulminator": {
+      "log_code": "commander-fb-fulminator",
+      "string_group": "Fulminator",
+      "en": "Fulminator",
+      "ru": "Громовержец"
+    },
+    "commander-iba-miser": {
+      "log_code": "commander-iba-miser",
+      "string_group": "Miser",
+      "en": "Pinchfist",
+      "ru": "Скряга"
+    },
+    "commander-iba-spy": {
+      "log_code": "commander-iba-spy",
+      "string_group": "Spy",
+      "en": "Spook",
+      "ru": "Призрак"
+    },
+    "commander-iba-turtle": {
+      "log_code": "commander-iba-turtle",
+      "string_group": "Armourdillo",
+      "en": "Armourdillo",
+      "ru": "Броненосец"
+    }
+  }
+}

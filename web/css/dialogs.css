@@ -1,0 +1,66 @@
+.modal {
+  width: min(560px, calc(100vw - 32px)); max-height: min(86vh, 860px); padding: 0;
+  border: 0; border-radius: var(--radius-lg); background: var(--bg-2); color: var(--fg-1);
+  box-shadow: var(--shadow-modal); overflow: hidden;
+}
+.modal[open] { animation: modal-in var(--base) var(--ease); }
+@keyframes modal-in { from { opacity: 0; transform: translateY(8px) scale(.985); } }
+.modal::backdrop { background: rgb(5 7 9 / .72); }
+.modal-sm { width: min(440px, calc(100vw - 32px)); }
+.modal-lg { width: min(680px, calc(100vw - 32px)); }
+.modal-inner { display: flex; flex-direction: column; max-height: inherit; }
+.modal-head { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--sp-4); padding: var(--sp-5) var(--sp-6) var(--sp-4); border-bottom: 1px solid var(--line-1); }
+.modal-head h2 { font-size: var(--text-xl); }
+.modal-head p { margin-top: 4px; font-size: var(--text-sm); }
+.modal-body { padding: var(--sp-5) var(--sp-6); overflow: auto; display: grid; gap: var(--sp-4); }
+.modal-foot { display: flex; align-items: center; justify-content: flex-end; gap: var(--sp-2); padding: var(--sp-4) var(--sp-6); border-top: 1px solid var(--line-1); background: var(--bg-1); }
+.modal-foot-start { margin-right: auto; }
+
+/* Settings */
+.settings-form { display: grid; gap: var(--sp-5); }
+.settings-group { margin: 0; padding: 0; border: 0; min-width: 0; }
+.settings-group legend { width: 100%; padding-bottom: var(--sp-2); border-bottom: 1px solid var(--line-2); margin-bottom: var(--sp-1); }
+.settings-group > .callout { margin-top: var(--sp-2); }
+.settings-actions { display: flex; gap: var(--sp-2); padding-bottom: var(--sp-1); }
+.settings-about { display: flex; gap: var(--sp-4); align-items: flex-start; padding: var(--sp-4); border: 1px solid var(--line-2); border-radius: var(--radius-md); background: var(--bg-1); }
+.settings-about img { object-fit: contain; flex: none; }
+.settings-about div { display: grid; gap: 4px; font-size: var(--text-sm); }
+.settings-about strong { font-family: var(--font-display); font-size: var(--text-md); }
+
+/* Welcome */
+.modal-welcome .modal-body { justify-items: center; text-align: center; padding-top: var(--sp-8); }
+.modal-welcome h2 { font-size: var(--text-2xl); }
+.modal-welcome .callout { text-align: left; width: 100%; }
+.welcome-logo { object-fit: contain; }
+
+/* Shortcuts */
+.shortcut-list { display: grid; }
+.shortcut { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-4); padding: var(--sp-2) 0; border-bottom: 1px solid var(--line-1); font-size: var(--text-sm); }
+.shortcut:last-child { border-bottom: 0; }
+.shortcut dt { display: flex; align-items: center; gap: 4px; }
+.shortcut dd { color: var(--fg-2); text-align: right; }
+
+/* Command palette */
+.modal-palette { width: min(620px, calc(100vw - 32px)); margin-top: 12vh; background: var(--bg-3); }
+.palette-search { display: flex; align-items: center; gap: var(--sp-3); padding: 0 var(--sp-4); height: 56px; border-bottom: 1px solid var(--line-2); color: var(--fg-3); }
+.palette-search input { flex: 1; height: 100%; border: 0; background: none; color: var(--fg-1); font-size: var(--text-lg); }
+.palette-search input::placeholder { color: var(--fg-4); }
+.palette-list { max-height: 420px; overflow: auto; padding: var(--sp-2); }
+.palette-group { padding: var(--sp-3) var(--sp-3) var(--sp-1); }
+.palette-item {
+  display: flex; align-items: center; gap: var(--sp-3); min-height: 40px; padding: 0 var(--sp-3);
+  border-radius: var(--radius-sm); color: var(--fg-2); cursor: pointer; font-size: var(--text-md);
+}
+.palette-item .icon { color: var(--fg-4); }
+.palette-item.is-active { background: var(--bg-5); color: var(--fg-1); }
+.palette-item.is-active .icon { color: var(--fg-1); }
+.palette-label { flex: 1; }
+.palette-hint { font-size: var(--text-xs); max-width: 40%; }
+.palette-keys { display: flex; gap: 4px; }
+.palette-empty { padding: var(--sp-6); text-align: center; }
+
+@media (max-width: 560px) {
+  .modal-head, .modal-body, .modal-foot { padding-left: var(--sp-4); padding-right: var(--sp-4); }
+  .modal-foot { flex-wrap: wrap; }
+  .modal-palette { margin-top: var(--sp-4); }
+}

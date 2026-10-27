@@ -1,0 +1,102 @@
+/* Matchroom Next design tokens — quiet editorial dark: flat tone steps, hairline rules, one amber accent.
+   Every colour, size and timing used by the app is defined here; component
+   styles reference these tokens only. */
+:root {
+  color-scheme: dark;
+
+  /* Surfaces, darkest to lightest */
+  --bg-0: #0a0d10;
+  --bg-1: #0f1215;
+  --bg-2: #161a1f;
+  --bg-3: #1d232a;
+  --bg-4: #252c34;
+  --bg-5: #2e3640;
+
+  /* Lines */
+  --line-1: #1f252c;
+  --line-2: #2a323b;
+  --line-3: #3a444f;
+  /* Borders of controls (inputs, selects, switches) must reach 3:1 against the surface they sit on. */
+  --line-control: #667380;
+
+  /* Text */
+  --fg-1: #e8ecef;
+  --fg-2: #b6c0c9;
+  --fg-3: #9ca7b2;
+  --fg-4: #81909d;
+
+  /* Brand accent: amber */
+  --accent: #f2a93b;
+  --accent-hover: #ffbd5c;
+  --accent-soft: rgb(242 169 59 / .12);
+  --accent-line: rgb(242 169 59 / .38);
+  --on-accent: #1b1306;
+
+  /* Semantic */
+  --win: #4cc38a;
+  --win-soft: rgb(76 195 138 / .13);
+  --win-line: rgb(76 195 138 / .4);
+  --loss: #f0605a;
+  --loss-soft: rgb(240 96 90 / .13);
+  --loss-line: rgb(240 96 90 / .4);
+  --neutral: #8b96a1;
+  --neutral-soft: rgb(139 150 161 / .14);
+  --info: #4c9aff;
+  --info-soft: rgb(76 154 255 / .13);
+
+  /* Forts teams */
+  --team-1: #4c9aff;
+  --team-2: #ff6b5b;
+
+  /* Typography */
+  --font-ui: "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+  --font-display: Bahnschrift, "Segoe UI Variable Display", "Segoe UI", sans-serif;
+  --font-mono: "Cascadia Mono", Consolas, monospace;
+  --text-2xs: 12px;
+  --text-xs: 12px;
+  --text-sm: 13px;
+  --text-md: 14px;
+  --text-lg: 16px;
+  --text-xl: 20px;
+  --text-2xl: 24px;
+  --text-3xl: 32px;
+  --text-4xl: 44px;
+  --tracking-caps: .02em;
+
+  /* Spacing — 4 px grid */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-8: 32px;
+  --sp-10: 40px;
+  --sp-12: 48px;
+
+  /* Shape */
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+
+  /* Elevation */
+  --shadow-pop: 0 12px 32px rgb(0 0 0 / .45), 0 0 0 1px var(--line-3);
+  --shadow-modal: 0 24px 80px rgb(0 0 0 / .6), 0 0 0 1px var(--line-3);
+
+  /* Motion */
+  --ease: cubic-bezier(.2, .7, .2, 1);
+  --fast: 120ms;
+  --base: 200ms;
+
+  /* Layout */
+  --rail-width: 76px;
+  --topbar-height: 60px;
+  --list-width: 340px;
+  --content-max: 1480px;
+  --focus-ring: 0 0 0 2px var(--bg-1), 0 0 0 4px var(--accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --fast: 0ms; --base: 0ms; }
+}

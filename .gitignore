@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+MatchroomNextData/
+build_matchroom/
+build_exe/
+dist/
+
+*.previous
+*.update
+*.exe
+!lobby_native/NextLobbyBridge.exe
