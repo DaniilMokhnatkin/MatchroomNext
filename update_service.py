@@ -6,6 +6,8 @@ from pathlib import Path
 import re
 import subprocess
 from urllib.request import Request, urlopen
+from urllib.error import HTTPError
+from urllib.parse import urlsplit
 
 REPOSITORY = 'DaniilMokhnatkin/MatchroomNext'
 API = 'https://api.github.com/repos/' + REPOSITORY + '/releases/latest'
@@ -21,8 +23,13 @@ def version(value):
 
 def check(current):
     request = Request(API, headers={'User-Agent': 'Matchroom-Next', 'Accept': 'application/vnd.github+json'})
-    with urlopen(request, timeout=15) as response:
-        release = json.load(response)
+    try:
+        with urlopen(request, timeout=15) as response:
+            release = json.load(response)
+    except HTTPError as exc:
+        if exc.code not in (403, 429):
+            raise
+        return check_without_api(current)
     tag = release['tag_name']
     newer = version(tag) > version(current.removeprefix('next-'))
     if not newer:
@@ -42,6 +49,26 @@ def check(current):
     return {'available': True, 'version': tag, 'url': url, 'digest': digest[7:], 'size': asset['size']}
 
 
+def check_without_api(current):
+    base = 'https://github.com/' + REPOSITORY + '/releases/'
+    with urlopen(Request(base + 'latest', headers={'User-Agent': 'Matchroom-Next'}), timeout=15) as response:
+        final = urlsplit(response.geturl())
+    prefix = '/' + REPOSITORY + '/releases/tag/'
+    if final.scheme != 'https' or final.netloc.lower() != 'github.com' or not final.path.startswith(prefix):
+        raise ValueError('Invalid latest release URL')
+    tag = final.path[len(prefix):]
+    if version(tag) <= version(current.removeprefix('next-')):
+        return {'available': False, 'version': tag}
+    filebase = 'Matchroom.Next.' + tag
+    download = base + 'download/' + tag + '/'
+    with urlopen(Request(download + filebase + '.sha256.txt', headers={'User-Agent': 'Matchroom-Next'}), timeout=15) as response:
+        checksum = response.read(512).decode('ascii').strip()
+    digest = checksum.split()[0] if checksum else ''
+    if not re.fullmatch(r'[0-9a-f]{64}', digest):
+        raise ValueError('Release checksum is invalid')
+    return {'available': True, 'version': tag, 'url': download + filebase + '.exe', 'digest': digest, 'size': None}
+
+
 def install(current, executable, parent_pid):
     if os.name != 'nt' or not executable or not parent_pid:
         raise ValueError('Updates require the portable Windows application')
@@ -59,11 +86,11 @@ def install(current, executable, parent_pid):
             total = 0
             while chunk := response.read(65536):
                 total += len(chunk)
-                if total > release['size']:
+                if total > (release['size'] or MAX_SIZE):
                     raise ValueError('Unexpected download size')
                 digest.update(chunk)
                 output.write(chunk)
-        if total != release['size'] or digest.hexdigest() != release['digest']:
+        if total < 1024 or (release['size'] is not None and total != release['size']) or digest.hexdigest() != release['digest']:
             raise ValueError('Update checksum mismatch')
         # EncodedCommand prevents paths from being interpreted as shell syntax.
         def quote(value): return "'" + str(value).replace("'", "''") + "'"
