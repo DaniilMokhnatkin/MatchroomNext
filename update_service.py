@@ -27,7 +27,7 @@ def check(current):
     newer = version(tag) > version(current.removeprefix('next-'))
     if not newer:
         return {'available': False, 'version': tag}
-    expected = f'Matchroom Next {tag}.exe'
+    expected = f'Matchroom.Next.{tag}.exe'
     assets = [a for a in release['assets'] if a.get('name') == expected]
     if len(assets) != 1:
         raise ValueError('Release executable is missing')
