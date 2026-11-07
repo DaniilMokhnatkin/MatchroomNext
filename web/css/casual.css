@@ -1,0 +1,33 @@
+/* Lobby games: KPIs, records by mode/map/people and the recent list. Tokens only. */
+.casual { display: grid; gap: var(--sp-5); }
+.casual > .toolbar { margin-bottom: 0; }
+.form-strip-wide { grid-template-columns: repeat(15, minmax(0, 1fr)); max-width: 720px; }
+
+.casual-grid {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-5); align-items: start;
+}
+.casual-recent { grid-column: 1 / -1; }
+
+.casual-list { display: grid; gap: 2px; }
+.casual-row {
+  display: grid; grid-template-columns: 3px 96px minmax(140px, 1.1fr) minmax(0, 2fr) 70px 92px; align-items: center;
+  gap: var(--sp-3); padding: 8px var(--sp-2); border-radius: var(--radius-sm); font-size: var(--text-sm);
+}
+.casual-row:hover { background: var(--bg-3); }
+.casual-row[data-result="win"] .recent-mark { background: var(--win); }
+.casual-row[data-result="loss"] .recent-mark { background: var(--loss); }
+.casual-row[data-result="win"] .casual-result { color: var(--win); }
+.casual-row[data-result="loss"] .casual-result { color: var(--loss); }
+.casual-map { display: flex; align-items: baseline; gap: var(--sp-2); }
+.casual-length, .casual-row time { text-align: right; }
+.panel-more { display: flex; justify-content: center; padding-top: var(--sp-3); }
+
+@media (max-width: 1100px) {
+  .casual-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 760px) {
+  .casual-row { grid-template-columns: 3px 70px minmax(0, 1fr) 72px; }
+  .casual-teams, .casual-length { display: none; }
+  .form-strip-wide { grid-template-columns: repeat(10, minmax(0, 1fr)); }
+  .form-strip-wide li:nth-child(n + 11) { display: none; }
+}

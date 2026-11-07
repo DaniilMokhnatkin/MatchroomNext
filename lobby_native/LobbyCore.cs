@@ -27,6 +27,11 @@ namespace FortsLobbyWatch {
         public bool? InProgress { get; set; }
         public bool? Password { get; set; }
         public bool IsOwn { get; set; }
+        // Ranked lobbies publish one stable 16-hex token per seated player:
+        // player0 is the host, player1 the opponent who joined.
+        public string[] Tokens { get; set; }
+        public int? RankScore { get; set; }
+        public int? Season { get; set; }
         public Dictionary<string, string> Metadata { get; set; }
 
         public int? FreeSlots {
@@ -54,6 +59,11 @@ namespace FortsLobbyWatch {
             int result;
             return Int32.TryParse(text, NumberStyles.Integer, CultureInfo.InvariantCulture, out result) && result >= 0 && result <= 1000 ? (int?)result : null;
         }
+        public static bool IsToken(string value) {
+            if (value == null || value.Length != 16) return false;
+            foreach (char c in value) if (!((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f'))) return false;
+            return true;
+        }
         public static Lobby FromRaw(RawLobby raw, ulong self) {
             var data = new Dictionary<string, string>(raw.Data, StringComparer.OrdinalIgnoreCase);
             string[] parts = Value(data, "players").Split('/');
@@ -77,7 +87,17 @@ namespace FortsLobbyWatch {
                 password = false;
             }
             string name = Value(data, "name", "lobbyname", "gamename");
+            var tokens = new List<string>();
+            for (int slot = 0; slot < 16; slot++) {
+                string token = Value(data, "player" + slot.ToString(CultureInfo.InvariantCulture)).ToLowerInvariant();
+                if (!IsToken(token)) break;
+                tokens.Add(token);
+            }
+            int rankScore, season;
             return new Lobby {
+                Tokens = tokens.ToArray(),
+                RankScore = Int32.TryParse(Value(data, "rankscore"), NumberStyles.Integer, CultureInfo.InvariantCulture, out rankScore) && rankScore > 0 && rankScore < 100000 ? (int?)rankScore : null,
+                Season = Int32.TryParse(Value(data, "season"), NumberStyles.Integer, CultureInfo.InvariantCulture, out season) && season > 0 && season < 1000 ? (int?)season : null,
                 Id = raw.Id.ToString(CultureInfo.InvariantCulture),
                 Name = name.Length == 0 ? "Лобби " + raw.Id.ToString(CultureInfo.InvariantCulture) : name,
                 Map = Value(data, "map", "mapname"),

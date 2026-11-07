@@ -225,7 +225,8 @@ function participantsTab(state, players) {
   return h('table', { class: 'data-table' },
     h('thead', null, h('tr', null, h('th', { scope: 'col' }, t('player')), h('th', { scope: 'col' }, t('role')), h('th', { scope: 'col' }, 'Steam ID'), h('th', { scope: 'col' }, h('span', { class: 'sr-only' }, t('actions'))))),
     h('tbody', null, players.map(player => h('tr', { key: player.steam_id || player.name },
-      h('td', null, h('span', { class: 'cell-player' }, avatar({ name: playerName(player, state), src: state.profiles[player.steam_id]?.avatar, size: 'sm', tone: player.side ? 'team-' + player.side : '' }), h('span', { class: 'ellipsis' }, playerName(player, state)))),
+      h('td', null, h('span', { class: 'cell-player' }, avatar({ name: playerName(player, state), src: state.profiles[player.steam_id]?.avatar, size: 'sm', tone: player.side ? 'team-' + player.side : '' }),
+        player.steam_id ? h('a', { class: 'cell-link ellipsis', href: routeHash('player', player.steam_id) }, playerName(player, state)) : h('span', { class: 'ellipsis' }, playerName(player, state)))),
       h('td', null, chip(roleText(player.role), { tone: player.role === 'you' || player.role === 'recorder' ? 'accent' : player.role === 'opponent' ? 'loss' : 'neutral' })),
       h('td', { class: 'mono muted' }, player.steam_id || '—'),
       h('td', { class: 'cell-actions' }, player.steam_id ? iconButton({ icon: 'copy', label: t('copyId'), onClick: () => copyText(player.steam_id, t('copied')) }) : null)))));
@@ -276,6 +277,7 @@ function detailPane(state, ctx, match) {
             h('span', null, icon('clock', 'icon-sm'), dateLong(date) + ' · ' + time(date)),
             h('span', null, icon('map', 'icon-sm'), match.map || 'Forts'))),
         h('div', { class: 'match-hero-actions' },
+          button({ label: t('openAnalysis'), icon: 'activity', size: 'sm', onClick: () => ctx.router.go('replay', match.file) }),
           button({ label: t('refreshRatings'), icon: 'refresh', size: 'sm', busy, onClick: () => loadMatchSteam(true) }))),
       notices.length ? h('div', { class: 'notices' }, notices) : null,
       h('div', { class: 'duel' }, fighter(state, match, left), h('div', { class: 'duel-vs', 'aria-hidden': 'true' }, 'VS'), fighter(state, match, right)),

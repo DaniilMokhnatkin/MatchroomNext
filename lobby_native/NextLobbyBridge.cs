@@ -177,6 +177,7 @@ namespace FortsLobbyWatch {
                     host_afk = row.HostAfk, players = row.Players, max_players = row.MaxPlayers,
                     free_slots = row.FreeSlots, ranked = row.Ranked, in_progress = row.InProgress,
                     password = row.Password, own = row.IsOwn,
+                    tokens = row.Tokens ?? new string[0], rank_score = row.RankScore, season = row.Season,
                     watchable = LobbyViews.Watchable(row),
                     can_join = fresh && steam && !row.IsOwn && LobbyJoin.ValidLobbyId(row.Id),
                     activity = history.Describe(row, now, fresh)

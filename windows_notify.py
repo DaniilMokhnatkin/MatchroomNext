@@ -23,9 +23,9 @@ APP_ID = 'FortsMatchroomNext'
 APP_NAME = 'Matchroom Next'
 HELPER = Path(__file__).with_name('lobby_native') / 'NextLobbyBridge.exe'
 ICON = Path(__file__).with_name('forts_icon.png')
-ROUTES = ('radar', 'lobbies')
-COOLDOWN_SECONDS = {'radar': 120, 'lobbies': 180}
-LIFETIME_MINUTES = {'radar': 10, 'lobbies': 5, 'test': 2}
+ROUTES = ('radar', 'lobbies', 'live')
+COOLDOWN_SECONDS = {'radar': 120, 'lobbies': 180, 'live': 20}
+LIFETIME_MINUTES = {'radar': 10, 'lobbies': 5, 'test': 2, 'live': 5}
 # A focused client polls every 1.5 s; silence means the window is gone.
 FOCUS_STALE_SECONDS = 10
 BLOCKED = ('DisabledForApplication', 'DisabledForUser', 'DisabledByGroupPolicy', 'DisabledByManifest')
@@ -37,6 +37,7 @@ TEXTS = {
         'room': 'Новая комната',
         'rooms': 'Новые комнаты',
         'more': '{names} и ещё {count}',
+        'opponent': ('Соперник найден', '{name} · {map}'),
         'test': ('Уведомления включены', 'Так Next подскажет про сильных игроков и новые комнаты.'),
         'tiers': {'fpl': 'FPL', 'top20': 'Топ-20', 'top80': 'Места 21–80', 'current': 'Текущий топ'},
     },
@@ -46,6 +47,7 @@ TEXTS = {
         'room': 'New room',
         'rooms': 'New rooms',
         'more': '{names} and {count} more',
+        'opponent': ('Opponent found', '{name} · {map}'),
         'test': ('Notifications are on', 'This is how Next flags strong players and new rooms.'),
         'tiers': {'fpl': 'FPL', 'top20': 'Top 20', 'top80': 'Places 21–80', 'current': 'Current top'},
     },
@@ -129,6 +131,14 @@ class WindowsNotifier:
         text = self._texts()
         body = text['more'].format(names=shown, count=count - 3) if count > 3 else shown
         self._background('lobbies', text['room' if count == 1 else 'rooms'], body, 'lobbies')
+        return True
+
+    def live_opponent(self, name, map_name=None):
+        """Ranked opponent found while the game shows commander select."""
+        if not name or not self._allow('live'):
+            return False
+        title, body = self._texts()['opponent']
+        self._background('live', title, body.format(name=name, map=map_name or 'Forts'), 'live')
         return True
 
     def test(self):

@@ -2,6 +2,7 @@
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import hashlib
 import json
+import logging
 from pathlib import Path
 import sqlite3
 import subprocess
@@ -71,6 +72,8 @@ class RankedRadar:
         # Windows notifications are opt-in (Settings → Notifications).
         self.notify = bool(settings.get('notify', 0))
         self.notifier = None
+        # Optional sink for every Steam board read (player dossiers keep the rows).
+        self.board_sink = None
         seed = json.loads(Path(__file__).with_name('ranked_watchlist.json').read_text(encoding='utf-8'))
         self.roster = {p['steam_id']: p for p in seed['players']}
         self.sources = seed['sources']
@@ -142,6 +145,11 @@ class RankedRadar:
             if type(season) is not int or not 1 <= season <= 999:
                 self.status = 'unavailable'
                 return
+            if self.board_sink:
+                try:
+                    self.board_sink(season, value.get('players') or {})
+                except Exception:
+                    logging.exception('Board sink failed')
             if season != self.season:
                 self.season = season
                 self._baseline.clear()

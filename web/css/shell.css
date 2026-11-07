@@ -22,7 +22,7 @@
 .rail-item .icon { width: 20px; height: 20px; }
 .rail-item:hover { background: var(--bg-2); color: var(--fg-1); }
 .rail-item.is-active { background: var(--bg-3); color: var(--fg-1); }
-.rail-label { font: 500 11px/1 var(--font-ui); }
+.rail-label { max-width: calc(var(--rail-width) - 8px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 500 11px/1.2 var(--font-ui); }
 .rail-dot { position: absolute; top: 5px; right: 12px; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); border: 2px solid var(--bg-0); box-sizing: content-box; }
 .rail-dot[data-tone="win"] { background: var(--win); }
 .rail-foot { display: grid; gap: var(--sp-1); margin-top: auto; }

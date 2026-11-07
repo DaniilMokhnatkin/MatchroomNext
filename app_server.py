@@ -55,7 +55,8 @@ def _static_path(relative: str) -> Path | None:
 def make_server(initial: list[dict], default_my_id: str | None = None, history=None,
                 app_version='dev', installer_path=None, autostart_getter=None,
                 autostart_setter=None, radar=None, port=0, lobbies=None,
-                window_mode=False, on_window_state=None, notifier=None, update_parent_pid=None):
+                window_mode=False, on_window_state=None, notifier=None, update_parent_pid=None,
+                live=None, casual=None, players=None):
     token = secrets.token_urlsafe(32)
     template = (WEB / 'index.html').read_text(encoding='utf-8')
     from commander_names import COMMANDER_NAMES
@@ -141,6 +142,13 @@ def make_server(initial: list[dict], default_my_id: str | None = None, history=N
                 value['lobbies'] = lobbies.snapshot()
             if notifier:
                 value['notifications'] = notifier.snapshot()
+            if live:
+                value['live_match'] = live.snapshot()
+            if players:
+                value['players_status'] = players.snapshot()
+            if casual:
+                status = casual.snapshot('-')
+                value['casual_status'] = dict(status['status'], revision=status['revision'])
             return value
 
         def authorized(self):
@@ -243,6 +251,22 @@ def make_server(initial: list[dict], default_my_id: str | None = None, history=N
                 value = radar.snapshot(history.owner_steam_id if history else '')
                 value['language'] = history.language if history else 'ru'
                 self.respond(200, value)
+            elif route == '/api/casual' and casual:
+                self.respond(200, casual.snapshot(args.get('since', [None])[0]))
+            elif route == '/api/player' and players:
+                steam_id = args.get('id', [''])[0]
+                if not re.fullmatch(r'[0-9]{17}', steam_id) or not valid_steam_id(int(steam_id)):
+                    self.respond(400, {'error': 'Некорректный Steam ID.'})
+                else:
+                    self.respond(200, players.dossier(steam_id))
+            elif route == '/api/replay-analysis' and players:
+                key = args.get('key', [''])[0]
+                if not key and args.get('file'):
+                    key = players.find_key(args['file'][0][:260]) or ''
+                result = players.analysis(key) if re.fullmatch(r'[0-9a-f]{40}', key) else None
+                self.respond(200 if result else 404, result or {'error': 'Разбор этого реплея ещё не готов.'})
+            elif route == '/api/live' and live:
+                self.respond(200, live.snapshot())
             elif route == '/api/installer':
                 self.respond_installer()
             elif route == '/api/encounters' and history:
@@ -282,6 +306,8 @@ def make_server(initial: list[dict], default_my_id: str | None = None, history=N
                 if history:
                     board = result.get('leaderboard', {})
                     history.record_ranking_snapshot(season, board, ids)
+                    if players and board.get('status') == 'ok':
+                        players.record_board(season, board.get('players', {}))
                     if leader_id and board.get('status') == 'ok':
                         history.record_leaderboard_gap(season, leader_id, board.get('players', {}).get(leader_id),
                                                        board.get('checked_at'))
@@ -351,6 +377,12 @@ def make_server(initial: list[dict], default_my_id: str | None = None, history=N
                         on_window_state(rect)
                     self.respond(200, {'ok': True})
                 except (ValueError, TypeError, KeyError, OSError) as exc:
+                    self.respond(400, {'error': str(exc)})
+                return
+            if route == '/api/live/settings' and live:
+                try:
+                    self.respond(200, live.configure(self.read_json(1024).get('fortstools')))
+                except (ValueError, TypeError, OSError) as exc:
                     self.respond(400, {'error': str(exc)})
                 return
             if route == '/api/notifications/test':

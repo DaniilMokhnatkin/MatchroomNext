@@ -52,6 +52,9 @@ function settingsDialog(state) {
       h('legend', { class: 'caps' }, t('radar')),
       toggle({ checked: !!draft.radarEnabled, label: t('monitorPlayers'), hint: t('monitorHint'), onChange: value => set({ radarEnabled: value }) })),
     h('fieldset', { class: 'settings-group' },
+      h('legend', { class: 'caps' }, t('live')),
+      toggle({ checked: draft.fortsTools !== false, label: t('fortsToolsToggle'), hint: t('fortsToolsHint'), onChange: value => set({ fortsTools: value }) })),
+    h('fieldset', { class: 'settings-group' },
       h('legend', { class: 'caps' }, t('notifications')),
       toggle({
         checked: !!draft.windowsNotifications, disabled: !notifications.available, label: t('windowsNotifications'),
@@ -141,7 +144,7 @@ function quitDialog() {
 
 export const SHORTCUTS = [
   [['Ctrl', 'K'], 'shortcutPalette'],
-  [['1', '–', '4'], 'shortcutViews'],
+  [['1', '–', '6'], 'shortcutViews'],
   [['/'], 'shortcutSearch'],
   [['J', 'K'], 'shortcutStep'],
   [['R'], 'shortcutRefresh'],
@@ -167,9 +170,11 @@ export function paletteItems(state, ctx) {
   const watch = state.app.watch || {};
   const commands = [
     { id: 'go-overview', group: 'groupNavigate', icon: 'overview', label: t('overview'), keys: ['1'], run: () => ctx.router.go('overview') },
-    { id: 'go-matches', group: 'groupNavigate', icon: 'history', label: t('matches'), keys: ['2'], run: () => ctx.router.go('matches') },
-    { id: 'go-radar', group: 'groupNavigate', icon: 'radar', label: t('radar'), keys: ['3'], run: () => ctx.router.go('radar') },
-    { id: 'go-lobbies', group: 'groupNavigate', icon: 'lobbies', label: t('lobbies'), keys: ['4'], run: () => ctx.router.go('lobbies') },
+    { id: 'go-live', group: 'groupNavigate', icon: 'swords', label: t('live'), keys: ['2'], run: () => ctx.router.go('live') },
+    { id: 'go-matches', group: 'groupNavigate', icon: 'history', label: t('matches'), keys: ['3'], run: () => ctx.router.go('matches') },
+    { id: 'go-casual', group: 'groupNavigate', icon: 'trophy', label: t('casual'), keys: ['4'], run: () => ctx.router.go('casual') },
+    { id: 'go-radar', group: 'groupNavigate', icon: 'radar', label: t('radar'), keys: ['5'], run: () => ctx.router.go('radar') },
+    { id: 'go-lobbies', group: 'groupNavigate', icon: 'lobbies', label: t('lobbies'), keys: ['6'], run: () => ctx.router.go('lobbies') },
     { id: 'add-replay', group: 'groupActions', icon: 'upload', label: t('addReplay'), run: () => ctx.pickFiles() },
     { id: 'refresh-rating', group: 'groupActions', icon: 'refresh', label: t('refreshRating'), run: () => loadOwner(true) },
     { id: 'refresh-radar', group: 'groupActions', icon: 'radar', label: t('refreshRadar'), run: refreshRadar },

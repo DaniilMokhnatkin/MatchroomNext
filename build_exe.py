@@ -11,14 +11,14 @@ import sys
 
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT / 'shell'))
-VERSION = 'v0.10'
+VERSION = 'v0.12'
 NAME = f'Matchroom Next {VERSION}'
 SERVICE_NAME = 'MatchroomService'
 # (source, destination inside the bundle). Client tests are not shipped.
 RESOURCES = [
     ('web/index.html', 'web'), ('web/css', 'web/css'), ('web/js', 'web/js'),
     ('commander_names.json', '.'), ('ranked_watchlist.json', '.'), ('forts_icon.png', '.'),
-    ('assets', 'assets'), ('lobby_native/NextLobbyBridge.exe', 'lobby_native'),
+    ('assets', 'assets'), ('lobby_native/NextLobbyBridge.exe', 'lobby_native'), ('fwr', 'fwr'),
 ]
 
 
@@ -31,7 +31,9 @@ def build_service():
                '--specpath', str(ROOT / 'build_exe'),
                '--exclude-module', 'pystray', '--exclude-module', 'PIL', '--exclude-module', 'tkinter',
                '--hidden-import', 'app_server', '--hidden-import', 'app_window',
-               '--hidden-import', 'windows_notify', '--hidden-import', 'steam_service']
+               '--hidden-import', 'windows_notify', '--hidden-import', 'steam_service',
+               '--hidden-import', 'live_match', '--hidden-import', 'fortstools', '--hidden-import', 'efficiency',
+               '--hidden-import', 'casual_games', '--hidden-import', 'player_db', '--hidden-import', 'replay_analysis', '--hidden-import', 'demo', '--hidden-import', 'demo_live']
     icon = ROOT / 'assets' / 'matchroom-next.ico'
     if icon.exists():
         command.extend(['--icon', str(icon)])

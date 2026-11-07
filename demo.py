@@ -348,8 +348,16 @@ def create_demo_server(port=0, window_mode=False):
             'checked_at': datetime.now().timestamp()}))
         # Only the explicit check in Settings shows a real toast; demo data raises no alerts.
         notifier = WindowsNotifier(enabled=lambda: radar.notify, language=lambda: history.language)
-        server = make_server([], history=history, radar=radar, lobbies=DemoLobbies(), app_version='next-0.4-demo',
-                             port=port, window_mode=window_mode, notifier=notifier)
+        from demo_live import DemoLive, DemoCasual
+        from demo_players import build_demo_players
+        casual = DemoCasual(SELF)
+        players = build_demo_players(history, casual, SELF)
+        stone = next(row for row in RIVALS if row[1] == 'Stonebridge')
+        live = DemoLive(history, SELF, stone[0], stone[1], stone[2], stone[3],
+                        own=(owner_rank(history.final_score), history.final_score))
+        server = make_server([], history=history, radar=radar, lobbies=DemoLobbies(), app_version='next-0.12-demo',
+                             port=port, window_mode=window_mode, notifier=notifier,
+                             live=live, casual=casual, players=players)
         return server, patches
     except BaseException:
         patches.close()

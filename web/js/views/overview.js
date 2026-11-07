@@ -126,7 +126,8 @@ function rivalsPanel(state, ctx, matches) {
       // The name is the keyboard and screen-reader target; its click bubbles to the row handler above.
       h('td', null, h('span', { class: 'cell-player' },
         avatar({ name: row.name, src: state.profiles[row.steam_id]?.avatar, size: 'sm' }),
-        h('button', { type: 'button', class: 'cell-link ellipsis' }, row.name || t('player')))),
+        h('button', { type: 'button', class: 'cell-link ellipsis' }, row.name || t('player')),
+        row.steam_id ? h('a', { class: 'icon-link', href: routeHash('player', row.steam_id), 'aria-label': t('openDossier'), title: t('openDossier'), onClick: event => event.stopPropagation() }, icon('user', 'icon-sm')) : null)),
       h('td', { class: 'num-col num' }, number(row.total)),
       h('td', { class: 'num-col num' }, h('span', { class: 'tone-win' }, row.wins), ' – ', h('span', { class: 'tone-loss' }, row.losses)),
       h('td', { class: 'rate-col' }, h('span', { class: 'rate-cell' }, meter(row.winRate ?? 0, row.winRate === null ? 'neutral' : row.winRate >= 0.5 ? 'win' : 'loss'),

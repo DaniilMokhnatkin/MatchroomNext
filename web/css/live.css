@@ -1,0 +1,105 @@
+/* Live match: phase steps, duel hero, you-vs-opponent rows. Tokens only. */
+.live { display: grid; gap: var(--sp-5); }
+
+.banner-live { background: var(--accent-soft); color: var(--accent); text-decoration: none; }
+.banner-live:hover { background: rgb(242 169 59 / .18); }
+
+/* Phase steps */
+.live-steps { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: var(--sp-2); }
+.live-step {
+  display: flex; align-items: center; gap: var(--sp-2); min-width: 0; padding: var(--sp-2) var(--sp-3);
+  border: 1px solid var(--line-2); border-radius: var(--radius-md); background: var(--bg-2); color: var(--fg-3);
+  font-size: var(--text-sm);
+}
+.live-step-mark {
+  display: grid; place-items: center; width: 22px; height: 22px; flex: none; border-radius: 50%;
+  border: 1px solid var(--line-3); font: 600 var(--text-xs)/1 var(--font-display);
+}
+.live-step-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.live-step-time { margin-left: auto; }
+.live-step.is-done { color: var(--fg-2); }
+.live-step.is-done .live-step-mark { border-color: var(--win-line); background: var(--win-soft); color: var(--win); }
+.live-step.is-current { border-color: var(--accent-line); background: var(--accent-soft); color: var(--fg-1); }
+.live-step.is-current .live-step-mark { border-color: var(--accent); background: var(--accent); color: var(--on-accent); }
+
+/* Searching */
+.live-searching { display: flex; align-items: center; gap: var(--sp-5); padding: var(--sp-6); }
+.live-searching p { margin: var(--sp-1) 0 0; }
+.live-pulse { position: relative; width: 14px; height: 14px; flex: none; border-radius: 50%; background: var(--accent); }
+.live-pulse::after {
+  content: ""; position: absolute; inset: -6px; border-radius: 50%; border: 2px solid var(--accent-line);
+  animation: live-pulse 1.6s var(--ease) infinite;
+}
+@keyframes live-pulse { from { transform: scale(.6); opacity: 1; } to { transform: scale(1.6); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .live-pulse::after { animation: none; } }
+
+/* Duel hero */
+.duel { display: grid; grid-template-columns: minmax(0, 1fr) minmax(220px, 300px) minmax(0, 1fr); align-items: center; gap: var(--sp-5); padding: var(--sp-6); }
+.duel-side { display: grid; justify-items: center; gap: var(--sp-1); min-width: 0; text-align: center; }
+.duel-side-label { margin-top: var(--sp-2); }
+.duel-side-you .duel-side-label { color: var(--team-1); }
+.duel-side-them .duel-side-label { color: var(--team-2); }
+.duel-side-you .avatar { box-shadow: 0 0 0 2px var(--team-1); }
+.duel-side-them .avatar { box-shadow: 0 0 0 2px var(--team-2); }
+.duel-name { max-width: 100%; font: 600 var(--text-xl)/1.2 var(--font-display); }
+.duel-rank { color: var(--fg-2); font-size: var(--text-sm); }
+.duel-hidden { max-width: 260px; }
+.duel-center { display: grid; justify-items: center; gap: var(--sp-2); text-align: center; }
+.duel-chance { font: 600 var(--text-4xl)/1 var(--font-display); color: var(--accent); }
+.duel-bar { position: relative; width: 100%; height: 8px; border-radius: 4px; background: var(--team-2); overflow: hidden; }
+.duel-bar-you { position: absolute; inset: 0 auto 0 0; width: calc(var(--value) * 100%); background: var(--team-1); }
+.duel-stakes { display: flex; align-items: center; gap: var(--sp-1); font: 600 var(--text-lg)/1 var(--font-display); }
+
+/* Layout below the hero */
+.live-grid { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(300px, 1fr); gap: var(--sp-5); align-items: start; }
+.live-side { display: grid; gap: var(--sp-5); }
+
+/* You vs opponent rows */
+.versus-list { display: grid; }
+.versus-row {
+  display: grid; grid-template-columns: minmax(84px, 1fr) minmax(160px, 2fr) minmax(84px, 1fr); align-items: center;
+  gap: var(--sp-4); padding: var(--sp-3) 0; border-bottom: 1px solid var(--line-1);
+}
+.versus-row:last-child { border-bottom: 0; }
+.versus-value { display: flex; align-items: baseline; gap: var(--sp-2); font: 500 var(--text-lg)/1.1 var(--font-display); color: var(--fg-2); }
+.versus-value small { font: var(--text-xs) var(--font-ui); }
+.versus-value-b { justify-content: flex-end; }
+.versus-value.is-lead { color: var(--fg-1); font-weight: 600; }
+.versus-lead { color: var(--accent); font-size: var(--text-xs); }
+.versus-mid { display: grid; gap: 6px; }
+.versus-label { display: flex; align-items: center; justify-content: center; gap: var(--sp-1); color: var(--fg-3); font-size: var(--text-sm); }
+.versus-bar { position: relative; height: 6px; border-radius: 3px; background: rgb(255 107 91 / .55); overflow: hidden; }
+.versus-bar-a { position: absolute; inset: 0 auto 0 0; width: calc(var(--value) * 100%); background: rgb(76 154 255 / .8); }
+.versus-bar::after { content: ""; position: absolute; left: 50%; top: -2px; bottom: -2px; width: 1px; background: var(--bg-1); }
+
+/* Head to head and scouting */
+.h2h-score { font: 600 var(--text-3xl)/1 var(--font-display); margin-bottom: var(--sp-3); }
+.h2h-list { display: grid; gap: 2px; }
+.h2h-row {
+  display: grid; grid-template-columns: 3px 90px minmax(0, 1fr) auto; align-items: center; gap: var(--sp-3);
+  padding: 7px var(--sp-2); border-radius: var(--radius-sm); color: var(--fg-1); text-decoration: none; font-size: var(--text-sm);
+}
+.h2h-row:hover { background: var(--bg-3); }
+.h2h-row[data-result="win"] .recent-mark { background: var(--win); }
+.h2h-row[data-result="loss"] .recent-mark { background: var(--loss); }
+.form-strip-sm { margin-bottom: var(--sp-4); }
+.scout-facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-3) var(--sp-4); margin: 0 0 var(--sp-4); }
+.scout-facts dd { margin: 2px 0 0; font: 500 var(--text-md)/1.3 var(--font-display); }
+.bar-item.is-current .bar-item-head span:first-child { color: var(--accent); }
+
+.live-source { display: flex; align-items: center; flex-wrap: wrap; gap: var(--sp-1); margin: 0; font-size: var(--text-xs); }
+.live-result { display: flex; align-items: center; gap: var(--sp-3); padding: var(--sp-3) var(--sp-4); border-radius: var(--radius-md); border: 1px solid var(--line-2); }
+.live-result.is-win { border-color: var(--win-line); background: var(--win-soft); color: var(--win); }
+.live-result.is-loss { border-color: var(--loss-line); background: var(--loss-soft); color: var(--loss); }
+.live-idle { display: grid; justify-items: center; gap: var(--sp-5); padding-top: var(--sp-6); }
+
+@media (max-width: 1100px) {
+  .live-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 760px) {
+  .live-steps { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .live-step-label, .live-step-time { display: none; }
+  .duel { grid-template-columns: 1fr 1fr; }
+  .duel-center { grid-column: 1 / -1; order: -1; }
+  .versus-row { grid-template-columns: minmax(64px, 1fr) minmax(110px, 1.5fr) minmax(64px, 1fr); gap: var(--sp-2); }
+}

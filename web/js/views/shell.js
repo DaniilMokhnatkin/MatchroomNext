@@ -1,7 +1,7 @@
 // App shell: navigation rail, top bar with account menu, banners, toasts.
 import { h } from '../lib/dom.js';
 import { icon } from '../lib/icons.js';
-import { t, number, getLanguage, time, duration } from '../lib/i18n.js';
+import { t, has, number, getLanguage, time, duration } from '../lib/i18n.js';
 import { routeHash } from '../lib/router.js';
 import { activityValues } from '../domain/activity.js';
 import {
@@ -13,16 +13,23 @@ import { overviewView, overviewScope } from './overview.js';
 import { matchesView } from './matches.js';
 import { radarView, radarHeadline } from './radar.js';
 import { lobbiesView } from './lobbies.js';
+import { liveView, liveHeadline, liveActive } from './live.js';
+import { casualView, casualHeadline } from './casual.js';
+import { playerView, playerHeadline } from './player.js';
+import { replayView, replayHeadline } from './replay.js';
 import { dialogs } from './dialogs.js';
 
 export const NAV = [
   { id: 'overview', icon: 'overview', key: '1' },
-  { id: 'matches', icon: 'history', key: '2' },
-  { id: 'radar', icon: 'radar', key: '3' },
-  { id: 'lobbies', icon: 'lobbies', key: '4' },
+  { id: 'live', icon: 'swords', key: '2' },
+  { id: 'matches', icon: 'history', key: '3' },
+  { id: 'casual', icon: 'trophy', key: '4' },
+  { id: 'radar', icon: 'radar', key: '5' },
+  { id: 'lobbies', icon: 'lobbies', key: '6' },
 ];
 
 function navDot(state, id) {
+  if (id === 'live') return liveActive(state) ? 'accent' : null;
   if (id === 'radar') {
     const head = radarHeadline(state);
     return !head.paused && head.active.length ? 'accent' : null;
@@ -44,7 +51,7 @@ function rail(state, ctx) {
         'aria-current': active ? 'page' : null, title: t(item.id) + ' (' + item.key + ')',
       },
       icon(item.icon),
-      h('span', { class: 'rail-label' }, t(item.id)),
+      h('span', { class: 'rail-label' }, t(has('nav_' + item.id) ? 'nav_' + item.id : item.id)),
       dot ? h('span', { class: 'rail-dot', 'data-tone': dot, 'aria-hidden': 'true' }) : null,
       dot ? h('span', { class: 'sr-only' }, ', ' + t('hasUpdates')) : null);
     })),
@@ -61,6 +68,10 @@ function titleFor(state) {
   }
   if (view === 'matches') return { title: t('matches'), sub: state.loaded ? t('archiveCount', { count: state.matches.length }) : '' };
   if (view === 'radar') return { title: t('radar'), sub: radarHeadline(state).title };
+  if (view === 'live') return { title: t('live'), sub: liveHeadline(state).title };
+  if (view === 'player') return { title: t('dossier'), sub: playerHeadline(state) };
+  if (view === 'replay') return { title: t('replayAnalysis'), sub: replayHeadline(state) };
+  if (view === 'casual') return { title: t('casual'), sub: state.casual.loaded ? casualHeadline(state) : '' };
   const status = { ok: 'lobbyLive', manual: 'lobbyManual', stale: 'lobbyStale', error: 'lobbyError', paused: 'lobbyPaused' }[state.lobbies.status] || 'lobbyChecking';
   return { title: t('lobbies'), sub: t(status) };
 }
@@ -158,6 +169,11 @@ function banners(state) {
     list.push(h('div', { class: 'banner banner-warning', key: 'steam' },
       icon('alert', 'icon-sm'), h('span', null, t('steamThrottled', { time: duration(state.app.steam_throttle.seconds) }))));
   }
+  const live = liveHeadline(state);
+  if (live.active && live.name && state.route.view !== 'live') {
+    list.push(h('a', { class: 'banner banner-live', key: 'live', href: routeHash('live') },
+      icon('swords', 'icon-sm'), h('span', null, live.title), h('span', { class: 'banner-action' }, t('open'))));
+  }
   if (state.connection === 'lost') {
     list.push(h('div', { class: 'banner banner-error', role: 'alert', key: 'conn' },
       icon('alert', 'icon-sm'), h('span', null, t('connectionLost'))));
@@ -182,7 +198,7 @@ function stoppedScreen() {
     h('p', { class: 'muted' }, t('stoppedText')));
 }
 
-const VIEWS = { overview: overviewView, matches: matchesView, radar: radarView, lobbies: lobbiesView };
+const VIEWS = { overview: overviewView, live: liveView, matches: matchesView, casual: casualView, radar: radarView, lobbies: lobbiesView, player: playerView, replay: replayView };
 
 export function appView(state, ctx) {
   if (state.connection === 'stopped') return stoppedScreen();

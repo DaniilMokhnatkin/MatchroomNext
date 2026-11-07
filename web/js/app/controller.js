@@ -28,6 +28,11 @@ export const store = createStore({
   matchesUi: { query: '', season: '', result: '', opponent: '', limit: 80, tab: 'summary' },
   overviewUi: { season: null },
   radarUi: { tier: '', query: '', limit: 60, refreshing: false },
+  casual: { revision: null, games: [], loaded: false },
+  dossiers: {},
+  replays: {},
+  dossierUi: { scope: 'auto', limit: 40 },
+  casualUi: { mode: '', days: 0, limit: 40 },
   lobbyUi: { tab: 'recruiting', query: '', noPassword: false, favoritesOnly: false, sort: 'new', busy: false, expanded: {} },
   ui: { dialog: null, menu: false, toasts: [], dragging: false, palette: { query: '', index: 0 }, importing: 0, accountInput: '', accountError: '' },
   settings: null,
@@ -41,6 +46,8 @@ let lobbyNoticeSeen = null;
 let notificationSeen = null;
 let toastSeq = 0;
 let ownerRequest = 0;
+let casualLoading = false;
+let liveSeen = null;
 
 /* ---------- Selectors ---------- */
 
@@ -130,6 +137,8 @@ export function applyState(next) {
   }
 
   const state = store.get();
+  followLive(state);
+  if (app.casual_status && app.casual_status.revision !== state.casual.revision) loadCasual();
   if (oldOwner !== ownerId(state) || oldSeason !== state.app.active_season) {
     store.set({ ownerBoard: null });
     loadOwner();
@@ -139,6 +148,75 @@ export function applyState(next) {
     openDialog('welcome');
   }
   if (state.route.view === 'matches') loadMatchSteam();
+}
+
+/* ---------- Live match and lobby games ---------- */
+
+function followLive(state) {
+  const live = state.app.live_match;
+  const id = live?.opponent?.steam_id || null;
+  if (!id || id === liveSeen) {
+    if (!id && live?.phase !== 'select' && live?.phase !== 'loading' && live?.phase !== 'playing') liveSeen = null;
+    return;
+  }
+  liveSeen = id;
+  loadProfiles([id, live.self_id].filter(Boolean));
+  if (state.route.view !== 'live') {
+    const name = nameOf(id, state) || live.opponent.name || live.intel?.opponent?.name || t('opponentHidden');
+    toast(t('liveFoundToast', { name }), { tone: 'accent', timeout: 15000, action: { label: t('open'), href: '#/live' } });
+  }
+}
+
+export async function loadCasual() {
+  if (casualLoading) return;
+  casualLoading = true;
+  try {
+    const since = store.get().casual.revision;
+    const value = await api('/api/casual' + (since ? '?since=' + encodeURIComponent(since) : ''));
+    store.set({ casual: { revision: value.revision, games: value.games ?? store.get().casual.games, status: value.status, loaded: true } });
+  } catch {
+    // The next state poll retries.
+  } finally {
+    casualLoading = false;
+  }
+}
+
+/* ---------- Player dossiers and replay analysis ---------- */
+
+export async function loadDossier(id, force = false) {
+  const cached = store.get().dossiers[id];
+  if (!id || (cached && !force && (cached.loading || Date.now() - (cached.at || 0) < 60000))) return;
+  store.merge('dossiers', { [id]: { ...(cached || {}), loading: true } });
+  try {
+    const data = await api('/api/player?id=' + encodeURIComponent(id));
+    store.merge('dossiers', { [id]: { data, at: Date.now(), loading: false } });
+    loadProfiles([id, ...(data.board?.opponents || []).map(row => row.steam_id)].slice(0, 12));
+  } catch (error) {
+    store.merge('dossiers', { [id]: { error: error.message || t('requestFailed'), at: Date.now(), loading: false } });
+  }
+}
+
+export async function loadReplay(id, force = false) {
+  const cached = store.get().replays[id];
+  if (!id || (cached && !force && (cached.loading || cached.data || Date.now() - (cached.at || 0) < 15000))) return;
+  store.merge('replays', { [id]: { loading: true } });
+  const query = /^[0-9a-f]{40}$/.test(id) ? 'key=' + id : 'file=' + encodeURIComponent(id);
+  try {
+    const data = await api('/api/replay-analysis?' + query);
+    store.merge('replays', { [id]: { data, at: Date.now(), loading: false } });
+    loadProfiles(data.players.map(player => player.steam_id).filter(Boolean));
+  } catch (error) {
+    store.merge('replays', { [id]: { error: error.status === 404 ? 'pending' : (error.message || t('requestFailed')), at: Date.now(), loading: false } });
+  }
+}
+
+export async function setFortsTools(enabled) {
+  try {
+    const live = await api('/api/live/settings', { fortstools: !!enabled });
+    store.merge('app', { live_match: live });
+  } catch (error) {
+    failure(error);
+  }
 }
 
 function announceLobbies(lobbies) {
@@ -340,6 +418,7 @@ export function openSettings() {
       myId: ownerId(state),
       radarEnabled: state.radar.enabled !== false,
       windowsNotifications: !!state.app.notifications?.enabled,
+      fortsTools: state.app.live_match?.fortstools?.enabled !== false,
       error: '',
       saving: false,
     },
@@ -360,6 +439,7 @@ export async function saveSettings() {
     partial = true;
     await api('/api/owner', { steam_id: id });
     await api('/api/radar', { enabled: draft.radarEnabled, notify: !!draft.windowsNotifications });
+    if (store.get().app.live_match) await api('/api/live/settings', { fortstools: draft.fortsTools !== false });
     await sync(true);
     closeDialog();
     toast(t('saved'), { tone: 'success' });

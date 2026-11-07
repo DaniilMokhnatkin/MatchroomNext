@@ -1,9 +1,12 @@
-// Hash router: #/overview, #/matches, #/matches/<id>, #/radar, #/lobbies.
+// Hash router: #/overview, #/live, #/matches, #/matches/<id>, #/casual, #/radar, #/lobbies.
 // Back/forward work, and each view remembers its own scroll position.
-export const VIEWS = ['overview', 'matches', 'radar', 'lobbies'];
+export const VIEWS = ['overview', 'live', 'matches', 'casual', 'radar', 'lobbies'];
+// Detail pages reached from links, not from the navigation rail.
+const DETAIL = ['player', 'replay'];
 
 export function parseHash(hash) {
   const parts = String(hash || '').replace(/^#\/?/, '').split('/').filter(Boolean).map(decodeURIComponent);
+  if (DETAIL.includes(parts[0]) && parts[1]) return { view: parts[0], id: parts[1] };
   const view = VIEWS.includes(parts[0]) ? parts[0] : 'overview';
   return { view, id: view === 'matches' && parts[1] ? parts[1] : null };
 }

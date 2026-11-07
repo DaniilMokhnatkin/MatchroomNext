@@ -29,11 +29,26 @@ def points_to_overtake(player_score, above_score):
         return None
 
 
+def with_details(row, details, count):
+    """Attach the decoded hidden entry details (internal rating, W/L, last opponents)."""
+    try:
+        from player_db import parse_details
+        decoded = parse_details(list(details)[:max(0, min(int(count), 64))])
+    except (ImportError, ValueError, TypeError):
+        decoded = None
+    if decoded:
+        row['details'] = decoded
+    return row
+
+
 def reconcile_global_entry(user_entry, global_entry):
     """Display the global row, but only corroborate matching score responses."""
     if global_entry is None:
         return dict(user_entry, global_verified=False)
-    return dict(global_entry, global_verified=user_entry.get('score') == global_entry.get('score'))
+    merged = dict(global_entry, global_verified=user_entry.get('score') == global_entry.get('score'))
+    if 'details' in user_entry and 'details' not in merged:
+        merged['details'] = user_entry['details']
+    return merged
 
 # In service mode one process keeps a single Steamworks session for its whole
 # life, instead of every request initialising and shutting Steam down again.
@@ -320,10 +335,12 @@ def radar(season, ids):
                 rows = {}
                 for index in range(page.count):
                     entry = Entry()
-                    if not get_entry(stats, page.entries, index, C.byref(entry), None, 0):
+                    details = (C.c_int * 64)()
+                    if not get_entry(stats, page.entries, index, C.byref(entry), details, 64):
                         raise RuntimeError('Неполный ответ рейтинга Steam.')
                     if entry.rank > 0:
-                        rows[str(entry.steam_id)] = {'rank': entry.rank, 'score': entry.score}
+                        rows[str(entry.steam_id)] = with_details(
+                            {'rank': entry.rank, 'score': entry.score}, details, entry.details_count)
                 return rows
 
             global_rows = entries(fn('ISteamUserStats_DownloadLeaderboardEntries', C.c_uint64,
@@ -460,10 +477,12 @@ def lookup(season, ids, leader_id=None):
         players = {}
         for i in range(downloaded.count):
             entry = Entry()
-            if not get_entry(stats, downloaded.entries, i, C.byref(entry), None, 0):
+            details = (C.c_int * 64)()
+            if not get_entry(stats, downloaded.entries, i, C.byref(entry), details, 64):
                 raise RuntimeError('Steam вернул неполные данные рейтинга.')
             if str(entry.steam_id) in ids and entry.rank > 0:
-                players[str(entry.steam_id)] = {'rank': entry.rank, 'score': entry.score}
+                players[str(entry.steam_id)] = with_details(
+                    {'rank': entry.rank, 'score': entry.score}, details, entry.details_count)
         # A user-specific lookup alone is not sufficient evidence for a match
         # delta. Cross-check by Steam ID in a separately downloaded global range.
         # Bound this extra work to match participants / the owner card.

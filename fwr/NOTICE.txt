@@ -1,0 +1,4 @@
+fwr.exe is the unmodified "fwr" command of forts-replay v0.6.0 (commit c39c229)
+by an0nfunc, licensed under AGPL-3.0-or-later (see LICENSE-fwr.txt).
+Source code: https://github.com/an0nfunc/forts-replay (tag v0.6.0)
+Matchroom Next runs it as a separate program to decode replays.

@@ -13,7 +13,7 @@ import time
 import webbrowser
 from urllib.request import Request, urlopen
 
-APP_VERSION = 'next-0.10'
+APP_VERSION = 'next-0.12'
 AUTOSTART_NAME = 'FortsMatchroomNext'
 
 
@@ -166,6 +166,19 @@ def run(files=(), my_id=None, data_dir=None, no_browser=False, no_tray=False,
                                language=lambda: history.language, opener=open_route)
     radar.notifier = notifier
     lobbies.notifier = notifier
+    from game_process import forts_running
+    from fortstools import FortsTools
+    from live_match import LiveMatchService
+    live = LiveMatchService(directory, history=history, lobbies=lobbies, notifier=notifier,
+                            tools=FortsTools(), running=forts_running)
+    from player_db import PlayerDB
+    players = PlayerDB(directory, folders=lambda: history.config['folders'],
+                       enabled=lambda: history.config['enabled'], owner=lambda: history.owner_steam_id)
+    radar.board_sink = players.record_board
+    live.players = players
+    from casual_games import CasualGames
+    casual = CasualGames(directory, folders=lambda: history.config['folders'],
+                         enabled=lambda: history.config['enabled'])
     try:
         for path in files:
             try:
@@ -175,7 +188,7 @@ def run(files=(), my_id=None, data_dir=None, no_browser=False, no_tray=False,
         executable = str(Path(installer_path).resolve()) if installer_path else None
         server = make_server(
             [], my_id, history, app_version=app_version, installer_path=executable,
-            radar=radar, lobbies=lobbies, notifier=notifier,
+            radar=radar, lobbies=lobbies, notifier=notifier, live=live, casual=casual, players=players,
             autostart_getter=lambda: autostart_enabled(executable),
             autostart_setter=lambda value: set_autostart(value, executable),
             window_mode=window_mode, update_parent_pid=parent_pid,
@@ -187,6 +200,9 @@ def run(files=(), my_id=None, data_dir=None, no_browser=False, no_tray=False,
         history.start()
         radar.start()
         lobbies.start()
+        live.start()
+        casual.start()
+        players.start()
         if not no_tray:
             try:
                 import pystray
@@ -248,6 +264,9 @@ def run(files=(), my_id=None, data_dir=None, no_browser=False, no_tray=False,
         notifier.close()
         from steam_service import native
         native.close()
+        live.close()
+        casual.close()
+        players.close()
         lobbies.close()
         radar.close()
         history.close()

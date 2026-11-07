@@ -133,3 +133,31 @@ export function occupancyChart(samples, { max, label, format }) {
   show(selected);
   return h('div', { class: 'occupancy' }, plot, readout);
 }
+
+/**
+ * Several series over match time. `lines` are {label, values, tone} with tone
+ * 'team-1', 'team-2' or 'accent'; `frames` are physics frames (25 per second).
+ */
+export function seriesChart(lines, frames, { label = '', format = number, height = 160, endLabel = null } = {}) {
+  const W = 1000, H = 300;
+  const usable = lines.filter(line => line.values?.length);
+  const all = usable.flatMap(line => line.values.filter(v => typeof v === 'number'));
+  if (!all.length || frames.length < 2) return h('div', { class: 'chart-empty chart-empty-sm' }, '—');
+  const hi = Math.max(...all, 1), lo = Math.min(0, ...all);
+  const last = frames[frames.length - 1] || 1;
+  const x = frame => (frame / last) * W;
+  const y = v => H - ((v - lo) / (hi - lo || 1)) * H;
+  const paths = usable.map(line => s('path', {
+    class: 'series-line', 'data-tone': line.tone, 'vector-effect': 'non-scaling-stroke',
+    d: line.values.map((v, i) => (i ? 'L' : 'M') + x(frames[i] ?? 0).toFixed(1) + ',' + y(v ?? 0).toFixed(1)).join(' '),
+  }));
+  const minutes = last / 25 / 60;
+  return h('figure', { class: 'series-chart', style: { '--h': height + 'px' } },
+    h('div', { class: 'series-plot' },
+      s('svg', { viewBox: `0 0 ${W} ${H}`, preserveAspectRatio: 'none', role: 'img', 'aria-label': label },
+        s('line', { class: 'series-grid', x1: 0, x2: W, y1: H / 2, y2: H / 2 }), ...paths),
+      h('span', { class: 'series-max num' }, format(hi)),
+      h('span', { class: 'series-end num' }, endLabel ? endLabel(minutes) : Math.round(minutes) + "'")),
+    h('figcaption', { class: 'series-legend' }, usable.map(line => h('span', { class: 'series-key', 'data-tone': line.tone },
+      h('i', { 'aria-hidden': 'true' }), line.label, h('strong', { class: 'num' }, format(line.values.at(-1) ?? 0))))));
+}

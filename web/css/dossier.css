@@ -1,0 +1,91 @@
+/* Player dossier and replay analysis. Desktop layout, tokens only. */
+.dossier, .analysis { display: grid; gap: var(--sp-5); }
+.dossier > .toolbar { margin-bottom: 0; }
+
+.dossier-hero { display: grid; grid-template-columns: auto minmax(220px, 1fr) minmax(0, 2.2fr); align-items: center; gap: var(--sp-5); padding: var(--sp-5) var(--sp-6); }
+.dossier-id { display: grid; gap: 2px; min-width: 0; }
+.dossier-id h2 { margin: 0; font: 600 var(--text-2xl)/1.15 var(--font-display); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dossier-id p { margin: 0; font-size: var(--text-sm); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dossier-links { display: flex; gap: var(--sp-4); margin-top: var(--sp-1); font-size: var(--text-sm); }
+.dossier-facts { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: var(--sp-4); margin: 0; }
+.dossier-facts div { display: grid; gap: 3px; min-width: 0; }
+.dossier-facts dt { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dossier-facts dd { margin: 0; font: 600 var(--text-xl)/1.1 var(--font-display); white-space: nowrap; }
+.dossier-facts small { font-size: var(--text-xs); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.kpi-row-8 { grid-template-columns: repeat(8, minmax(0, 1fr)); }
+.kpi-row-8 .stat { padding: var(--sp-3) var(--sp-4); }
+.kpi-row-8 .stat-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.dossier-grid { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(240px, 1fr) minmax(240px, 1fr); gap: var(--sp-5); align-items: start; }
+.opponent-list { display: grid; gap: 2px; }
+.opponent-row { display: flex; align-items: center; gap: var(--sp-2); padding: 6px var(--sp-2); border-radius: var(--radius-sm); color: var(--fg-1); text-decoration: none; font-size: var(--text-sm); min-width: 0; }
+.opponent-row:hover { background: var(--bg-3); }
+
+/* Tables of per-game numbers */
+.table-scroll { overflow-x: auto; }
+.analysis-table { min-width: 860px; }
+.analysis-table td { max-width: none; }
+.analysis-table th { white-space: nowrap; }
+.metric-cell { white-space: nowrap; }
+.metric-cell .num { display: block; }
+.metric-dev { display: block; font-size: var(--text-xs); line-height: 1.2; }
+.metric-dev.tone-neutral { color: var(--fg-4); }
+.nowrap { white-space: nowrap; }
+.side-row th { padding-top: var(--sp-4); text-align: left; font-weight: 500; }
+.side-row th > * + * { margin-left: var(--sp-3); }
+.side-label { font: 600 var(--text-sm)/1 var(--font-display); }
+.side-label[data-side="1"] { color: var(--team-1); }
+.side-label[data-side="2"] { color: var(--team-2); }
+.icon-link { display: inline-grid; place-items: center; width: 24px; height: 24px; margin-left: var(--sp-1); border-radius: var(--radius-sm); color: var(--fg-3); }
+.icon-link:hover { background: var(--bg-4); color: var(--fg-1); }
+
+.form-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--line-2); font-size: var(--text-xs); white-space: nowrap; color: var(--fg-3); }
+.form-badge[data-form="peak"] { border-color: var(--accent-line); background: var(--accent-soft); color: var(--accent); }
+.form-badge[data-form="off"] { border-color: var(--line-3); background: var(--neutral-soft); color: var(--fg-2); }
+
+/* Replay header */
+.analysis-hero { display: flex; flex-direction: row; align-items: flex-end; justify-content: space-between; gap: var(--sp-5); padding: var(--sp-5) var(--sp-6); }
+.analysis-hero h2 { margin: var(--sp-1) 0; font: 600 var(--text-3xl)/1.1 var(--font-display); }
+.analysis-hero p { margin: 0; }
+.analysis-hero-side { display: flex; align-items: center; gap: var(--sp-2); }
+
+/* Curves */
+.analysis-charts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--sp-5); }
+.analysis-chart h3 { margin: 0 0 var(--sp-2); }
+.series-chart { margin: 0; display: grid; gap: var(--sp-2); }
+.series-plot { position: relative; height: var(--h, 160px); border-bottom: 1px solid var(--line-2); }
+.series-plot svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.series-line { fill: none; stroke-width: 2; }
+.series-line[data-tone="team-1"] { stroke: var(--team-1); }
+.series-line[data-tone="team-2"] { stroke: var(--team-2); }
+.series-line[data-tone="accent"] { stroke: var(--accent); }
+.series-grid { stroke: var(--line-1); stroke-dasharray: 4 6; vector-effect: non-scaling-stroke; }
+.series-max, .series-end { position: absolute; font-size: var(--text-xs); color: var(--fg-4); }
+.series-max { top: 0; left: 0; }
+.series-end { right: 0; bottom: -18px; }
+.series-legend { display: flex; flex-wrap: wrap; gap: var(--sp-4); margin-top: var(--sp-2); font-size: var(--text-xs); color: var(--fg-3); }
+.series-key { display: inline-flex; align-items: center; gap: 6px; }
+.series-key i { width: 10px; height: 3px; border-radius: 2px; background: var(--fg-3); }
+.series-key[data-tone="team-1"] i { background: var(--team-1); }
+.series-key[data-tone="team-2"] i { background: var(--team-2); }
+.series-key strong { color: var(--fg-1); font-weight: 600; }
+.chart-empty-sm { height: 120px; display: grid; place-items: center; color: var(--fg-4); }
+
+/* Built and lost */
+.team-facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--sp-5); }
+.team-fact h3 { display: flex; align-items: baseline; gap: var(--sp-2); margin: 0 0 var(--sp-3); }
+.team-fact dl { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--sp-3); margin: 0 0 var(--sp-3); }
+.team-fact dt { color: var(--fg-3); font-size: var(--text-xs); }
+.team-fact dd { margin: 2px 0 0; font: 500 var(--text-md)/1.2 var(--font-display); }
+.team-list { margin: var(--sp-1) 0 0; font-size: var(--text-sm); color: var(--fg-2); }
+.analysis-credit { display: flex; align-items: center; gap: var(--sp-1); margin: 0; font-size: var(--text-xs); }
+
+@media (max-width: 1280px) {
+  .dossier-hero { grid-template-columns: auto 1fr; }
+  .dossier-facts { grid-column: 1 / -1; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .kpi-row-8 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .dossier-grid { grid-template-columns: 1fr 1fr; }
+  .dossier-rating { grid-column: 1 / -1; }
+  .analysis-charts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}

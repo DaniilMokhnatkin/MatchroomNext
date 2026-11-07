@@ -5,7 +5,7 @@ import { setLanguage, t } from './lib/i18n.js';
 import { createRouter, VIEWS } from './lib/router.js';
 import {
   store, startPolling, addFiles, openSettings, openDialog, closeDialog, toggleMenu, loadMatchSteam, loadOwner,
-  refreshRadar, refreshLobbies, trackWindow,
+  refreshRadar, refreshLobbies, trackWindow, loadCasual, loadDossier, loadReplay,
 } from './app/controller.js';
 import { appView } from './views/shell.js';
 import { stepMatch } from './views/matches.js';
@@ -29,6 +29,8 @@ let afterRender = null;
 const router = createRouter((route, restoreScroll) => {
   const previous = store.get().route;
   store.set({ route, ui: { ...store.get().ui, menu: false } });
+  if (route.view === 'player') queueMicrotask(() => loadDossier(route.id));
+  if (route.view === 'replay') queueMicrotask(() => loadReplay(route.id));
   if (route.view === 'matches' && (route.id !== previous.id || previous.view !== 'matches')) {
     queueMicrotask(() => loadMatchSteam());
   }
@@ -94,7 +96,7 @@ document.addEventListener('keydown', event => {
   if (state.ui.dialog || typing(event.target) || event.ctrlKey || event.metaKey || event.altKey) return;
 
   const view = state.route.view;
-  if (/^[1-4]$/.test(event.key)) {
+  if (/^[1-6]$/.test(event.key)) {
     router.go(VIEWS[Number(event.key) - 1]);
     event.preventDefault();
   } else if (event.key === '/') {
@@ -112,6 +114,9 @@ document.addEventListener('keydown', event => {
     if (view === 'overview') loadOwner(true);
     else if (view === 'matches') loadMatchSteam(true);
     else if (view === 'radar') refreshRadar();
+    else if (view === 'live' || view === 'casual') loadCasual();
+    else if (view === 'player') loadDossier(state.route.id, true);
+    else if (view === 'replay') loadReplay(state.route.id, true);
     else refreshLobbies();
   }
 });
