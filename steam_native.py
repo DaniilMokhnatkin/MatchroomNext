@@ -427,6 +427,27 @@ def radar(season, ids):
         _shutdown(fn)
 
 
+def lookup_names(fn, run, ids):
+    """Read Steam persona names even if the public profile pages are throttled."""
+    try:
+        friends = fn('SteamFriends_v017', C.c_void_p)()
+        if not friends:
+            return {}
+        get_name = fn('ISteamFriends_GetFriendPersonaName', C.c_char_p, C.c_void_p, C.c_uint64)
+        request = fn('ISteamFriends_RequestUserInformation', C.c_bool, C.c_void_p, C.c_uint64, C.c_bool)
+        pending = [request(friends, int(sid), True) for sid in ids]
+        deadline = time.monotonic() + .65
+        while True:
+            run()
+            names = {sid: (get_name(friends, int(sid)) or b'').decode('utf-8', errors='replace').strip() for sid in ids}
+            names = {sid: name for sid, name in names.items() if name and name != '[unknown]'}
+            if len(names) == len(ids) or not any(pending) or time.monotonic() >= deadline:
+                return names
+            time.sleep(.05)
+    except (AttributeError, OSError, RuntimeError):
+        return {}
+
+
 def lookup(season, ids, leader_id=None):
     from game_process import forts_running
     if not forts_running(refresh=True):
@@ -447,6 +468,7 @@ def lookup(season, ids, leader_id=None):
         if not stats or not utils:
             raise RuntimeError('Не удалось получить интерфейсы Steamworks.')
         run = fn('RunCallbacks', None)
+        names = lookup_names(fn, run, ids) if len(ids) <= 2 else {}
         completed = fn('ISteamUtils_IsAPICallCompleted', C.c_bool, C.c_void_p, C.c_uint64, C.POINTER(C.c_bool))
         get = fn('ISteamUtils_GetAPICallResult', C.c_bool, C.c_void_p, C.c_uint64, C.c_void_p, C.c_int, C.c_int, C.POINTER(C.c_bool))
         deadline = time.monotonic() + 16
@@ -466,7 +488,7 @@ def lookup(season, ids, leader_id=None):
         handle = fn('ISteamUserStats_FindLeaderboard', C.c_uint64, C.c_void_p, C.c_char_p)(stats, f's{season:02d}_Multiplayer1'.encode())
         found = wait(handle, Found, 1104)
         if not found.found:
-            return {'status': 'unavailable', 'message': f'Таблица 1v1 сезона {season} не найдена.', 'players': {}}
+            return {'status': 'unavailable', 'message': f'Таблица 1v1 сезона {season} не найдена.', 'players': {}, 'names': names}
         count = fn('ISteamUserStats_GetLeaderboardEntryCount', C.c_int, C.c_void_p, C.c_uint64)(stats, found.board)
         array = (C.c_uint64 * len(ids))(*(int(s) for s in ids))
         handle = fn('ISteamUserStats_DownloadLeaderboardEntriesForUsers', C.c_uint64, C.c_void_p, C.c_uint64, C.POINTER(C.c_uint64), C.c_int)(stats, found.board, array, len(ids))
@@ -540,8 +562,11 @@ def lookup(season, ids, leader_id=None):
                         own['leader_above_status'] = 'unavailable'
                 except Exception:
                     own['leader_above_status'] = 'unavailable'
+        for sid, name in names.items():
+            if sid in players:
+                players[sid]['name'] = name
         return {'status': 'ok', 'season': season, 'mode': '1v1', 'total': count,
-                'board_id': str(found.board), 'players': players}
+                'board_id': str(found.board), 'players': players, 'names': names}
     finally:
         _shutdown(fn)
 

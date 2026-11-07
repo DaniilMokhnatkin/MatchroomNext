@@ -43,6 +43,7 @@
 .duel-side-them .avatar { box-shadow: 0 0 0 2px var(--team-2); }
 .duel-name { max-width: 100%; font: 600 var(--text-xl)/1.2 var(--font-display); }
 .duel-rank { color: var(--fg-2); font-size: var(--text-sm); }
+.duel-side .link { margin-top: var(--sp-1); font-size: var(--text-sm); }
 .duel-hidden { max-width: 260px; }
 .duel-center { display: grid; justify-items: center; gap: var(--sp-2); text-align: center; }
 .duel-chance { font: 600 var(--text-4xl)/1 var(--font-display); color: var(--accent); }

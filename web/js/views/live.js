@@ -3,8 +3,9 @@ import { h } from '../lib/dom.js';
 import { icon } from '../lib/icons.js';
 import { t, number, signed, percent, duration, dateCompact } from '../lib/i18n.js';
 import { routeHash } from '../lib/router.js';
-import { PHASES, phaseIndex, stakes, compareRows, edge, mapRecord } from '../domain/live.js';
-import { nameOf, ownerId, openSettings } from '../app/controller.js';
+import { PHASES, phaseIndex, stakes, compareRows, edge, mapRecord, seasonRecord } from '../domain/live.js';
+import { validSteamId } from '../domain/matches.js';
+import { liveNameOf, ownerId, openSettings, isDemo } from '../app/controller.js';
 import { panel, avatar, chip, meter, emptyState, hint, button, externalLink } from '../ui/components.js';
 import { rankText } from './common.js';
 
@@ -15,7 +16,7 @@ export function liveHeadline(state) {
   if (!live || live.phase === 'off') return { title: t('liveOff'), tone: 'neutral', active: false };
   if (live.phase === 'idle' || live.phase === 'lobby' || !live.ranked) return { title: t('liveIdle'), tone: 'neutral', active: false };
   const id = live.opponent?.steam_id;
-  const name = id ? (nameOf(id, state) || live.opponent.name || live.intel?.opponent?.name || t('player')) : null;
+  const name = id ? liveNameOf(state, live, id) || t('liveNameUnavailable') : null;
   if (live.phase === 'finished') return { title: t('liveFinished'), tone: 'neutral', active: false, name };
   if (live.phase === 'queue') return { title: t('phase_queue'), tone: 'accent', active: true };
   return { title: name ? t('liveVs', { name }) : t('opponentHidden'), tone: 'accent', active: true, name };
@@ -38,16 +39,19 @@ function stepper(live) {
     index === current && live.since ? h('span', { class: 'live-step-time num muted' }, since(live)) : null)));
 }
 
-function sideCard(state, { id, summary, board, tone, label, hidden, internal }) {
+function sideCard(state, live, { id, summary, board, tone, label, hidden, internal }) {
   const profile = id ? state.profiles[id] : null;
-  const name = (id && nameOf(id, state)) || summary?.name || (hidden ? t('opponentHidden') : t('player'));
+  const name = liveNameOf(state, live, id) || t(hidden ? 'opponentHidden' : 'liveNameUnavailable');
   const row = board || {};
   return h('div', { class: ['duel-side', 'duel-side-' + tone] },
-    avatar({ name, src: profile?.avatar, size: 'lg' }),
+    avatar({ name, src: profile?.avatar || summary?.avatar, size: 'lg' }),
     h('span', { class: 'caps duel-side-label' }, label),
     id ? h('a', { class: 'duel-name ellipsis', title: t('openDossier'), href: routeHash('player', id) }, name) : h('strong', { class: 'duel-name ellipsis', title: name }, name),
     h('span', { class: 'num duel-rank' }, rankText(row.rank ?? summary?.rank, row.score ?? summary?.score)),
     internal ? chip(t('internalShort', { value: number(internal) }), { tone: 'neutral' }) : null,
+    tone === 'them' && id && validSteamId(id) ? externalLink({
+      href: 'https://steamcommunity.com/profiles/' + id, label: t('steamProfile'), demo: isDemo(state),
+    }) : null,
     hidden ? h('small', { class: 'muted duel-hidden' }, t('opponentHiddenHint')) : null);
 }
 
@@ -60,7 +64,7 @@ function duel(state, live) {
   const stake = stakes(chance);
   const board = intel.board || {};
   return h('section', { class: 'duel panel' },
-    sideCard(state, { id: own, summary: intel.self, board: board[own], tone: 'you', label: t('you'), internal: intel.internal?.[own] ?? intel.self?.internal_rating }),
+    sideCard(state, live, { id: own, summary: intel.self, board: board[own], tone: 'you', label: t('you'), internal: intel.internal?.[own] ?? intel.self?.internal_rating }),
     h('div', { class: 'duel-center' },
       h('span', { class: 'caps' }, t('winChance')),
       h('strong', { class: 'duel-chance num' }, chance !== null ? percent(chance) : intel.loading ? '…' : '—'),
@@ -73,7 +77,7 @@ function duel(state, live) {
         hint(t('stakeHint'), t('aboutData'))) : null,
       live.map ? chip(live.map, { icon: 'map' }) : null,
       intel.chance_basis ? h('small', { class: 'muted' }, t(intel.chance_basis === 'internal' ? 'basisInternal' : 'basisScore')) : null),
-    sideCard(state, { id: opponentId, summary: intel.opponent, board: opponentId ? board[opponentId] : null, tone: 'them', label: t('opponent'), hidden: !opponentId, internal: opponentId ? intel.internal?.[opponentId] ?? intel.opponent?.internal_rating : null }));
+    sideCard(state, live, { id: opponentId, summary: intel.opponent, board: opponentId ? board[opponentId] : null, tone: 'them', label: t('opponent'), hidden: !opponentId, internal: opponentId ? intel.internal?.[opponentId] ?? intel.opponent?.internal_rating : null }));
 }
 
 function formatValue(row, value) {
@@ -88,10 +92,12 @@ function comparison(live) {
   const intel = live.intel || {};
   const own = live.self_id;
   const opponentId = live.opponent?.steam_id;
-  const rows = compareRows(intel.self, intel.opponent, { a: intel.board?.[own], b: intel.board?.[opponentId] });
+  const summary = (data, id) => ({ ...data, internal_rating: intel.internal?.[id] ?? data?.internal_rating });
+  const rows = compareRows(summary(intel.self, own), summary(intel.opponent, opponentId),
+    { a: intel.board?.[own], b: intel.board?.[opponentId] });
   const score = edge(rows);
   let body;
-  if (intel.loading) body = h('p', { class: 'panel-empty' }, t('intelLoading'));
+  if (intel.loading && !rows.length) body = h('p', { class: 'panel-empty' }, t('intelLoading'));
   else if (!rows.length) body = h('p', { class: 'panel-empty' }, live.fortstools?.enabled ? t('intelEmpty') : t('intelNeedsFortsTools'));
   else {
     body = h('ul', { class: 'versus-list' }, rows.map(row => h('li', { key: row.id, class: 'versus-row' },
@@ -123,7 +129,7 @@ function headToHead(state, live) {
   const h2h = live.intel?.h2h;
   return panel({
     title: t('headToHead'), caption: t('fromYourReplays'), className: 'h2h-panel',
-    children: !h2h || !h2h.games ? h('p', { class: 'panel-empty' }, t('h2hEmpty')) : [
+    children: !h2h || !h2h.games ? h('p', { class: 'panel-empty' }, t(!h2h && live.intel?.loading ? 'intelLoading' : 'h2hEmpty')) : [
       h('div', { class: 'h2h-score num' },
         h('span', { class: 'tone-win' }, number(h2h.wins)), h('span', { class: 'muted' }, ' – '), h('span', { class: 'tone-loss' }, number(h2h.losses))),
       h('ul', { class: 'h2h-list' }, h2h.recent.map(row => h('li', { key: row.match_id },
@@ -144,15 +150,31 @@ function parseStamp(value) {
 function scouting(state, live) {
   const other = live.intel?.opponent;
   const id = live.opponent?.steam_id;
+  const name = liveNameOf(state, live, id);
+  const toolsLink = id && validSteamId(id) ? externalLink({
+    href: 'https://forts-tools.com/player/' + id, label: 'Forts Tools', demo: isDemo(state),
+  }) : null;
   if (!other) {
-    return panel({ title: t('scouting'), className: 'scout-panel',
-      children: h('p', { class: 'panel-empty' }, live.fortstools?.enabled ? t('scoutEmpty') : t('intelNeedsFortsTools')) });
+    const row = live.intel?.board?.[id];
+    const record = seasonRecord(null, row);
+    const games = record ? record.wins + record.losses : 0;
+    return panel({ title: t('scouting'), caption: name, className: 'scout-panel', actions: toolsLink,
+      children: [
+        record ? h('dl', { class: 'scout-facts' },
+          h('div', null, h('dt', { class: 'caps' }, t('cmp_seasonRate')),
+            h('dd', { class: 'num' }, games ? percent(record.wins / games) : '—')),
+          h('div', null, h('dt', { class: 'caps' }, t('seasonRecord')),
+            h('dd', { class: 'num' }, `${record.wins}–${record.losses}`))) : null,
+        h('p', { class: 'panel-empty' }, t(live.intel?.loading ? 'intelLoading'
+          : record ? 'scoutSteamOnly' : live.fortstools?.enabled ? 'scoutEmpty' : 'intelNeedsFortsTools')),
+      ],
+    });
   }
   const onMap = mapRecord(other, live.map);
   const streak = other.streak?.current;
   return panel({
-    title: t('scouting'), caption: other.name || '', className: 'scout-panel',
-    actions: other.source ? externalLink({ href: other.source, label: 'forts-tools' }) : null,
+    title: t('scouting'), caption: name, className: 'scout-panel',
+    actions: toolsLink,
     children: [
       formStrip(other.form),
       h('dl', { class: 'scout-facts' },

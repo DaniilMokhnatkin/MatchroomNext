@@ -29,6 +29,17 @@ NATIVE_FAILURES_BEFORE_PAUSE = 3
 NATIVE_PAUSE_SECONDS = 90
 
 
+def retry_after_seconds(value):
+    try:
+        seconds = float(value or 0)
+    except (ValueError, TypeError):
+        try:
+            seconds = parsedate_to_datetime(value).timestamp() - time.time()
+        except (ValueError, TypeError, OverflowError, OSError):
+            return None
+    return max(5.0, seconds) if math.isfinite(seconds) and seconds > 0 else None
+
+
 class Gate:
     """Spaces out requests to one Steam host and backs off after refusals."""
 
@@ -65,19 +76,13 @@ class Gate:
 
     def refused(self, retry_after: str | float | None = None, *, status: int | None = None) -> float:
         """Steam said no: pause all requests. Returns the pause in seconds."""
-        try:
-            retry_after = float(retry_after or 0)
-        except ValueError:
-            try:
-                retry_after = parsedate_to_datetime(retry_after).timestamp() - time.time()
-            except (ValueError, OverflowError, OSError):
-                retry_after = 0
+        requested_pause = retry_after_seconds(retry_after)
         with self.lock:
             if time.monotonic() < self.blocked_until:
                 # Requests already in flight when the first refusal came back: one event, one pause.
                 return self.blocked_until - time.monotonic()
             self.failures += 1
-            pause = max(5.0, retry_after) if math.isfinite(retry_after) and retry_after > 0 else min(
+            pause = requested_pause or min(
                 self.max_pause, self.base_pause * 2 ** min(self.failures - 1, 16))
             self.blocked_until = max(self.blocked_until, time.monotonic() + pause)
             logging.warning('%s refused requests (HTTP %s, %s in a row); pausing %.0f s.',

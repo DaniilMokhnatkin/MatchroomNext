@@ -487,6 +487,8 @@ export default {
   h2hEmpty: 'Вы ещё не встречались в рейтинге.',
   scouting: 'Разведка',
   scoutEmpty: 'Данных о сопернике пока нет.',
+  scoutSteamOnly: 'Статистика сезона из Steam. Подробная история Forts Tools пока недоступна.',
+  liveNameUnavailable: 'Имя пока недоступно',
   streakNow: 'Серия сейчас',
   onThisMap: 'На этой карте',
   noMapRecord: 'не играл',

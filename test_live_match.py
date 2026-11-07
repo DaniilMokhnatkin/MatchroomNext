@@ -1,6 +1,9 @@
 import tempfile
+import threading
+import time
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from efficiency import efficiency, expected, win_chance
 from fortstools import FortsTools, summarize_player
@@ -151,6 +154,50 @@ class ResolveTests(unittest.TestCase):
 
 
 class ServiceTests(unittest.TestCase):
+    def test_forts_tools_opponent_is_published_while_steam_is_waiting(self):
+        class History:
+            def active_season(self):
+                return 44
+
+            def encounters(self, *_ids):
+                return {'matches': []}
+
+        requested = []
+        release_steam = threading.Event()
+
+        def fetch(url):
+            sid = url.rsplit('/', 1)[-1]
+            requested.append(sid)
+            return {'found': True, 'steam_id': sid, 'name': 'Opponent' if sid == HOST else 'Northwind'}
+
+        def rankings(*_args):
+            release_steam.wait(3)
+            return {'status': 'ok', 'season': 44, 'names': {HOST: 'Steam nickname'},
+                    'players': {HOST: {'rank': 2359, 'score': 4027, 'details': {'internal': 945, 'wins': 7, 'losses': 4}}}}
+
+        now = [100.0]
+        with tempfile.TemporaryDirectory() as folder:
+            tools = FortsTools(fetch=fetch, clock=lambda: now[0], sleep=lambda delay: now.__setitem__(0, now[0] + delay))
+            service = LiveMatchService(folder, history=History(), tools=tools)
+            key = (SELF, HOST, True)
+            service.intel_key = key
+            with patch('steam_data.rankings', side_effect=rankings):
+                worker = threading.Thread(target=service._load_intel, args=(key,), daemon=True)
+                worker.start()
+                try:
+                    deadline = time.monotonic() + 1
+                    while time.monotonic() < deadline and not (service.intel or {}).get('opponent'):
+                        release_steam.wait(.01)
+                    self.assertEqual(service.intel['opponent']['name'], 'Opponent')
+                    self.assertTrue(service.intel['loading'])
+                finally:
+                    release_steam.set()
+                    worker.join(2)
+            self.assertFalse(worker.is_alive())
+            self.assertEqual(requested, [HOST, SELF])
+            self.assertEqual(service.intel['steam_names'][HOST], 'Steam nickname')
+            self.assertEqual(service.intel['board'][HOST]['details']['wins'], 7)
+
     def test_tick_learns_tokens_and_reports_opponent(self):
         class Lobbies:
             def __init__(self):
@@ -226,6 +273,19 @@ class EfficiencyTests(unittest.TestCase):
 
 
 class FortsToolsTests(unittest.TestCase):
+    def test_two_uncached_profiles_are_fetched_at_least_two_seconds_apart(self):
+        now = [100.0]
+        calls = []
+
+        def fetch(url):
+            calls.append((url.rsplit('/', 1)[-1], now[0]))
+            return {'found': True}
+
+        tools = FortsTools(fetch=fetch, clock=lambda: now[0], sleep=lambda delay: now.__setitem__(0, now[0] + delay))
+        self.assertTrue(tools.player(SELF))
+        self.assertTrue(tools.player(HOST))
+        self.assertEqual(calls, [(SELF, 100), (HOST, 102)])
+
     def test_live_lookup_cache_and_pause(self):
         calls = []
         now = [0.0]

@@ -54,6 +54,16 @@ let liveSeen = null;
 
 export const ownerId = (state = store.get()) => state.app.owner_steam_id || '';
 export const nameOf = (id, state = store.get()) => (id && state.profiles[id]?.name) || '';
+export function liveNameOf(state, live, id) {
+  if (!id) return '';
+  const own = id === (live.self_id || ownerId(state));
+  const intel = live.intel;
+  const names = [intel?.steam_names?.[id], nameOf(id, state),
+    own ? live.self_name : live.opponent?.name,
+    own ? intel?.self?.name : intel?.opponent?.name, intel?.names?.[id]];
+  return names.find(name => typeof name === 'string' && name.trim()
+    && !/^(?:\[unknown\]|\d{17})$/i.test(name.trim()))?.trim() || '';
+}
 export const isDemo = (state = store.get()) => !!state.app.demo;
 
 export function selectedMatch(state = store.get()) {
@@ -156,14 +166,14 @@ export function applyState(next) {
 function followLive(state) {
   const live = state.app.live_match;
   const id = live?.opponent?.steam_id || null;
+  if (id && ['select', 'loading', 'playing'].includes(live.phase)) loadProfiles([id, live.self_id].filter(Boolean));
   if (!id || id === liveSeen) {
     if (!id && live?.phase !== 'select' && live?.phase !== 'loading' && live?.phase !== 'playing') liveSeen = null;
     return;
   }
   liveSeen = id;
-  loadProfiles([id, live.self_id].filter(Boolean));
   if (state.route.view !== 'live') {
-    const name = nameOf(id, state) || live.opponent.name || live.intel?.opponent?.name || t('opponentHidden');
+    const name = liveNameOf(state, live, id) || t('liveNameUnavailable');
     toast(t('liveFoundToast', { name }), { tone: 'accent', timeout: 15000, action: { label: t('open'), href: '#/live' } });
   }
 }

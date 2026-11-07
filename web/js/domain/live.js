@@ -25,6 +25,14 @@ function formRate(form) {
   return Array.isArray(form) && form.length ? form.filter(Boolean).length / form.length : null;
 }
 
+export function seasonRecord(summary, board) {
+  for (const row of [board?.details, summary]) {
+    const wins = num(row?.wins), losses = num(row?.losses);
+    if (wins !== null && losses !== null) return { wins, losses };
+  }
+  return null;
+}
+
 /**
  * Comparison rows. `better` says which direction wins: 'high' or 'low'.
  * A row is kept only when at least one side has a value.
@@ -32,13 +40,15 @@ function formRate(form) {
 export function compareRows(own, other, board = {}) {
   const a = own || {}, b = other || {};
   const ea = a.efficiency || {}, eb = b.efficiency || {};
+  const seasonA = seasonRecord(a, board.a), seasonB = seasonRecord(b, board.b);
   const rows = [
-    { id: 'internal', kind: 'int', better: 'high', a: num(a.internal_rating), b: num(b.internal_rating) },
+    { id: 'internal', kind: 'int', better: 'high', a: num(board.a?.details?.internal ?? a.internal_rating),
+      b: num(board.b?.details?.internal ?? b.internal_rating) },
     { id: 'score', kind: 'int', better: 'high', a: num(board.a?.score ?? a.score), b: num(board.b?.score ?? b.score) },
     { id: 'performance', kind: 'int', better: 'high', a: num(ea.performance), b: num(eb.performance) },
     { id: 'overExpected', kind: 'signed', better: 'high', a: num(ea.over_expected), b: num(eb.over_expected) },
-    { id: 'seasonRate', kind: 'rate', better: 'high', a: rate(a.wins, a.losses), b: rate(b.wins, b.losses),
-      noteA: num(a.wins) !== null ? `${a.wins}–${a.losses}` : null, noteB: num(b.wins) !== null ? `${b.wins}–${b.losses}` : null },
+    { id: 'seasonRate', kind: 'rate', better: 'high', a: rate(seasonA?.wins, seasonA?.losses), b: rate(seasonB?.wins, seasonB?.losses),
+      noteA: seasonA ? `${seasonA.wins}–${seasonA.losses}` : null, noteB: seasonB ? `${seasonB.wins}–${seasonB.losses}` : null },
     { id: 'careerRate', kind: 'rate', better: 'high', a: rate(a.career?.wins, a.career?.losses), b: rate(b.career?.wins, b.career?.losses) },
     { id: 'formRate', kind: 'rate', better: 'high', a: formRate(a.form), b: formRate(b.form) },
     { id: 'vsStronger', kind: 'rate', better: 'high', a: rate(ea.vs_stronger?.wins, (ea.vs_stronger?.games ?? 0) - (ea.vs_stronger?.wins ?? 0)),

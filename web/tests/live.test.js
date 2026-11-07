@@ -25,6 +25,15 @@ test('comparison rows pick the leader by direction', () => {
   assert.deepEqual(edge(rows), { a: 1, b: 3, total: 5 });
 });
 
+test('a Steam board row fills the season comparison when public history is missing', () => {
+  const rows = compareRows({ wins: 2, losses: 1, internal_rating: 1200 }, null,
+    { b: { score: 4027, details: { internal: 945, wins: 7, losses: 4 } } });
+  const record = rows.find(row => row.id === 'seasonRate');
+  assert.equal(record.noteB, '7–4');
+  assert.equal(record.b, 7 / 11);
+  assert.equal(rows.find(row => row.id === 'internal').b, 945);
+});
+
 test('negative values keep a valid bar share', () => {
   const [row] = compareRows({ efficiency: { over_expected: -2 } }, { efficiency: { over_expected: 3 } });
   assert.equal(row.leader, 'b');

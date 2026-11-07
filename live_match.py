@@ -18,14 +18,25 @@ from __future__ import annotations
 
 import json
 import logging
+from queue import Queue
 import re
 import threading
 import time
+from datetime import datetime
 from pathlib import Path
 
 TOKEN = re.compile(r'^[0-9a-f]{16}$')
 STEAM_ID = re.compile(r'^[0-9]{17}$')
 ACTIVE = ('queue', 'select', 'loading', 'playing')
+
+
+def known_name(value):
+    if isinstance(value, str):
+        name = value.strip()
+        if name.casefold() not in ('', 'player', 'игрок', '[unknown]') and not STEAM_ID.fullmatch(name):
+            return name
+    return None
+
 
 PATTERNS = [
     ('self', re.compile(r'^Logged into Steam as (.*) \(([0-9]{17})\)\s*$')),
@@ -291,7 +302,7 @@ def resolve(match, self_id, rows, book, full_since=None):
         if via == 'lobby_id' and len(tokens) >= 2:
             book.learn(tokens[1], self_id, own=True)
         return {'steam_id': row.get('owner_id') or None, 'token': tokens[0] if tokens else None,
-                'lobby_id': row.get('id'), 'map': row.get('map'), 'rank_score': row.get('rank_score'),
+                'lobby_id': row.get('id'), 'map': row.get('map'), 'rank_score': row.get('rank_score'), 'name': known_name(row.get('host')),
                 'source': 'lobby_host', 'confidence': 'confirmed'}
     # Joined without knowing our token yet: the one ranked room that filled up
     # right when we connected, on the same map, is almost certainly ours.
@@ -304,7 +315,7 @@ def resolve(match, self_id, rows, book, full_since=None):
         if len(candidates) == 1:
             row = candidates[0]
             return {'steam_id': row['owner_id'], 'token': row['tokens'][0] if row['tokens'] else None,
-                    'lobby_id': row.get('id'), 'map': row.get('map'), 'rank_score': row.get('rank_score'),
+                    'lobby_id': row.get('id'), 'map': row.get('map'), 'rank_score': row.get('rank_score'), 'name': known_name(row.get('host')),
                     'source': 'lobby_timing', 'confidence': 'probable'}
     return None
 
@@ -346,6 +357,9 @@ class LiveMatchService:
         self.opponent = None
         self.full_since = {}
         self.intel, self.intel_key = None, None
+        self.intel_retry_at = 0.0
+        self.live_probe = None
+        self.live_probe_at = 0.0
         self.last_refresh = 0.0
         self.announced = None
         self.learned_replay = None
@@ -358,7 +372,7 @@ class LiveMatchService:
                 raise ValueError('Некорректная настройка forts-tools.')
             with self.lock:
                 self.settings['fortstools'] = fortstools
-                self.intel_key = None
+                self.intel_key, self.intel = None, None
             self.directory.mkdir(parents=True, exist_ok=True)
             temporary = self.settings_path.with_suffix('.tmp')
             temporary.write_text(json.dumps(self.settings), encoding='utf-8')
@@ -429,13 +443,20 @@ class LiveMatchService:
             self.game_running = running
             if match is not self.match_ref:
                 self.match_ref, self.opponent, self.announced = match, None, None
+                self.intel, self.intel_key, self.live_probe_at = None, None, 0.0
             if running and match['ranked'] and match['phase'] in ACTIVE:
                 found = resolve(match, self_id, rows, self.book, self.full_since)
                 if found and (not self.opponent or not self.opponent.get('steam_id') or
                               (found.get('steam_id') and found['confidence'] == 'confirmed')):
-                    self.opponent = dict(found, found_at=(self.opponent or {}).get('found_at') or now)
-                if (not self.opponent or not self.opponent.get('steam_id')) and match['phase'] != 'queue':
-                    self._ask_forts_tools(self_id, now)
+                    old = self.opponent or {}
+                    if found.get('steam_id') == old.get('steam_id') and not found.get('name') and old.get('name'):
+                        found['name'] = old['name']
+                    self.opponent = dict(found, found_at=old.get('found_at') or now)
+                if ((not self.opponent or not self.opponent.get('steam_id')) and match['phase'] != 'queue'
+                        and self._tools() and self_id and self.live_probe is None and now >= self.live_probe_at):
+                    self.live_probe, self.live_probe_at = match, now + 5
+                    threading.Thread(target=self._ask_forts_tools, args=(self_id, now, match),
+                                     daemon=True, name='live-opponent').start()
                 if (not self.opponent or not self.opponent.get('steam_id')) and now - self.last_refresh >= 5 and self.lobbies:
                     self.last_refresh = now
                     try:
@@ -445,8 +466,15 @@ class LiveMatchService:
             opponent_id = (self.opponent or {}).get('steam_id')
             if opponent_id and self_id:
                 key = (self_id, opponent_id, self.settings['fortstools'])
-                if key != self.intel_key:
-                    self.intel_key, self.intel = key, {'loading': True}
+                same = key == self.intel_key
+                intel = self.intel if same and self.intel else {}
+                retry = (running and match['phase'] in ('select', 'loading', 'playing')
+                         and not intel.get('loading') and now >= self.intel_retry_at
+                         and (not (intel.get('board') or {}).get(opponent_id)
+                              or (self._tools() and not intel.get('opponent'))))
+                if not same or retry:
+                    self.intel_key, self.intel = key, dict(intel, loading=True)
+                    self.intel_retry_at = now + 15
                     threading.Thread(target=self._load_intel, args=(key,), daemon=True, name='live-intel').start()
                 if self.announced != opponent_id and match['phase'] in ('select', 'loading'):
                     self.announced = opponent_id
@@ -455,20 +483,40 @@ class LiveMatchService:
             self._learn_from_replay(match, self_id)
         self.book.save()
 
-    def _ask_forts_tools(self, self_id, now):
-        tools = self._tools()
-        if not tools or not self_id:
-            return
-        other, live = tools.live_opponent(self_id)
-        if not other:
-            return
-        token = (self.opponent or {}).get('token')
-        if token:
-            self.book.learn(token, other['steam_id'])
-        self.opponent = {'steam_id': other['steam_id'], 'token': token, 'lobby_id': (self.opponent or {}).get('lobby_id'),
-                         'map': live.get('map'), 'rank_score': other.get('score'), 'name': other.get('name'),
-                         'win_chance': other.get('win_chance'), 'stake': other.get('stake'),
-                         'source': 'forts_tools', 'confidence': 'confirmed', 'found_at': now}
+    def _ask_forts_tools(self, self_id, now, match):
+        try:
+            tools = self._tools()
+            if not tools:
+                return
+            other, live = tools.live_opponent(self_id)
+            if not other:
+                return
+            started = datetime.fromisoformat(live.get('started_utc') or '').timestamp()
+            with self.lock:
+                previous = self.opponent or {}
+                if (self.match_ref is not match or self.follower.parser.match is not match or self._tools() is not tools
+                        or match['phase'] not in ('select', 'loading', 'playing') or not self.game_running
+                        or previous.get('steam_id') or other['steam_id'] == self_id
+                        or not -120 <= started - match['phase_at'] <= 120):
+                    return
+                own_map, public_map = match.get('map'), live.get('map')
+                if own_map and public_map and own_map.casefold().removesuffix(' 1v1') != public_map.casefold().removesuffix(' 1v1'):
+                    return
+                token = previous.get('token')
+                if token:
+                    self.book.learn(token, other['steam_id'])
+                self.opponent = {'steam_id': other['steam_id'], 'token': token, 'lobby_id': previous.get('lobby_id'),
+                                 'map': public_map, 'rank_score': other.get('score'), 'name': known_name(other.get('name')),
+                                 'win_chance': other.get('win_chance'), 'stake': other.get('stake'),
+                                 'source': 'forts_tools', 'confidence': 'confirmed', 'found_at': now}
+        except (TypeError, ValueError):
+            pass
+        except Exception:
+            logging.exception('Could not identify opponent through Forts Tools')
+        finally:
+            with self.lock:
+                if self.live_probe is match:
+                    self.live_probe = None
 
     def _learn_from_replay(self, match, self_id):
         if not self.history:
@@ -493,47 +541,106 @@ class LiveMatchService:
 
     def _load_intel(self, key):
         self_id, opponent_id, use_tools = key
-        out = {'loading': False, 'self': None, 'opponent': None, 'board': {}, 'h2h': None,
-               'win_chance': None, 'chance_basis': None}
-        try:
-            if self.history:
-                out['h2h'] = head_to_head(self.history.encounters(self_id, opponent_id))
-        except Exception:
-            logging.exception('Head-to-head failed')
-        try:
+        with self.lock:
+            if self.intel_key is not key:
+                return
+            out = dict(self.intel or {})
+        ids = (opponent_id, self_id)
+        messages = Queue()
+        tools = self.tools if use_tools else None
+        missing_summaries = [(sid, other, field)
+                             for sid, other, field in ((opponent_id, self_id, 'opponent'), (self_id, opponent_id, 'self'))
+                             if not out.get(field)]
+
+        def fetch_board():
             from steam_data import rankings
             season = self.history.active_season() if self.history else None
             if season:
-                board = rankings(season, sorted({self_id, opponent_id}))
-                out['board'] = {sid: board.get('players', {}).get(sid) for sid in (self_id, opponent_id)}
-        except Exception:
-            logging.exception('Live rankings failed')
-        tools = self.tools if use_tools else None
-        if tools:
+                messages.put(('board', rankings(season, sorted(set(ids)))))
+
+        def fetch_tools():
             from fortstools import summarize_player
-            out['self'] = summarize_player(tools.player(self_id), opponent_id)
-            out['opponent'] = summarize_player(tools.player(opponent_id), self_id)
-        from efficiency import win_chance
-        if self.players:
-            for sid, summary in ((self_id, out['self']), (opponent_id, out['opponent'])):
+            for sid, other, field in missing_summaries:
+                messages.put((field, summarize_player(tools.player(sid), other)))
+
+        def start(label, task):
+            def run():
                 try:
-                    self.players.record_summary(sid, summary)
+                    task()
                 except Exception:
-                    logging.exception('Could not store a forts-tools summary')
+                    logging.exception('Live match data source failed: %s', label)
+                finally:
+                    messages.put(('done', None))
+            threading.Thread(target=run, daemon=True, name='live-' + label).start()
+
+        pending = 0
+        if not all((out.get('board') or {}).get(sid) for sid in ids):
+            start('steam-board', fetch_board)
+            pending += 1
+        if tools and missing_summaries:
+            start('forts-tools', fetch_tools)
+            pending += 1
+
+        names = dict(out.get('names') or {})
+        cached_ratings = {}
+        try:
+            if self.history and 'h2h' not in out:
+                encounters = self.history.encounters(self_id, opponent_id)
+                out['h2h'] = head_to_head(encounters)
+                for encounter in encounters.get('matches', []):
+                    if name := known_name(encounter.get('name')):
+                        names.setdefault(opponent_id, name)
+                        break
+            if self.players:
+                for sid in ids:
+                    for row in self.players.names(sid):
+                        if name := known_name(row.get('name')):
+                            names.setdefault(sid, name)
+                            break
+                    cached = self.players.latest_internal(sid)
+                    if cached:
+                        cached_ratings[sid] = cached['internal']
+        except Exception:
+            logging.exception('Could not load local live match data')
+        out['names'] = names
+        from efficiency import win_chance
 
         def rating(sid, summary):
-            row = out['board'].get(sid) or {}
-            internal = (summary or {}).get('internal_rating') or (row.get('details') or {}).get('internal')
-            if not internal and self.players:
-                known = self.players.latest_internal(sid)
-                internal = known and known['internal']
+            row = (out.get('board') or {}).get(sid) or {}
+            internal = (row.get('details') or {}).get('internal') or (summary or {}).get('internal_rating') or cached_ratings.get(sid)
             return {'internal_rating': internal, 'score': row.get('score') or (summary or {}).get('score')}
-        out['internal'] = {sid: rating(sid, summary)['internal_rating']
-                           for sid, summary in ((self_id, out['self']), (opponent_id, out['opponent']))}
-        out['win_chance'], out['chance_basis'] = win_chance(rating(self_id, out['self']), rating(opponent_id, out['opponent']))
-        with self.lock:
-            if self.intel_key == key:
-                self.intel = out
+
+        def publish():
+            own = rating(self_id, out.get('self'))
+            other = rating(opponent_id, out.get('opponent'))
+            chance, basis = win_chance(own, other)
+            with self.lock:
+                if self.intel_key is key and not self.stop.is_set():
+                    self.intel = dict(out, loading=bool(pending), win_chance=chance, chance_basis=basis,
+                                      internal={self_id: own['internal_rating'], opponent_id: other['internal_rating']})
+
+        publish()
+        while pending:
+            field, value = messages.get()
+            if field == 'done':
+                pending -= 1
+            elif field == 'board':
+                rows = {sid: row for sid, row in (value.get('players') or {}).items() if sid in ids and row}
+                out['board'] = {**(out.get('board') or {}), **rows}
+                out['steam_names'] = {**(out.get('steam_names') or {}), **(value.get('names') or {})}
+                if self.players and value.get('status') == 'ok' and rows:
+                    try:
+                        self.players.record_board(value['season'], rows)
+                    except Exception:
+                        logging.exception('Could not store live Steam standings')
+            elif value:
+                out[field] = value
+                if self.players:
+                    try:
+                        self.players.record_summary(opponent_id if field == 'opponent' else self_id, value)
+                    except Exception:
+                        logging.exception('Could not store a forts-tools summary')
+            publish()
 
     def _notify(self):
         method = getattr(self.notifier, 'live_opponent', None)
@@ -566,6 +673,7 @@ class LiveMatchService:
                 'map': match.get('map') or (opponent or {}).get('map'),
                 'since': match.get('phase_at'), 'started_at': match.get('started_at'),
                 'self_id': parser.self_id or (getattr(self.history, 'owner_steam_id', '') if self.history else ''),
+                'self_name': parser.self_name,
                 'opponent': opponent,
                 'intel': dict(self.intel) if self.intel and opponent and opponent.get('steam_id') else None,
                 'result': result,

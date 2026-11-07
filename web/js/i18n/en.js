@@ -486,6 +486,8 @@ export default {
   fromYourReplays: 'from your replays',
   h2hEmpty: 'You have not met in ranked yet.',
   scouting: 'Scouting',
+  scoutSteamOnly: 'Season stats from Steam. Detailed history from Forts Tools is currently unavailable.',
+  liveNameUnavailable: 'Name unavailable for now',
   scoutEmpty: 'No data on the opponent yet.',
   streakNow: 'Current streak',
   onThisMap: 'On this map',
