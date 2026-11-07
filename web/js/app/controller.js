@@ -31,6 +31,7 @@ export const store = createStore({
   casual: { revision: null, games: [], loaded: false },
   dossiers: {},
   replays: {},
+  replayChartUi: {},
   dossierUi: { scope: 'auto', limit: 40 },
   casualUi: { mode: '', days: 0, limit: 40 },
   lobbyUi: { tab: 'recruiting', query: '', noPassword: false, favoritesOnly: false, sort: 'new', busy: false, expanded: {} },
@@ -207,6 +208,21 @@ export async function loadReplay(id, force = false) {
     loadProfiles(data.players.map(player => player.steam_id).filter(Boolean));
   } catch (error) {
     store.merge('replays', { [id]: { error: error.status === 404 ? 'pending' : (error.message || t('requestFailed')), at: Date.now(), loading: false } });
+  }
+}
+
+export async function loadReplayPlayerCurves(id) {
+  const cached = store.get().replays[id];
+  if (!cached?.data || cached.data.player_curves || cached.curvesState) return;
+  store.merge('replays', { [id]: { ...cached, curvesState: 'loading' } });
+  try {
+    const data = await api('/api/replay-analysis?key=' + encodeURIComponent(cached.data.key) + '&series=1',
+      undefined, { timeout: 100000 });
+    if (store.get().replays[id]?.data !== cached.data) return;
+    store.merge('replays', { [id]: { ...cached, data, at: Date.now(), curvesState: 'done' } });
+  } catch {
+    if (store.get().replays[id]?.data !== cached.data) return;
+    store.merge('replays', { [id]: { ...cached, curvesState: 'error' } });
   }
 }
 

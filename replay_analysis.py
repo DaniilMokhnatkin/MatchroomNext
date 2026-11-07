@@ -8,6 +8,7 @@ economy, losses and builds, and the team series for charts.
 from __future__ import annotations
 
 import json
+from itertools import accumulate
 import subprocess
 import sys
 from pathlib import Path
@@ -47,7 +48,10 @@ def _last(values, default=0):
 
 
 def _downsample(frames, step):
-    return [round(value, 1) if isinstance(value, float) else value for value in frames[::step]]
+    samples = frames[::step]
+    if frames and (len(frames) - 1) % step:
+        samples = [*samples, frames[-1]]
+    return [round(value, 1) if isinstance(value, float) else value for value in samples]
 
 
 def summarize(info: dict, names: dict | None = None) -> dict:
@@ -88,6 +92,7 @@ def summarize(info: dict, names: dict | None = None) -> dict:
     counts = {t.get('player'): t.get('counts') or {} for t in info.get('timelines') or []}
 
     players = []
+    player_curves = {}
     for player in info.get('players') or []:
         side = player.get('side')
         if side not in (1, 2):
@@ -103,9 +108,17 @@ def summarize(info: dict, names: dict | None = None) -> dict:
         enemy_taken = taken.get(3 - side) or 0
         own_taken = taken.get(side) or 0
         steam_id = player.get('steam_id')
+        start = teams.get(player.get('team'), {})
+        starting_team = start.get('team') if start.get('side') == side else None
+        if steam_id and series and frames:
+            # The replay's player damage counter resets to zero when they leave.
+            player_curves[steam_id] = {
+                'apm': _downsample(series.get('apm') or [], step),
+                'damage': _downsample(list(accumulate(series.get('damage') or [], max)), step),
+            }
         players.append({
             'steam_id': steam_id, 'name': player.get('name') or names.get(steam_id) or '',
-            'side': side, 'team': team.get('team'), 'recorder': bool(player.get('recorder')),
+            'side': side, 'team': team.get('team'), 'starting_team': starting_team, 'recorder': bool(player.get('recorder')),
             'won': (winner == side) if winner else None,
             'metrics': {
                 'apm': round(sum(apm_values) / len(apm_values), 1) if apm_values else None,
@@ -130,7 +143,7 @@ def summarize(info: dict, names: dict | None = None) -> dict:
         'duration': round(duration, 1), 'ranked': bool(info.get('ranked')), 'map': _map_name(info.get('map')),
         'winner_side': winner, 'rating_after': result.get('rating') if result.get('source') == 'ranked' else None,
         'commanders': {c.get('side'): c.get('name') for c in info.get('commanders') or []},
-        'series_frames': _downsample(frames, step),
+        'series_frames': _downsample(frames, step), 'player_curves': player_curves,
         'teams': list(teams.values()), 'damage_taken': taken, 'players': players,
         'parser': info.get('parser_version'), 'warnings': (info.get('warnings') or [])[:5],
         'truncated': bool(info.get('truncated')),
@@ -189,10 +202,11 @@ def form_verdict(deviations: dict) -> str | None:
     """Overall read of one game against the player's norm."""
     if len(deviations) < 3:
         return None
-    above = sum(1 for d in deviations.values() if d['verdict'] == 'above')
-    below = sum(1 for d in deviations.values() if d['verdict'] == 'below')
-    if above >= 3 and above > below * 2:
-        return 'peak'
-    if below >= 3 and below > above * 2:
-        return 'off'
+    above = [d for d in deviations.values() if d['verdict'] == 'above']
+    below = [d for d in deviations.values() if d['verdict'] == 'below']
+    balance = len(above) - len(below)
+    if balance >= 2:
+        return 'life' if balance >= 3 and sum(abs(d['z']) >= 2 for d in above) >= 2 else 'above'
+    if balance <= -2:
+        return 'rough' if balance <= -3 and sum(abs(d['z']) >= 2 for d in below) >= 2 else 'below'
     return 'usual'

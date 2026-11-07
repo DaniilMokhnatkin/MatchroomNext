@@ -57,3 +57,30 @@ export function internalSeries(ratings) {
 export function stampDate(seconds) {
   return typeof seconds === 'number' ? new Date(seconds * 1000) : null;
 }
+
+/** Keep the player's side and starting fort first, without guessing in spectator replays. */
+export function replaySides(data, owner) {
+  const own = owner ? data.players.find(player => player.steam_id === owner && [1, 2].includes(player.side)) : null;
+  return (own ? [own.side, 3 - own.side] : [1, 2]).map(side => {
+    const players = data.players.filter(player => player.side === side);
+    const forts = data.teams.filter(team => team.side === side).map(team => ({
+      ...team,
+      players: players.filter(player => player.starting_team === team.team)
+        .sort((a, b) => Number(b === own) - Number(a === own)),
+    })).sort((a, b) => Number(b.players.includes(own)) - Number(a.players.includes(own)) || a.team - b.team);
+    return { side, role: !own ? null : side === own.side ? 'yourReplaySide' : 'otherReplaySide', players, forts };
+  });
+}
+
+export function replaySeries(forts, metric, frames) {
+  const series = forts.map(fort => fort.series?.[metric] || []).filter(values => values.length);
+  const totals = frames.map((_, index) => {
+    const samples = series.map(values => values[index]).filter(Number.isFinite);
+    return samples.length ? samples.reduce((a, b) => a + b, 0) : null;
+  });
+  if (metric !== 'reactor_health') return totals;
+  // The replay adds the health of every reactor. Its raw value can exceed
+  // 100 even within one fort, so use the highest observed total as the scale.
+  const peak = Math.max(0, ...totals.filter(Number.isFinite));
+  return totals.map(value => peak > 0 && value !== null ? value / peak * 100 : null);
+}

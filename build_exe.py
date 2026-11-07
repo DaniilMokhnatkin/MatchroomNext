@@ -11,7 +11,7 @@ import sys
 
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT / 'shell'))
-VERSION = 'v0.12.1'
+VERSION = 'v0.12.2'
 NAME = f'Matchroom Next {VERSION}'
 SERVICE_NAME = 'MatchroomService'
 # (source, destination inside the bundle). Client tests are not shipped.
@@ -23,6 +23,8 @@ RESOURCES = [
 
 
 def build_service():
+    if not (ROOT / 'fwr/fwr.exe').is_file():
+        raise SystemExit('Missing fwr/fwr.exe. Build the replay analyzer as described in README.md.')
     subprocess.run([sys.executable, str(ROOT / 'lobby_native/build_helper.py')], check=True)
     out = ROOT / 'build_exe' / 'service'
     command = [sys.executable, '-m', 'PyInstaller', '--noconfirm', '--clean',

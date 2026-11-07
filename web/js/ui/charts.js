@@ -3,6 +3,7 @@
 // the data-sig attribute keeps background re-renders from resetting it.
 import { h, s } from '../lib/dom.js';
 import { number, signed, dateCompact, time } from '../lib/i18n.js';
+import { formatMetric } from '../domain/analysis.js';
 
 let gradientSeq = 0;
 
@@ -138,26 +139,75 @@ export function occupancyChart(samples, { max, label, format }) {
  * Several series over match time. `lines` are {label, values, tone} with tone
  * 'team-1', 'team-2' or 'accent'; `frames` are physics frames (25 per second).
  */
-export function seriesChart(lines, frames, { label = '', format = number, height = 160, endLabel = null } = {}) {
+export function nearestReplayFrame(frames, frame) {
+  return frames.reduce((best, sample, i) => Math.abs(sample - frame) < Math.abs(frames[best] - frame) ? i : best, 0);
+}
+
+export function seriesChart(lines, frames, { label = '', format = number, height = 160, sig, axisMax } = {}) {
   const W = 1000, H = 300;
-  const usable = lines.filter(line => line.values?.length);
-  const all = usable.flatMap(line => line.values.filter(v => typeof v === 'number'));
+  const usable = lines.filter(line => line.values?.some(Number.isFinite));
+  const all = usable.flatMap(line => line.values.filter(Number.isFinite));
   if (!all.length || frames.length < 2) return h('div', { class: 'chart-empty chart-empty-sm' }, '—');
-  const hi = Math.max(...all, 1), lo = Math.min(0, ...all);
-  const last = frames[frames.length - 1] || 1;
-  const x = frame => (frame / last) * W;
+  const hi = Math.max(...all, axisMax ?? 1), lo = Math.min(0, ...all);
+  const last = Math.max(1, frames.at(-1));
+  const x = frame => (Math.max(0, frame) / last) * W;
   const y = v => H - ((v - lo) / (hi - lo || 1)) * H;
+  const clock = frame => formatMetric('time', Math.max(0, frame) / 25);
+  const read = value => Number.isFinite(value) ? format(value) : '—';
+  const path = values => frames.map((frame, i) => Number.isFinite(values[i])
+    ? (Number.isFinite(values[i - 1]) ? 'L' : 'M') + x(frame).toFixed(1) + ',' + y(values[i]).toFixed(1) : '').join(' ');
   const paths = usable.map(line => s('path', {
     class: 'series-line', 'data-tone': line.tone, 'vector-effect': 'non-scaling-stroke',
-    d: line.values.map((v, i) => (i ? 'L' : 'M') + x(frames[i] ?? 0).toFixed(1) + ',' + y(v ?? 0).toFixed(1)).join(' '),
+    d: path(line.values),
   }));
-  const minutes = last / 25 / 60;
-  return h('figure', { class: 'series-chart', style: { '--h': height + 'px' } },
-    h('div', { class: 'series-plot' },
-      s('svg', { viewBox: `0 0 ${W} ${H}`, preserveAspectRatio: 'none', role: 'img', 'aria-label': label },
+  const rule = h('span', { class: 'series-rule', 'aria-hidden': 'true' });
+  const marks = usable.map(line => h('span', { class: 'series-point', 'data-tone': line.tone, 'aria-hidden': 'true' }));
+  const tip = h('div', { class: 'series-tip', role: 'status' });
+  let selected = -1;
+  const show = (plot, index) => {
+    const bounded = Math.max(0, Math.min(index, frames.length - 1));
+    if (selected === bounded && plot.classList.contains('is-inspecting')) return;
+    selected = bounded;
+    const left = x(frames[selected]) / W * 100;
+    plot.style.setProperty('--x', left + '%');
+    tip.classList.toggle('tip-left', left > 48);
+    for (const [i, mark] of marks.entries()) {
+      const v = usable[i].values[selected];
+      mark.hidden = !Number.isFinite(v);
+      if (!mark.hidden) mark.style.setProperty('--y', y(v) / H * 100 + '%');
+    }
+    tip.replaceChildren(h('strong', { class: 'num' }, clock(frames[selected])), ...usable.map(line =>
+      h('span', { class: 'series-key', 'data-tone': line.tone },
+        h('i', { 'aria-hidden': 'true' }), h('span', { class: 'series-tip-label' }, line.label),
+        h('strong', { class: 'num' }, read(line.values[selected])))));
+    plot.classList.add('is-inspecting');
+  };
+  const inspectPointer = (plot, event) => {
+    const bounds = plot.getBoundingClientRect();
+    if (bounds.width) show(plot, nearestReplayFrame(frames, (event.clientX - bounds.left) / bounds.width * last));
+  };
+  return h('figure', { class: 'series-chart', key: sig, 'data-sig': sig, style: { '--h': height + 'px' } },
+    h('div', {
+      class: 'series-plot', tabindex: '0', role: 'group', 'aria-label': label,
+      onPointermove(event) { if (event.pointerType !== 'touch') inspectPointer(this, event); },
+      onPointerdown(event) { inspectPointer(this, event); },
+      onPointerleave(event) { if (event.pointerType !== 'touch') this.classList.remove('is-inspecting'); },
+      onFocus() { show(this, selected < 0 ? frames.length - 1 : selected); },
+      onBlur() { this.classList.remove('is-inspecting'); },
+      onKeydown(event) {
+        if (event.key === 'Escape') { this.classList.remove('is-inspecting'); return; }
+        const current = selected < 0 ? frames.length - 1 : selected;
+        const steps = { ArrowLeft: current - 1, ArrowRight: current + 1, Home: 0, End: frames.length - 1 };
+        if (!Object.hasOwn(steps, event.key)) return;
+        event.preventDefault();
+        show(this, steps[event.key]);
+      },
+    },
+      s('svg', { viewBox: `0 0 ${W} ${H}`, preserveAspectRatio: 'none', 'aria-hidden': 'true' },
         s('line', { class: 'series-grid', x1: 0, x2: W, y1: H / 2, y2: H / 2 }), ...paths),
       h('span', { class: 'series-max num' }, format(hi)),
-      h('span', { class: 'series-end num' }, endLabel ? endLabel(minutes) : Math.round(minutes) + "'")),
+      h('span', { class: 'series-end num' }, clock(last)),
+      rule, marks, tip),
     h('figcaption', { class: 'series-legend' }, usable.map(line => h('span', { class: 'series-key', 'data-tone': line.tone },
-      h('i', { 'aria-hidden': 'true' }), line.label, h('strong', { class: 'num' }, format(line.values.at(-1) ?? 0))))));
+      h('i', { 'aria-hidden': 'true' }), line.label, h('strong', { class: 'num' }, read(line.values[frames.length - 1]))))));
 }

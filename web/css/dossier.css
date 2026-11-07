@@ -1,5 +1,6 @@
 /* Player dossier and replay analysis. Desktop layout, tokens only. */
 .dossier, .analysis { display: grid; gap: var(--sp-5); }
+.analysis, .analysis > * { min-width: 0; }
 .dossier > .toolbar { margin-bottom: 0; }
 
 .dossier-hero { display: grid; grid-template-columns: auto minmax(220px, 1fr) minmax(0, 2.2fr); align-items: center; gap: var(--sp-5); padding: var(--sp-5) var(--sp-6); }
@@ -15,7 +16,7 @@
 
 .kpi-row-8 { grid-template-columns: repeat(8, minmax(0, 1fr)); }
 .kpi-row-8 .stat { padding: var(--sp-3) var(--sp-4); }
-.kpi-row-8 .stat-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.kpi-row-8 .stat-label { text-transform: none; letter-spacing: 0; white-space: normal; }
 
 .dossier-grid { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(240px, 1fr) minmax(240px, 1fr); gap: var(--sp-5); align-items: start; }
 .opponent-list { display: grid; gap: 2px; }
@@ -24,6 +25,7 @@
 
 /* Tables of per-game numbers */
 .table-scroll { overflow-x: auto; }
+.replay-metric-note { margin: 0 0 var(--sp-3); font-size: var(--text-sm); }
 .analysis-table { min-width: 860px; }
 .analysis-table td { max-width: none; }
 .analysis-table th { white-space: nowrap; }
@@ -41,8 +43,10 @@
 .icon-link:hover { background: var(--bg-4); color: var(--fg-1); }
 
 .form-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--line-2); font-size: var(--text-xs); white-space: nowrap; color: var(--fg-3); }
-.form-badge[data-form="peak"] { border-color: var(--accent-line); background: var(--accent-soft); color: var(--accent); }
-.form-badge[data-form="off"] { border-color: var(--line-3); background: var(--neutral-soft); color: var(--fg-2); }
+.form-badge[data-form="life"] { border-color: var(--accent-line); background: var(--accent-soft); color: var(--accent); }
+.form-badge[data-form="above"] { color: var(--win); }
+.form-badge[data-form="below"] { color: var(--loss); }
+.form-badge[data-form="rough"] { background: var(--loss-soft); color: var(--loss); }
 
 /* Replay header */
 .analysis-hero { display: flex; flex-direction: row; align-items: flex-end; justify-content: space-between; gap: var(--sp-5); padding: var(--sp-5) var(--sp-6); }
@@ -51,8 +55,11 @@
 .analysis-hero-side { display: flex; align-items: center; gap: var(--sp-2); }
 
 /* Curves */
+.replay-chart-controls { display: flex; flex-wrap: wrap; gap: var(--sp-3); align-items: center; margin-bottom: var(--sp-5); }
+.replay-chart-controls > *, .replay-chart-controls select { max-width: 100%; min-width: 0; }
 .analysis-charts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--sp-5); }
-.analysis-chart h3 { margin: 0 0 var(--sp-2); }
+.analysis-charts[data-chart-mode="players"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.analysis-chart h3 { margin: 0 0 var(--sp-2); font-size: var(--text-sm); }
 .series-chart { margin: 0; display: grid; gap: var(--sp-2); }
 .series-plot { position: relative; height: var(--h, 160px); border-bottom: 1px solid var(--line-2); }
 .series-plot svg { display: block; width: 100%; height: 100%; overflow: visible; }
@@ -60,6 +67,18 @@
 .series-line[data-tone="team-1"] { stroke: var(--team-1); }
 .series-line[data-tone="team-2"] { stroke: var(--team-2); }
 .series-line[data-tone="accent"] { stroke: var(--accent); }
+.series-rule, .series-point, .series-tip { display: none; position: absolute; pointer-events: none; }
+.series-plot.is-inspecting .series-rule, .series-plot.is-inspecting .series-point:not([hidden]),
+.series-plot.is-inspecting .series-tip { display: block; }
+.series-rule { inset: 0 auto 0 var(--x); border-left: 1px solid var(--fg-4); }
+.series-point { left: var(--x); top: var(--y); width: 8px; height: 8px; transform: translate(-50%, -50%); border: 2px solid var(--bg-2); border-radius: 50%; background: var(--accent); }
+.series-point[data-tone="team-1"] { background: var(--team-1); }
+.series-point[data-tone="team-2"] { background: var(--team-2); }
+.series-tip { top: var(--sp-2); right: var(--sp-2); min-width: min(152px, 80%); max-width: calc(100% - 2 * var(--sp-2)); padding: var(--sp-2) var(--sp-3); border: 1px solid var(--line-3); border-radius: var(--radius-sm); background: var(--bg-1); z-index: 1; font-size: var(--text-sm); }
+.series-tip.tip-left { right: auto; left: var(--sp-2); }
+.series-tip .series-key { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: var(--sp-2); margin-top: 3px; }
+.series-tip-label { overflow-wrap: anywhere; }
+.series-tip .num { white-space: nowrap; }
 .series-grid { stroke: var(--line-1); stroke-dasharray: 4 6; vector-effect: non-scaling-stroke; }
 .series-max, .series-end { position: absolute; font-size: var(--text-xs); color: var(--fg-4); }
 .series-max { top: 0; left: 0; }
@@ -73,12 +92,30 @@
 .chart-empty-sm { height: 120px; display: grid; place-items: center; color: var(--fg-4); }
 
 /* Built and lost */
-.team-facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--sp-5); }
-.team-fact h3 { display: flex; align-items: baseline; gap: var(--sp-2); margin: 0 0 var(--sp-3); }
-.team-fact dl { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--sp-3); margin: 0 0 var(--sp-3); }
+.team-facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-5); align-items: start; }
+.fort-side { display: grid; align-content: start; gap: var(--sp-3); min-width: 0; }
+.fort-side > h3 { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--sp-2); margin: 0; padding-bottom: var(--sp-2); border-bottom: 1px solid var(--line-2); }
+.fort-side > h3 .side-label { font-size: var(--text-md); }
+.fort-side > h3 small { font-size: var(--text-xs); font-weight: 400; }
+.team-fact { min-width: 0; padding: var(--sp-3) var(--sp-4); border: 1px solid var(--line-2); border-radius: var(--radius-sm); }
+.team-fact > header { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--sp-2) var(--sp-3); }
+.team-fact > header h4, .team-fact > header p { margin: 0; font-size: var(--text-sm); }
+.team-fact > header h4 { color: var(--fg-3); font-weight: 500; }
+.fort-players { display: flex; flex: 1; flex-wrap: wrap; gap: var(--sp-1) var(--sp-3); margin: 0; padding: 0; list-style: none; min-width: 0; }
+.fort-players li { display: inline-flex; align-items: center; gap: var(--sp-1); min-width: 0; font-weight: 600; }
+.fort-player-name { color: var(--fg-1); text-decoration: none; overflow-wrap: anywhere; }
+.fort-player-name:hover { text-decoration: underline; }
+.team-fact dl { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--sp-3); margin: var(--sp-3) 0; }
 .team-fact dt { color: var(--fg-3); font-size: var(--text-xs); }
-.team-fact dd { margin: 2px 0 0; font: 500 var(--text-md)/1.2 var(--font-display); }
-.team-list { margin: var(--sp-1) 0 0; font-size: var(--text-sm); color: var(--fg-2); }
+.team-fact dd { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px var(--sp-2); margin: 2px 0 0; font: 500 var(--text-md)/1.2 var(--font-display); }
+.team-fact dl small { font-size: var(--text-xs); }
+.fort-details { border-top: 1px solid var(--line-1); }
+.fort-details summary { cursor: pointer; padding: var(--sp-2) 0 var(--sp-1); font-size: var(--text-sm); color: var(--fg-2); }
+.fort-breakdown { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-3); margin-top: var(--sp-2); }
+.fort-breakdown h5, .fort-breakdown p { margin: 0; font-size: var(--text-sm); }
+.fort-breakdown p { grid-column: 1 / -1; }
+.fort-build-list { list-style: none; padding: 0; margin: var(--sp-1) 0 0; font-size: var(--text-sm); }
+.fort-build-list li { display: flex; justify-content: space-between; gap: var(--sp-2); overflow-wrap: anywhere; }
 .analysis-credit { display: flex; align-items: center; gap: var(--sp-1); margin: 0; font-size: var(--text-xs); }
 
 @media (max-width: 1280px) {
@@ -88,4 +125,10 @@
   .dossier-grid { grid-template-columns: 1fr 1fr; }
   .dossier-rating { grid-column: 1 / -1; }
   .analysis-charts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 780px) {
+  .analysis-hero { flex-wrap: wrap; }
+  .analysis-charts, .analysis-charts[data-chart-mode="players"], .team-facts { grid-template-columns: minmax(0, 1fr); }
+  .analysis .panel-title { flex-direction: column; align-items: flex-start; gap: var(--sp-1); }
+  .analysis .panel-caption { white-space: normal; }
 }

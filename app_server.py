@@ -263,7 +263,7 @@ def make_server(initial: list[dict], default_my_id: str | None = None, history=N
                 key = args.get('key', [''])[0]
                 if not key and args.get('file'):
                     key = players.find_key(args['file'][0][:260]) or ''
-                result = players.analysis(key) if re.fullmatch(r'[0-9a-f]{40}', key) else None
+                result = players.analysis(key, include_player_curves=args.get('series') == ['1']) if re.fullmatch(r'[0-9a-f]{40}', key) else None
                 self.respond(200 if result else 404, result or {'error': 'Разбор этого реплея ещё не готов.'})
             elif route == '/api/live' and live:
                 self.respond(200, live.snapshot())

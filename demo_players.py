@@ -35,7 +35,7 @@ def _summary(key, record, self_id):
     minutes = duration / 60
     frames = [int(i * 128) for i in range(int(duration * 25 / 128) + 1)]
     winner = record.get('winner_side')
-    players, teams = [], []
+    players, teams, player_curves = [], [], {}
     # One fort per side in duels; team games share a fort per side for simplicity.
     for side in (1, 2):
         team_id = 100 + side
@@ -52,8 +52,11 @@ def _summary(key, record, self_id):
             dpm = style['dpm'] * rng.uniform(0.85, 1.15) * mood
             dmg = dpm * minutes
             damage += dmg
+            player_curves[player['steam_id']] = {'apm': _walk(random.Random(player['steam_id'] + key), len(frames), apm * .5, apm * 1.5),
+                                                  'damage': curve(dmg)}
             players.append({
                 'steam_id': player['steam_id'], 'name': player.get('name') or '', 'side': side, 'team': team_id,
+                'starting_team': team_id,
                 'recorder': player['steam_id'] == self_id, 'won': won,
                 'metrics': {
                     'apm': round(apm, 1), 'apm_peak': round(apm * 2.1), 'cpm': round(apm * 0.45, 1),
@@ -95,7 +98,7 @@ def _summary(key, record, self_id):
         'duration': round(duration, 1), 'ranked': bool(record.get('ranked')), 'map': record.get('map') or 'Forts',
         'winner_side': winner, 'rating_after': None,
         'commanders': {1: rng.choice(COMMANDERS), 2: rng.choice(COMMANDERS)},
-        'series_frames': frames, 'teams': teams, 'damage_taken': {1: 1, 2: 1}, 'players': players,
+        'series_frames': frames, 'player_curves': player_curves, 'teams': teams, 'damage_taken': {1: 1, 2: 1}, 'players': players,
         'parser': 'demo', 'warnings': [], 'truncated': False,
     }
 

@@ -2,6 +2,7 @@ import struct
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from player_db import PlayerDB, mode_of, parse_details
 from replay_analysis import baseline, compare, form_verdict, summarize
@@ -63,10 +64,36 @@ class SummarizeTests(unittest.TestCase):
         self.assertEqual(norms['apm']['n'], 10)
         off = compare({'apm': 60, 'dpm': 900, 'devices_lost_pm': 3.0}, norms)
         self.assertEqual({k: v['verdict'] for k, v in off.items()}, {'apm': 'below', 'dpm': 'below', 'devices_lost_pm': 'below'})
-        self.assertEqual(form_verdict(off), 'off')
+        self.assertEqual(form_verdict(off), 'rough')
         peak = compare({'apm': 140, 'dpm': 3000, 'devices_lost_pm': 0.2}, norms)
-        self.assertEqual(form_verdict(peak), 'peak')
+        self.assertEqual(form_verdict(peak), 'life')
         self.assertEqual(compare({'apm': 1}, baseline(rows[:4])), {})  # fewer than five games: no verdict
+
+    def test_five_form_levels_and_insufficient_data(self):
+        def verdict(*rows):
+            return form_verdict(dict(enumerate({'verdict': label, 'z': z} for label, z in rows)))
+
+        plus, minus, neutral = ('above', 1.5), ('below', -1.5), ('usual', 0.4)
+        self.assertEqual(verdict(plus, plus, neutral), 'above')
+        self.assertEqual(verdict(minus, minus, neutral), 'below')
+        self.assertEqual(verdict(plus, minus, neutral), 'usual')
+        self.assertEqual(verdict(plus, plus), None)
+        self.assertEqual(verdict(plus, plus, plus), 'above')
+
+    def test_starting_fort_is_not_the_last_fort_the_player_controlled(self):
+        info = fwr_info()
+        info['state']['teams'].append(dict(info['state']['teams'][0], team=201))
+        info['state']['players'][0]['team'] = [101, 201, 201]
+        me = summarize(info)['players'][0]
+        self.assertEqual(me['starting_team'], 101)
+        self.assertEqual(me['team'], 201)
+
+    def test_player_damage_is_retained_when_a_player_leaves(self):
+        info = fwr_info()
+        info['state']['players'][0]['damage'] = [0, 900, 0]
+        summary = summarize(info)
+        self.assertEqual(summary['player_curves'][A]['damage'], [0, 900, 900])
+        self.assertEqual(summary['player_curves'][B]['apm'], [150, 130])
 
 
 class DetailsTests(unittest.TestCase):
@@ -82,6 +109,44 @@ class DetailsTests(unittest.TestCase):
 
 
 class PlayerDBTests(unittest.TestCase):
+    def test_old_analysis_recovers_starting_forts_from_the_replay_header(self):
+        summary = summarize(fwr_info())
+        summary['teams'].append(dict(summary['teams'][0], team=201))
+        for player in summary['players']:
+            player.pop('starting_team', None)
+        summary['players'][0]['team'] = 201
+        header = {'players': [{'steam_id': A, 'team': 101, 'side': 1}, {'steam_id': B, 'team': 102, 'side': 2}]}
+        with tempfile.TemporaryDirectory() as folder:
+            db = PlayerDB(folder, database=':memory:')
+            self.addCleanup(db.close)
+            path = Path(folder) / 'match.fwr'
+            path.write_bytes(b'x' * 64)
+            key = db.key(path, 64)
+            db.store_summary(key, path.name, str(path), 1, summary)
+            with patch('forts_replay.read_replay', return_value=header):
+                self.assertEqual(db.analysis(key)['players'][0]['starting_team'], 101)
+            path.unlink()
+            self.assertIsNone(db.analysis(key)['players'][0].get('starting_team'))
+
+    def test_player_curves_for_archived_matches_are_loaded_only_on_demand_and_saved(self):
+        info = fwr_info()
+        summary = summarize(info)
+        expected = summary.pop('player_curves')
+        with tempfile.TemporaryDirectory() as folder:
+            analyser = unittest.mock.Mock(return_value=info)
+            db = PlayerDB(folder, analyse=analyser, database=':memory:')
+            self.addCleanup(db.close)
+            path = Path(folder) / 'match.fwr'
+            path.write_bytes(b'x' * 64)
+            key = db.key(path, 64)
+            db.store_summary(key, path.name, str(path), 1, summary)
+            self.assertNotIn('player_curves', db.analysis(key))
+            analyser.assert_not_called()
+            self.assertEqual(db.analysis(key, include_player_curves=True)['player_curves'], expected)
+            path.unlink()
+            self.assertEqual(db.analysis(key, include_player_curves=True)['player_curves'], expected)
+            analyser.assert_called_once_with(path)
+
     def test_store_dossier_and_analysis(self):
         with tempfile.TemporaryDirectory() as folder:
             db = PlayerDB(folder, owner=lambda: A, analyse=lambda path: fwr_info())

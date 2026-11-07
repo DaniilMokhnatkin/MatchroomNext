@@ -18,6 +18,7 @@ import logging
 import re
 import sqlite3
 import struct
+from subprocess import TimeoutExpired
 import threading
 import time
 from datetime import datetime
@@ -276,12 +277,43 @@ class PlayerDB:
         rows = self._rows(steam_id) if rows is None else rows
         return {cls: baseline([r['metrics'] for r in rows if mode_class(r['mode']) == cls]) for cls in ('duel', 'team')}
 
-    def analysis(self, key):
+    def analysis(self, key, include_player_curves=False):
         with self.lock:
-            row = self.db.execute('SELECT data FROM analyses WHERE key=?', (key,)).fetchone()
+            row = self.db.execute('SELECT data, path FROM analyses WHERE key=?', (key,)).fetchone()
         if not row:
             return None
         data = json.loads(row[0])
+        legacy_forts = any('starting_team' not in p for p in data['players'])
+        legacy_curves = include_player_curves and 'player_curves' not in data
+        if legacy_forts or legacy_curves:
+            path = Path(row[1])
+            try:
+                original_exists = self.key(path, path.stat().st_size) == key
+            except OSError:
+                original_exists = False
+            if legacy_forts and original_exists:
+                from forts_replay import read_replay
+                try:
+                    lineup = {p['steam_id']: (p['side'], p['team']) for p in read_replay(path)['players'] if p['steam_id']}
+                    for player in data['players']:
+                        side, team = lineup.get(player.get('steam_id'), (None, None))
+                        if side == player['side']:
+                            player['starting_team'] = team
+                except (OSError, ValueError):
+                    pass
+            if legacy_curves and original_exists:
+                try:
+                    parsed = summarize(self.analyse(path))
+                    length = len(data['series_frames'])
+                    if parsed['series_frames'][:length] == data['series_frames']:
+                        data['player_curves'] = {sid: {metric: values[:length] for metric, values in curves.items()}
+                                                  for sid, curves in parsed['player_curves'].items()}
+                        with self.lock:
+                            self.db.execute('UPDATE analyses SET data=? WHERE key=?',
+                                            (json.dumps(data, ensure_ascii=True), key))
+                            self.db.commit()
+                except (OSError, ValueError, RuntimeError, KeyError, TypeError, TimeoutExpired):
+                    logging.info('Could not reload player curves for replay %s.', key, exc_info=True)
         cls = mode_class(data.get('mode'))
         for player in data['players']:
             sid = player.get('steam_id')
