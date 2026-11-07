@@ -56,7 +56,7 @@ export default {
   quitText: 'The window closes and auto-import and radar stop until the next launch. The original Matchroom keeps running.',
   stoppedTitle: 'Matchroom Next has stopped',
   stoppedText: 'You can close this window.',
-  steamThrottled: 'Steam is limiting requests for now — paused for {time}. Names and avatars will appear later; the game rating is not affected.',
+  steamThrottled: 'Could not refresh data through the Steam client. Retrying in {time}.',
   connectionLost: 'Lost connection to Next. Reconnecting…',
   demoBanner: 'Demo: matches and players are fictional; Steam and your personal database are not used.',
   emptyDemo: 'Show empty archive',

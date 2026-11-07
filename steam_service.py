@@ -11,12 +11,14 @@ from __future__ import annotations
 
 import json
 import logging
+import math
 import queue
 import subprocess
 import sys
 import tempfile
 import threading
 import time
+from email.utils import parsedate_to_datetime
 from itertools import count
 from pathlib import Path
 
@@ -30,9 +32,11 @@ NATIVE_PAUSE_SECONDS = 90
 class Gate:
     """Spaces out requests to one Steam host and backs off after refusals."""
 
-    def __init__(self, min_gap=1.5, max_wait=12.0, base_pause=60.0, max_pause=1800.0):
+    def __init__(self, min_gap=1.5, max_wait=12.0, base_pause=60.0, max_pause=1800.0,
+                 host='Steam'):
         self.min_gap, self.max_wait = min_gap, max_wait
         self.base_pause, self.max_pause = base_pause, max_pause
+        self.host = host
         self.lock = threading.Lock()
         self.next_slot = 0.0
         self.blocked_until = 0.0
@@ -51,23 +55,33 @@ class Gate:
         delay = slot - time.monotonic()
         if delay > 0:
             time.sleep(delay)
-        return True
+        with self.lock:
+            return time.monotonic() >= self.blocked_until
 
     def succeeded(self) -> None:
         with self.lock:
-            self.failures = 0
+            if time.monotonic() >= self.blocked_until:
+                self.failures = 0
 
-    def refused(self, retry_after: float | None = None) -> float:
+    def refused(self, retry_after: str | float | None = None, *, status: int | None = None) -> float:
         """Steam said no: pause all requests. Returns the pause in seconds."""
+        try:
+            retry_after = float(retry_after or 0)
+        except ValueError:
+            try:
+                retry_after = parsedate_to_datetime(retry_after).timestamp() - time.time()
+            except (ValueError, OverflowError, OSError):
+                retry_after = 0
         with self.lock:
             if time.monotonic() < self.blocked_until:
                 # Requests already in flight when the first refusal came back: one event, one pause.
                 return self.blocked_until - time.monotonic()
             self.failures += 1
-            pause = retry_after if retry_after else self.base_pause * 2 ** (self.failures - 1)
-            pause = min(self.max_pause, max(5.0, float(pause)))
+            pause = max(5.0, retry_after) if math.isfinite(retry_after) and retry_after > 0 else min(
+                self.max_pause, self.base_pause * 2 ** min(self.failures - 1, 16))
             self.blocked_until = max(self.blocked_until, time.monotonic() + pause)
-            logging.warning('Steam refused requests (%s in a row); pausing %.0f s.', self.failures, pause)
+            logging.warning('%s refused requests (HTTP %s, %s in a row); pausing %.0f s.',
+                            self.host, status or '?', self.failures, pause)
             return pause
 
     def blocked_for(self) -> float:
@@ -75,8 +89,8 @@ class Gate:
 
 
 # One gate for steamcommunity.com profile pages (the strictest limit), one for the API host.
-community = Gate(min_gap=1.5, base_pause=60)
-webapi = Gate(min_gap=2.0, base_pause=120)
+community = Gate(min_gap=2.5, base_pause=120, host='steamcommunity.com')
+webapi = Gate(min_gap=2.0, base_pause=120, host='api.steampowered.com')
 
 
 class NativeService:
@@ -205,4 +219,4 @@ def throttle_state() -> dict:
     """What the UI shows when Steam is holding requests back."""
     values = {'community': community.blocked_for(), 'webapi': webapi.blocked_for(), 'native': native.blocked_for()}
     longest = max(values.values())
-    return {'limited': longest > 0, 'seconds': int(longest)}
+    return {'limited': longest > 0, 'seconds': math.ceil(longest), 'native_seconds': math.ceil(values['native'])}

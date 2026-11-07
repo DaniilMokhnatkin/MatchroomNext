@@ -281,7 +281,13 @@ export function startPolling() {
 
 function mergeProfiles(profiles) {
   if (!profiles || !Object.keys(profiles).length) return;
-  store.set(state => ({ profiles: { ...state.profiles, ...profiles } }));
+  store.set(state => {
+    const next = { ...state.profiles };
+    for (const [id, profile] of Object.entries(profiles)) {
+      if (profile.status === 'ok' || next[id]?.status !== 'ok') next[id] = profile;
+    }
+    return { profiles: next };
+  });
 }
 
 export async function loadMatchSteam(force = false) {
@@ -338,13 +344,15 @@ export async function retryProfile(id) {
   }
 }
 
-const profileRequests = new Set();
+const profileRetryAt = new Map();
 
-/** Fetch missing profiles in small batches; each id is requested once per session. */
+/** Fetch missing profiles on demand and allow a later retry after a temporary failure. */
 export async function loadProfiles(ids) {
   const state = store.get();
-  const missing = [...new Set(ids)].filter(id => id && !state.profiles[id] && !profileRequests.has(id)).slice(0, 24);
-  missing.forEach(id => profileRequests.add(id));
+  const now = Date.now();
+  const missing = [...new Set(ids)].filter(id => id && state.profiles[id]?.status !== 'ok'
+    && now >= (profileRetryAt.get(id) || 0)).slice(0, 24);
+  missing.forEach(id => profileRetryAt.set(id, Infinity));
   for (let start = 0; start < missing.length; start += 4) {
     const batch = missing.slice(start, start + 4);
     const found = {};
@@ -353,6 +361,8 @@ export async function loadProfiles(ids) {
         const data = await api('/api/profile?id=' + id);
         if (data.profiles?.[id]) found[id] = data.profiles[id];
       } catch { /* a missing avatar is not worth a toast */ }
+      if (found[id]?.status === 'ok') profileRetryAt.delete(id);
+      else profileRetryAt.set(id, Date.now() + 1000 * (found[id]?.retry_in || 120));
     }));
     mergeProfiles(found);
   }

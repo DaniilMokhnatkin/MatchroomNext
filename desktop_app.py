@@ -13,7 +13,7 @@ import time
 import webbrowser
 from urllib.request import Request, urlopen
 
-APP_VERSION = 'next-0.12'
+APP_VERSION = 'next-0.12.1'
 AUTOSTART_NAME = 'FortsMatchroomNext'
 
 
@@ -137,6 +137,8 @@ def run(files=(), my_id=None, data_dir=None, no_browser=False, no_tray=False,
             finally:
                 kernel.CloseHandle.argtypes = [ctypes.c_void_p]
                 kernel.CloseHandle(mutex)
+    from steam_data import configure_profile_cache
+    configure_profile_cache(directory)
     history = History(directory)
     from ranked_radar import RankedRadar
     radar = RankedRadar(directory, owner_getter=lambda: history.owner_steam_id)

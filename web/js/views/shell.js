@@ -165,9 +165,9 @@ function banners(state) {
       h('span', null, t('demoBanner')),
       h('button', { type: 'button', class: 'banner-action', onClick: toggleDemoEmpty }, t(state.app.demo_empty ? 'restoreDemo' : 'emptyDemo'))));
   }
-  if (state.app.steam_throttle?.limited) {
+  if (state.app.steam_throttle?.native_seconds > 0) {
     list.push(h('div', { class: 'banner banner-warning', key: 'steam' },
-      icon('alert', 'icon-sm'), h('span', null, t('steamThrottled', { time: duration(state.app.steam_throttle.seconds) }))));
+      icon('alert', 'icon-sm'), h('span', null, t('steamThrottled', { time: duration(state.app.steam_throttle.native_seconds) }))));
   }
   const live = liveHeadline(state);
   if (live.active && live.name && state.route.view !== 'live') {

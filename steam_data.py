@@ -3,6 +3,8 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 import json
 import html
+import logging
+import math
 from pathlib import Path
 import subprocess
 import sys
@@ -16,9 +18,14 @@ import xml.etree.ElementTree as ET
 from game_process import forts_running
 
 _profiles = {}
+_saved_profiles = {}
+_profile_cache_path = None
+_profile_pending = set()
 _rankings = {}
 _lock = threading.Lock()
 _native_lock = threading.Lock()
+PROFILE_CACHE_SECONDS = 7 * 24 * 3600
+PROFILE_RETRY_SECONDS = 120
 RANKING_CACHE_SECONDS = 60
 ACTIVITY_CACHE_SECONDS = 30
 _activity_lock = threading.Lock()
@@ -46,17 +53,81 @@ def profile_presence(root):
     return True if len(lines) >= 2 and lines[-1] == 'Forts' else None
 
 
+def configure_profile_cache(directory):
+    """Load the last known public identity, never a previous live status."""
+    global _profile_cache_path
+    with _lock:
+        _profile_cache_path = Path(directory) / 'steam-profiles.json' if directory is not None else None
+        _profiles.clear()
+        _saved_profiles.clear()
+        if _profile_cache_path:
+            try:
+                rows = json.loads(_profile_cache_path.read_text(encoding='utf-8'))
+                if isinstance(rows, dict):
+                    for steam_id, row in rows.items():
+                        if (isinstance(row, dict) and type(row.get('fetched_at')) in (float, int)
+                                and (isinstance(row.get('name'), str) or valid_avatar(row.get('avatar')))):
+                            name = row.get('name')
+                            _saved_profiles[steam_id] = {'status': 'ok', 'fetched_at': row['fetched_at'],
+                                                         'name': name if isinstance(name, str) else None,
+                                                         'avatar': valid_avatar(row.get('avatar'))}
+            except FileNotFoundError:
+                pass
+            except (OSError, ValueError):
+                logging.warning('Could not load the Steam profile cache.', exc_info=True)
+
+
+def valid_avatar(url):
+    if not isinstance(url, str):
+        return None
+    try:
+        parsed = urlsplit(url)
+        if parsed.scheme == 'https' and (parsed.hostname or '').endswith('.steamstatic.com'):
+            return url
+    except ValueError:
+        pass
+    return None
+
+
+def _save_profile(steam_id, result):
+    if not _profile_cache_path:
+        return
+    old = _saved_profiles.get(steam_id, {})
+    name = result['name'] or old.get('name')
+    avatar = result['avatar']
+    if not name and not avatar:
+        return
+    fetched_at = result['presence_checked_at']
+    if old.get('name') == name and old.get('avatar') == avatar and 0 <= fetched_at - old['fetched_at'] < 86400:
+        return
+    _saved_profiles[steam_id] = {'status': 'ok', 'name': name, 'avatar': avatar, 'fetched_at': fetched_at}
+    try:
+        temporary = _profile_cache_path.with_suffix('.tmp')
+        temporary.write_text(json.dumps(_saved_profiles, ensure_ascii=False), encoding='utf-8')
+        temporary.replace(_profile_cache_path)
+    except OSError:
+        logging.warning('Could not save the Steam profile cache.', exc_info=True)
+
+
 def profile(steam_id, force=False):
+    from steam_service import community
+    unavailable = {'status': 'unavailable', 'name': None, 'avatar': None}
     with _lock:
         cached = _profiles.get(steam_id)
-        cache_seconds = 600 if cached and cached[1].get('status') == 'ok' else 120
-        if cached and not force and time.monotonic() - cached[0] < cache_seconds:
-            return cached[1]
-    from steam_service import community
-    if not community.wait_turn():
-        # Paused after a refusal, or too many waiting: keep what we know, ask nothing.
-        return cached[1] if cached else {'status': 'unavailable', 'name': None, 'avatar': None, 'throttled': True}
+        saved = _saved_profiles.get(steam_id)
+        fallback = (cached[1] if cached and cached[1]['status'] == 'ok' else saved) or unavailable
+        if not force:
+            if cached and time.monotonic() < cached[0]:
+                return cached[1]
+            if saved and 0 <= time.time() - saved['fetched_at'] < PROFILE_CACHE_SECONDS:
+                return saved
+        if steam_id in _profile_pending:
+            return fallback
+        _profile_pending.add(steam_id)
     try:
+        if not community.wait_turn():
+            retry = math.ceil(community.blocked_for())
+            return dict(fallback, throttled=True, retry_in=retry) if retry else fallback
         url = f'https://steamcommunity.com/profiles/{steam_id}/?xml=1'
         with urlopen(Request(url, headers={'User-Agent': 'FortsReplayReader/2.0'}), timeout=8) as response:
             raw = response.read(1024 * 1024 + 1)
@@ -65,23 +136,25 @@ def profile(steam_id, force=False):
         root = ET.fromstring(raw)
         if root.findtext('steamID64') != steam_id:
             raise ValueError('Steam не вернул профиль')
-        avatar = root.findtext('avatarFull') or ''
-        parsed = urlsplit(avatar)
-        if parsed.scheme != 'https' or not (parsed.hostname or '').endswith('.steamstatic.com'):
-            avatar = None
-        result = {'status': 'ok', 'name': root.findtext('steamID'), 'avatar': avatar,
+        result = {'status': 'ok', 'name': root.findtext('steamID') or fallback.get('name'),
+                  'avatar': valid_avatar(root.findtext('avatarFull')),
                   'in_forts': profile_presence(root), 'presence_checked_at': time.time()}
         community.succeeded()
-    except HTTPError as error:
-        if error.code in (401, 403, 429, 503):
-            retry = error.headers.get('Retry-After') if error.headers else None
-            community.refused(float(retry) if retry and retry.isdigit() else None)
-        result = cached[1] if cached and cached[1].get('status') == 'ok' else {'status': 'unavailable', 'name': None, 'avatar': None}
-    except Exception:
-        result = cached[1] if cached and cached[1].get('status') == 'ok' else {'status': 'unavailable', 'name': None, 'avatar': None}
-    with _lock:
-        _profiles[steam_id] = (time.monotonic(), result)
-    return result
+        with _lock:
+            _save_profile(steam_id, result)
+            _profiles[steam_id] = (time.monotonic() + 600, result)
+        return result
+    except Exception as error:
+        if isinstance(error, HTTPError) and error.code in (401, 403, 429, 503):
+            retry = community.refused(error.headers.get('Retry-After') if error.headers else None,
+                                      status=error.code)
+            return dict(fallback, throttled=True, retry_in=math.ceil(retry))
+        with _lock:
+            _profiles[steam_id] = (time.monotonic() + PROFILE_RETRY_SECONDS, fallback)
+        return fallback
+    finally:
+        with _lock:
+            _profile_pending.discard(steam_id)
 
 
 def rankings(season, ids, force=False, leader_id=None):
@@ -154,7 +227,8 @@ def activity(force=False):
                         payload = response.read(65537)
                 except HTTPError as error:
                     if error.code in (403, 429, 503):
-                        webapi.refused()
+                        webapi.refused(error.headers.get('Retry-After') if error.headers else None,
+                                       status=error.code)
                     raise
                 webapi.succeeded()
                 if len(payload) > 65536:

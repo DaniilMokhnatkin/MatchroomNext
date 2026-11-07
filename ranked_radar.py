@@ -15,8 +15,7 @@ from game_process import forts_running
 from ranking_seasons import current_season
 
 POLL_SECONDS = 30
-PRESENCE_SECONDS = 60
-PRESENCE_BATCH = 12  # profiles per cycle: the roster is covered every few minutes
+PRESENCE_SECONDS = 25  # One public lookup per cycle; native rank and presence have their own poll.
 FRESH_SECONDS = 120
 RECENT_SECONDS = 600
 TIER_ORDER = {'fpl': 0, 'top20': 1, 'top80': 2, 'current': 3}
@@ -106,15 +105,21 @@ class RankedRadar:
             self.status = 'checking' if enabled else 'disabled'
         self.wake.set()
 
-    def presence_batch(self):
-        """Next slice of the roster, round-robin."""
-        ids = self.request_ids()
-        if not ids:
-            return []
-        start = getattr(self, '_presence_cursor', 0) % len(ids)
-        batch = [ids[(start + i) % len(ids)] for i in range(min(PRESENCE_BATCH, len(ids)))]
-        self._presence_cursor = start + len(batch)
-        return batch
+    def next_presence_id(self):
+        """Rotate the roster, skipping players already confirmed by Steamworks."""
+        with self.lock:
+            ids = self.request_ids()
+            now = time.time()
+            start = getattr(self, '_presence_cursor', 0)
+            for offset in range(len(ids)):
+                index = (start + offset) % len(ids)
+                sid = ids[index]
+                friend = self._friends.get(sid, {})
+                if friend.get('in_forts') is True and 0 <= now - friend['checked_at'] <= FRESH_SECONDS:
+                    continue
+                self._presence_cursor = index + 1
+                return sid
+        return None
 
     def request_ids(self):
         with self.lock:
@@ -343,21 +348,18 @@ class RankedRadar:
                     continue
                 if time.monotonic() < due:
                     continue
-                from steam_data import profile
-                # HTTP presence refresh cannot delay the score polling thread, and it
-                # walks the roster in small batches: Steam throttles bursts of profile requests.
-                ids = self.presence_batch()
-                generation = self.season
-                for sid in ids:
-                    if self.stop.is_set() or not self.enabled or not forts_running():
-                        break
+                from steam_service import community
+                paused_for = community.blocked_for()
+                if paused_for:
+                    due = time.monotonic() + paused_for
+                    continue
+                sid, generation = self.next_presence_id(), self.season
+                if sid and not self.stop.is_set() and self.enabled and forts_running():
+                    from steam_data import profile
                     value = profile(sid, force=True)
-                    if value and value.get('throttled'):
-                        break
-                    if value and forts_running() and self.enabled and generation == self.season:
+                    if (value.get('presence_checked_at') and not value.get('throttled')
+                            and forts_running() and self.enabled and generation == self.season):
                         self.ingest_profiles({sid: value})
-                if self.stop.is_set():
-                    break
                 due = time.monotonic() + PRESENCE_SECONDS
 
         self.threads = [threading.Thread(target=monitor, name='ranked-radar', daemon=True),
