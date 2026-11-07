@@ -21,6 +21,15 @@
 .live-step.is-done .live-step-mark { border-color: var(--win-line); background: var(--win-soft); color: var(--win); }
 .live-step.is-current { border-color: var(--accent-line); background: var(--accent-soft); color: var(--fg-1); }
 .live-step.is-current .live-step-mark { border-color: var(--accent); background: var(--accent); color: var(--on-accent); }
+.live-step:has(.live-step-action) { padding: 0; }
+.live-step-action { display: flex; align-items: center; gap: var(--sp-2); width: 100%; padding: var(--sp-2) var(--sp-3); color: inherit; background: none; border: 0; font: inherit; text-align: left; cursor: pointer; }
+.live-step-action:hover { background: var(--bg-3); }
+.last-match-current { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-3); }
+.result-meta { margin: var(--sp-3) 0 0; }
+.last-match-result .table-scroll { margin-top: var(--sp-4); }
+.last-match-result .panel-head, .last-match-result .panel-title { flex-wrap: wrap; }
+.last-match-result .panel-title { flex: 1 1 240px; gap: var(--sp-1) var(--sp-3); }
+.last-match-result .panel-title h2 { white-space: nowrap; }
 
 /* Searching */
 .live-searching { display: flex; align-items: center; gap: var(--sp-5); padding: var(--sp-6); }

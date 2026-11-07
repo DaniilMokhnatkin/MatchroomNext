@@ -20,6 +20,7 @@ import json
 import logging
 from queue import Queue
 import re
+import struct
 import threading
 import time
 from datetime import datetime
@@ -48,6 +49,7 @@ PATTERNS = [
     ('peer', re.compile(r'^Connected to ([0-9]{17})\s*$')),
     ('peer_gone', re.compile(r'has disconnected, index [0-9]+, SteamID ([0-9]{17})')),
     ('client', re.compile(r'^Client Connected: (.+?), index [0-9]+, id [0-9]+, side ([0-9]+)')),
+    ('loading_ping', re.compile(r'^[0-9]+: .+?, Id [0-9]+, Team [12], PlayerLoading,.*? Local ([01]), ping ([0-9.]+)\s*$')),
     ('map', re.compile(r'^Randomly selecting map (.+) for 1v1 match')),
     ('commander_select', re.compile(r'^(?:Multiplayer\(CommanderSelect|AddMapControls dir mods, filter commander-)')),
     ('loading', re.compile(r'^All ranked players ready, starting game')),
@@ -66,7 +68,7 @@ def fresh_match(ranked=False, now=0.0):
     return {'phase': 'queue' if ranked else 'idle', 'ranked': ranked, 'hosting': None,
             'lobby_id': None, 'map': None, 'phase_at': now, 'joined_at': None,
             'started_at': None, 'my_side': None, 'winner_side': None, 'commanders': {},
-            'replay': None, 'peers': [], 'roster': []}
+            'replay': None, 'peers': [], 'roster': [], 'loading_ping_ms': {}}
 
 
 class LogParser:
@@ -76,6 +78,7 @@ class LogParser:
         self.self_id = None
         self.self_name = None
         self.match = fresh_match()
+        self.last_finished = None
 
     def _phase(self, phase, now):
         if self.match['phase'] != phase:
@@ -128,6 +131,13 @@ class LogParser:
                 m['peers'].remove(found[1])
         elif kind == 'client':
             m['roster'] = [r for r in m['roster'] if r['name'] != found[1]][-15:] + [{'name': found[1], 'side': int(found[2])}]
+        elif kind == 'loading_ping':
+            try:
+                ping = float(found[2])
+                if 0 <= ping <= 60:
+                    m['loading_ping_ms']['self' if found[1] == '1' else 'opponent'] = round(ping * 1000)
+            except ValueError:
+                pass
         elif kind == 'map':
             m['map'] = found[1].strip()
             self._phase('select', now)
@@ -144,14 +154,23 @@ class LogParser:
             m['my_side'] = team % 100 if team > 0 else None
         elif kind == 'winner':
             m['winner_side'] = int(found[1])
+            if m['ranked'] and m['phase'] in ('playing', 'loading', 'finished'):
+                if m['phase'] != 'finished':
+                    m['finished_at'] = now
+                    self._phase('finished', now)
+                self.last_finished = m
         elif kind == 'commander':
             m['commanders'][found[1]] = found[2]
         elif kind == 'replay':
             m['replay'] = found[1]
             if m['phase'] in ('playing', 'loading', 'select'):
                 self._phase('finished', now)
+            if m['ranked'] and m['phase'] == 'finished':
+                self.last_finished = m
         elif kind == 'ranked_done':
             self._phase('finished', now)
+            if m['ranked']:
+                self.last_finished = m
         elif kind == 'rejected':
             if m['phase'] in ('queue', 'select'):
                 m['map'] = None
@@ -365,6 +384,18 @@ class LiveMatchService:
         self.learned_replay = None
         self.game_running = False
         self.players = None
+        self.last_match_path = self.directory / 'last-match.json'
+        self.last_match = None
+        self.last_finish_signature = None
+        try:
+            saved = json.loads(self.last_match_path.read_text(encoding='utf-8'))
+            if (isinstance(saved, dict) and isinstance(saved.get('result'), dict)
+                    and saved['result'].get('winner_side') in (1, 2)
+                    and saved['result'].get('my_side') in (1, 2)
+                    and STEAM_ID.fullmatch(saved.get('self_id') or '')):
+                self.last_match = saved
+        except (OSError, ValueError, TypeError):
+            pass
 
     def configure(self, fortstools=None):
         if fortstools is not None:
@@ -428,7 +459,7 @@ class LiveMatchService:
     def tick(self):
         now = self.clock()
         running = bool(self.running() if self.running else True)
-        path = self._log_path() if running else None
+        path = self._log_path()
         if path:
             try:
                 self.follower.poll(path, now)
@@ -437,6 +468,7 @@ class LiveMatchService:
         parser = self.follower.parser
         match = parser.match
         self_id = parser.self_id or (getattr(self.history, 'owner_steam_id', '') if self.history else '') or ''
+        self._capture_finished(parser, path, self_id)
         rows = self._rows()
         self._observe(rows, now)
         with self.lock:
@@ -482,6 +514,64 @@ class LiveMatchService:
         if match['phase'] == 'finished' and match.get('replay') and self.learned_replay != match['replay']:
             self._learn_from_replay(match, self_id)
         self.book.save()
+
+    def _capture_finished(self, parser, log_path, self_id):
+        completed = parser.last_finished
+        if not completed or completed.get('winner_side') not in (1, 2) or completed.get('my_side') not in (1, 2):
+            return
+        if not STEAM_ID.fullmatch(self_id):
+            return
+        replay = completed.get('replay')
+        signature = (id(completed), replay, completed['winner_side'], json.dumps(completed.get('commanders') or {}))
+        if signature == self.last_finish_signature:
+            return
+        with self.lock:
+            same = self.match_ref is completed
+            previous = self.last_match if self.last_match and self.last_match['result'].get('replay') == replay and replay else {}
+            opponent = dict((self.opponent if same else previous.get('opponent')) or {})
+            intel = dict((self.intel if same else previous.get('intel')) or {})
+        own_side = completed['my_side']
+        finished_at = completed.get('finished_at') or self.clock()
+        duration = None
+        if replay and log_path:
+            path = Path(log_path).parent / 'replays' / replay
+            try:
+                from forts_replay import read_replay
+                record = read_replay(path, self_id)
+                other = next((p for p in record['players'] if p.get('side') == 3 - own_side and p.get('steam_id')), None)
+                if other:
+                    opponent.update(steam_id=other['steam_id'])
+                    name = known_name(other.get('name')) or known_name(opponent.get('name'))
+                    if not name and self.players:
+                        name = next((known_name(row.get('name')) for row in self.players.names(other['steam_id'])
+                                     if known_name(row.get('name'))), None)
+                    opponent['name'] = name
+                finished_at = path.stat().st_mtime
+                with path.open('rb') as stream:
+                    header = stream.read(9)
+                frames = struct.unpack_from('<I', header, 5)[0]
+                duration = frames / 25 if frames <= 25 * 86400 else None
+            except (OSError, ValueError, struct.error):
+                pass
+        result = {
+            'won': completed['winner_side'] == own_side, 'winner_side': completed['winner_side'],
+            'my_side': own_side, 'replay': replay, 'commanders': dict(completed.get('commanders') or {}),
+        }
+        saved = {
+            'phase': 'finished', 'ranked': True, 'map': completed.get('map'), 'self_id': self_id,
+            'self_name': parser.self_name, 'opponent': opponent or None, 'intel': intel or None,
+            'result': result, 'finished_at': finished_at, 'duration': duration,
+        }
+        with self.lock:
+            self.last_match = saved
+            self.last_finish_signature = signature
+            try:
+                self.directory.mkdir(parents=True, exist_ok=True)
+                temporary = self.last_match_path.with_suffix('.tmp')
+                temporary.write_text(json.dumps(saved, ensure_ascii=False), encoding='utf-8')
+                temporary.replace(self.last_match_path)
+            except OSError:
+                logging.exception('Could not save the last match result')
 
     def _ask_forts_tools(self, self_id, now, match):
         try:
@@ -677,6 +767,8 @@ class LiveMatchService:
                 'opponent': opponent,
                 'intel': dict(self.intel) if self.intel and opponent and opponent.get('steam_id') else None,
                 'result': result,
+                'last_match': dict(self.last_match) if self.last_match else None,
+                'loading_ping_ms': dict(match['loading_ping_ms']),
                 'roster': roster,
                 'tokens_known': len(self.book),
                 'fortstools': dict({'enabled': self.settings['fortstools']}, **(tools.status() if tools else {})),

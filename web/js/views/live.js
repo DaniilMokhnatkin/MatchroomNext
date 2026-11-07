@@ -1,11 +1,12 @@
 // Live match: who you face from commander select on, and how both of you play.
 import { h } from '../lib/dom.js';
 import { icon } from '../lib/icons.js';
-import { t, number, signed, percent, duration, dateCompact } from '../lib/i18n.js';
+import { t, number, signed, percent, duration, dateCompact, time } from '../lib/i18n.js';
 import { routeHash } from '../lib/router.js';
 import { PHASES, phaseIndex, stakes, compareRows, edge, mapRecord, seasonRecord } from '../domain/live.js';
 import { validSteamId } from '../domain/matches.js';
-import { liveNameOf, ownerId, openSettings, isDemo } from '../app/controller.js';
+import { liveNameOf, ownerId, openSettings, isDemo, store, loadReplay } from '../app/controller.js';
+import { formatMetric } from '../domain/analysis.js';
 import { panel, avatar, chip, meter, emptyState, hint, button, externalLink } from '../ui/components.js';
 import { rankText } from './common.js';
 
@@ -27,16 +28,27 @@ function since(live) {
   return duration(Math.max(0, Math.round(Date.now() / 1000 - live.since)));
 }
 
-function stepper(live) {
+function stepper(live, currentLive, showingResult) {
   const current = phaseIndex(live.phase);
   return h('ol', { class: 'live-steps', 'aria-label': t('livePhases') },
-    PHASES.map((phase, index) => h('li', {
-      key: phase, class: ['live-step', { 'is-done': index < current, 'is-current': index === current }],
-      'aria-current': index === current ? 'step' : null,
-    },
-    h('span', { class: 'live-step-mark', 'aria-hidden': 'true' }, index < current ? icon('check', 'icon-sm') : String(index + 1)),
-    h('span', { class: 'live-step-label' }, t('phase_' + phase)),
-    index === current && live.since ? h('span', { class: 'live-step-time num muted' }, since(live)) : null)));
+    PHASES.map((phase, index) => {
+      const result = phase === 'finished' && currentLive.last_match;
+      const active = showingResult && phase === currentLive.phase && phase !== 'finished';
+      const content = [
+        h('span', { class: 'live-step-mark', 'aria-hidden': 'true' }, index < current ? icon('check', 'icon-sm') : String(index + 1)),
+        h('span', { class: 'live-step-label' }, t('phase_' + phase)),
+        index === current && live.since ? h('span', { class: 'live-step-time num muted' }, since(live)) : null,
+      ];
+      return h('li', {
+        key: phase, class: ['live-step', { 'is-done': index < current, 'is-current': index === current }],
+        'aria-current': index === current ? 'step' : null,
+      }, result || active ? h('button', {
+        class: 'live-step-action', type: 'button',
+        title: t(result ? 'lastMatchResult' : 'backToCurrentMatch'),
+        'aria-label': t(result ? 'lastMatchResult' : 'backToCurrentMatch'),
+        onClick: () => store.merge('liveUi', { view: result ? 'result' : 'current' }),
+      }, content) : content);
+    }));
 }
 
 function sideCard(state, live, { id, summary, board, tone, label, hidden, internal }) {
@@ -229,15 +241,76 @@ function finishedBanner(state, live) {
   return h('div', { class: ['live-result', result.won ? 'is-win' : 'is-loss'], role: 'status' },
     icon(result.won ? 'trophy' : 'flame'),
     h('strong', null, t(result.won ? 'liveWon' : 'liveLost')),
-    result.replay ? h('span', { class: 'muted ellipsis' }, result.replay) : null);
+    result.replay ? h('span', { class: 'muted', title: result.replay }, t('liveReplaySaved')) : null);
+}
+
+function battleConnection(live) {
+  const ping = live.loading_ping_ms || {};
+  return panel({
+    title: t('liveBattleConnection'), className: 'live-battle-connection',
+    children: [
+      h('dl', { class: 'scout-facts' },
+        [['self', 'liveOwnLoadingPing'], ['opponent', 'liveOtherLoadingPing']].map(([key, label]) =>
+          h('div', null, h('dt', null, t(label)), h('dd', { class: 'num' },
+            Number.isFinite(ping[key]) ? t('livePingMs', { value: number(ping[key]) }) : '—')))),
+      h('p', { class: 'muted' }, t('liveBattleStatsHint')),
+    ],
+  });
+}
+
+function lastResult(state, live) {
+  const replay = live.result?.replay;
+  const entry = replay ? state.replays[replay] : null;
+  if (replay) queueMicrotask(() => loadReplay(replay));
+  const otherId = live.opponent?.steam_id;
+  const name = liveNameOf(state, live, otherId);
+  const metrics = ['apm', 'cpm', 'dpm', 'damage_ratio'];
+  const analysed = entry?.data;
+  return panel({
+    title: t('lastMatchResult'), caption: name ? t('liveVs', { name }) : live.map,
+    className: 'last-match-result',
+    actions: replay ? h('a', { class: 'btn btn-secondary btn-sm', href: routeHash('replay', analysed?.key || replay) },
+      icon('activity', 'icon-sm'), t('openAnalysis')) : null,
+    children: [
+      finishedBanner(state, live),
+      h('p', { class: 'muted result-meta' }, [
+        live.map, live.duration !== null && live.duration !== undefined
+          ? t('lengthValue', { value: formatMetric('time', live.duration) }) : null,
+        live.finished_at ? dateCompact(new Date(live.finished_at * 1000)) + ' · ' + time(new Date(live.finished_at * 1000)) : null,
+      ].filter(Boolean).join(' · ')),
+      analysed ? h('div', { class: 'table-scroll' }, h('table', { class: 'data-table' },
+        h('thead', null, h('tr', null, h('th', { scope: 'col' }, t('player')),
+          metrics.map(key => h('th', { scope: 'col', class: 'num-col', title: t('metricHint_' + key) }, t('metric_' + key))))),
+        h('tbody', null, [...analysed.players].sort((a, b) =>
+          Number(b.steam_id === live.self_id) - Number(a.steam_id === live.self_id)).map(player => h('tr', { key: player.steam_id },
+          h('th', { scope: 'row' }, liveNameOf(state, live, player.steam_id) || player.name || t('liveNameUnavailable')),
+          metrics.map(key => h('td', { class: 'num-col num' },
+            formatMetric(key === 'damage_ratio' ? 'ratio' : 'int', player.metrics?.[key])))))))) : null,
+    ],
+  });
 }
 
 export function liveView(state, ctx) {
-  const live = state.app.live_match;
+  const current = state.app.live_match;
+  const saved = current?.last_match;
+  const view = state.liveUi?.view || 'auto';
+  const showResult = saved && (view === 'result' || current.phase === 'finished'
+    || ['off', 'idle', 'lobby'].includes(current.phase) || (view === 'auto' && current.phase === 'queue'));
+  const live = showResult ? saved : current;
   if (!live || !live.ranked || !['queue', 'select', 'loading', 'playing', 'finished'].includes(live.phase)) return idle(state, live);
+  if (showResult) {
+    const active = ['queue', 'select', 'loading', 'playing'].includes(current.phase);
+    return h('div', { class: 'live' },
+      stepper(live, current, true),
+      active ? h('div', { class: 'last-match-current muted' },
+        h('span', null, t('phase_' + current.phase)),
+        button({ label: t('backToCurrentMatch'), variant: 'ghost', size: 'sm',
+          onClick: () => store.merge('liveUi', { view: 'current' }) })) : null,
+      lastResult(state, live));
+  }
   if (live.phase === 'finished' && !live.opponent) return [finishedBanner(state, live), idle(state, live)];
   return h('div', { class: 'live' },
-    stepper(live),
+    stepper(live, current, false),
     live.phase === 'finished' ? finishedBanner(state, live) : null,
     live.phase === 'queue' && !live.opponent
       ? h('section', { class: 'panel live-searching', role: 'status' },
@@ -245,6 +318,7 @@ export function liveView(state, ctx) {
         h('div', null, h('strong', null, t('searchingTitle')), h('p', { class: 'muted' }, t(live.hosting ? 'searchingHost' : 'searchingJoin'))))
       : [
         duel(state, live),
+        live.phase === 'playing' ? battleConnection(live) : null,
         h('div', { class: 'live-grid' }, comparison(live), h('div', { class: 'live-side' }, headToHead(state, live), scouting(state, live))),
       ],
     sourceNote(live));

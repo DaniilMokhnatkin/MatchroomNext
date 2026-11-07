@@ -42,6 +42,27 @@ def feed(text, parser=None):
 
 
 class ParserTests(unittest.TestCase):
+    def test_loading_ping_is_read_once_as_a_loading_measurement(self):
+        parser = feed('Entering RankedMatchScreen\n'
+                      '0: Northwind, Id 1, Team 2, PlayerLoading, join at 0, (Steam), SteamID 0, , Local 1, ping 0.083\n'
+                      '1: Player, Id 2, Team 1, PlayerLoading, join at 0, (Steam), SteamID 0, 0.0.0.0|65535, Local 0, ping 0.099')
+        self.assertEqual(parser.match['loading_ping_ms'], {'self': 83, 'opponent': 99})
+
+    def test_winner_finishes_the_match_and_survives_the_next_ranked_screen(self):
+        parser = feed(HOST_LOG.split('Actual winner')[0])
+        parser.feed('Actual winner 1', 30)
+        self.assertEqual(parser.match['phase'], 'finished')
+        parser.feed('Team1 commander: commander-da-overclocker', 31)
+        parser.feed('Replay saved as replays/44_Forts v1.39.0_Hillfort_20261031_183345_0_r56.fwr', 32)
+        parser.feed('Quit: ranked match complete', 33)
+        parser.feed('Entering RankedMatchScreen', 34)
+        parser.feed('Entering RankedMatchScreen', 35)
+        self.assertEqual(parser.match['phase'], 'queue')
+        self.assertEqual(parser.last_finished['winner_side'], 1)
+        self.assertEqual(parser.last_finished['my_side'], 1)
+        self.assertEqual(parser.last_finished['commanders']['1'], 'commander-da-overclocker')
+        self.assertTrue(parser.last_finished['replay'].endswith('_r56.fwr'))
+
     def test_ranked_host_flow(self):
         parser = LogParser()
         lines = HOST_LOG.splitlines()
@@ -154,6 +175,26 @@ class ResolveTests(unittest.TestCase):
 
 
 class ServiceTests(unittest.TestCase):
+    def test_result_is_captured_when_a_poll_also_reads_the_next_search_and_survives_restart(self):
+        with tempfile.TemporaryDirectory() as folder:
+            users = Path(folder) / 'users'
+            (users / SELF).mkdir(parents=True)
+            log = users / SELF / 'log.txt'
+            log.write_text(HOST_LOG + 'Entering RankedMatchScreen\n', encoding='utf-16-le')
+            service = LiveMatchService(folder, users_dir=users, running=lambda: True)
+            service.tick()
+            snapshot = service.snapshot()
+            self.assertEqual(snapshot['phase'], 'queue')
+            result = snapshot['last_match']
+            self.assertTrue(result['result']['won'])
+            self.assertEqual(result['map'], 'Hillfort')
+            self.assertTrue(result['result']['replay'].endswith('_r56.fwr'))
+            service.close()
+            again = LiveMatchService(folder, users_dir=Path(folder) / 'absent-users', running=lambda: False)
+            again.tick()
+            self.assertEqual(again.snapshot()['last_match']['result'], result['result'])
+            again.close()
+
     def test_forts_tools_opponent_is_published_while_steam_is_waiting(self):
         class History:
             def active_season(self):

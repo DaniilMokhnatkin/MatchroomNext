@@ -32,6 +32,7 @@ export const store = createStore({
   dossiers: {},
   replays: {},
   replayChartUi: {},
+  liveUi: { view: 'auto' },
   dossierUi: { scope: 'auto', limit: 40 },
   casualUi: { mode: '', days: 0, limit: 40 },
   lobbyUi: { tab: 'recruiting', query: '', noPassword: false, favoritesOnly: false, sort: 'new', busy: false, expanded: {} },
@@ -137,6 +138,10 @@ export function applyState(next) {
     if (oldFirst && first && first !== oldFirst) newMatch = first;
   }
   if (radar) patch.radar = radar;
+  const phase = app.live_match?.phase;
+  if (phase !== before.app.live_match?.phase && ['select', 'finished'].includes(phase)) {
+    patch.liveUi = { view: 'auto' };
+  }
   if (lobbies) {
     patch.lobbies = lobbies;
     announceLobbies(lobbies);
