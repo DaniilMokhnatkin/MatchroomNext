@@ -450,6 +450,15 @@ export async function chooseAccount(mode, id = '') {
   toast(t('accountChanged'), { tone: 'success' });
 }
 
+export async function hideAccount(id, hidden = true) {
+  try {
+    applyState(await api('/api/account/hide', { steam_id: id, hidden }));
+    toast(t(hidden ? 'accountHidden' : 'accountRestored'), { tone: 'success' });
+  } catch (error) {
+    failure(error);
+  }
+}
+
 export function openSettings() {
   const state = store.get();
   store.set({

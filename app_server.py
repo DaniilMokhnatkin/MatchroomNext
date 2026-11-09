@@ -393,6 +393,14 @@ def make_server(initial: list[dict], default_my_id: str | None = None, history=N
                 except ValueError as exc:
                     self.respond(400, {'error': str(exc)})
                 return
+            if route == '/api/account/hide' and history:
+                try:
+                    body = self.read_json(1024)
+                    history.hide_account(body.get('steam_id', ''), body.get('hidden', True))
+                    self.respond(200, self.state())
+                except (ValueError, TypeError, AttributeError) as exc:
+                    self.respond(400, {'error': str(exc)})
+                return
             if route == '/api/account' and history:
                 try:
                     body = self.read_json(1024)

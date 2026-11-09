@@ -233,7 +233,7 @@ class History:
         latest_owner = self._latest_match_owner_id()
         self.owner_steam_id = (latest_owner or
                                (owner[0] if owner and self._valid_owner_id(owner[0]) else
-                                self._owner_id_from_folders(self.config.get('folders', []))))
+                                self._folder_owner_id()))
         saved_mode = self.db.execute("SELECT value FROM settings WHERE key='owner_mode'").fetchone()
         self.owner_mode = 'manual' if saved_mode and saved_mode[0] == 'manual' else 'auto'
         if self.owner_mode == 'manual' and owner and self._valid_owner_id(owner[0]):
@@ -479,6 +479,7 @@ class History:
                    'rating_tracking': dict(self.rating_status),
                    'owner_steam_id': self.owner_steam_id,
                    'owner_mode': self.owner_mode, 'accounts': self.accounts(),
+                   'hidden_accounts': self.hidden_accounts(),
                    'active_season': active_season,
                    'season_end': season_end_date(active_season).isoformat(),
                    'owner_last_rating': last_owner_rating,
@@ -525,16 +526,36 @@ class History:
                 return steam_id
         return source_id
 
+    def _hidden_ids(self):
+        row = self.db.execute("SELECT value FROM settings WHERE key='hidden_accounts'").fetchone()
+        try:
+            return {sid for sid in json.loads(row[0]) if self._valid_owner_id(sid)} if row else set()
+        except (ValueError, TypeError):
+            return set()
+
     def _latest_match_owner_id(self):
         rows = self.db.execute('SELECT data FROM matches').fetchall()
         if not rows:
             return ''
-        records = [json.loads(row[0]) for row in rows]
-        latest = max(records, key=lambda record: (
+        hidden = self._hidden_ids()
+        records = sorted((json.loads(row[0]) for row in rows), key=lambda record: (
             int(record.get('played_at_ns') or 0),
             float(record.get('match_epoch') or 0),
-            int(record.get('imported_at') or 0)))
-        return self._match_owner_id(latest)
+            int(record.get('imported_at') or 0)), reverse=True)
+        # A hidden account is "not me": someone else's demo in the replay folder.
+        for record in records:
+            owner = self._match_owner_id(record)
+            if owner and owner not in hidden:
+                return owner
+        return ''
+
+    def _folder_owner_id(self):
+        hidden = self._hidden_ids()
+        for folder in self.config.get('folders', []):
+            sid = self._owner_id_from_folders([folder])
+            if sid and sid not in hidden:
+                return sid
+        return ''
 
     def _sync_owner_to_latest_match(self):
         if self.owner_mode == 'manual':
@@ -558,7 +579,32 @@ class History:
                 except (ValueError, TypeError):
                     pass
             ids.add(self.owner_steam_id)
-            return sorted(sid for sid in ids if self._valid_owner_id(sid))
+            hidden = self._hidden_ids()
+            return sorted(sid for sid in ids if self._valid_owner_id(sid) and sid not in hidden)
+
+    def hidden_accounts(self):
+        with self.lock:
+            return sorted(self._hidden_ids())
+
+    def hide_account(self, steam_id, hidden=True):
+        """Hide an account from the menu and from automatic selection, or bring it back."""
+        if not self._valid_owner_id(steam_id) or not isinstance(hidden, bool):
+            raise ValueError('Некорректный Steam ID.')
+        with self.lock:
+            ids = self._hidden_ids()
+            if hidden:
+                ids.add(steam_id)
+            else:
+                ids.discard(steam_id)
+            self.db.execute("INSERT OR REPLACE INTO settings VALUES ('hidden_accounts',?)", (json.dumps(sorted(ids)),))
+            self.db.commit()
+            if hidden and steam_id == self.owner_steam_id:
+                # The shown archive belonged to the hidden account: fall back to automatic choice.
+                self.select_account('auto')
+            elif self.owner_mode == 'auto':
+                self._sync_owner_to_latest_match()
+            self.revision += 1
+        return self.owner_steam_id
 
     def select_account(self, mode, steam_id=''):
         if mode not in ('auto', 'manual') or (mode == 'manual' and not self._valid_owner_id(steam_id)):
@@ -568,10 +614,13 @@ class History:
             if mode == 'manual':
                 known = sorted(set(known) | {steam_id})
                 self.owner_steam_id = steam_id
+                hidden = self._hidden_ids()
+                if steam_id in hidden:
+                    hidden.discard(steam_id)
+                    self.db.execute("INSERT OR REPLACE INTO settings VALUES ('hidden_accounts',?)", (json.dumps(sorted(hidden)),))
             else:
-                self.owner_steam_id = (self._latest_match_owner_id() or
-                                      self._owner_id_from_folders(self.config.get('folders', [])) or
-                                      self.owner_steam_id)
+                fallback = self.owner_steam_id if self.owner_steam_id not in self._hidden_ids() else ''
+                self.owner_steam_id = (self._latest_match_owner_id() or self._folder_owner_id() or fallback)
             self.owner_mode = mode
             self.db.executemany('INSERT OR REPLACE INTO settings VALUES (?,?)', [
                 ('owner_mode', mode), ('owner_steam_id', self.owner_steam_id),
@@ -593,7 +642,7 @@ class History:
             else:
                 self.db.execute("DELETE FROM settings WHERE key='owner_steam_id'")
                 self.owner_steam_id = (self._latest_match_owner_id() or
-                                       self._owner_id_from_folders(self.config.get('folders', [])))
+                                       self._folder_owner_id())
             self.db.commit()
             self.revision += 1
         return self.owner_steam_id

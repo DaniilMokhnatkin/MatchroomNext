@@ -6,7 +6,7 @@ import { routeHash } from '../lib/router.js';
 import { activityValues } from '../domain/activity.js';
 import {
   ownerId, ownerRating, nameOf, toggleMenu, chooseAccount, openDialog, setRemoteLanguage, toggleDemoEmpty, dismissToast,
-  loadOwner, toast, store,
+  loadOwner, toast, store, hideAccount,
 } from '../app/controller.js';
 import { avatar, iconButton, kbd, segmented } from '../ui/components.js';
 import { overviewView, overviewScope } from './overview.js';
@@ -119,11 +119,24 @@ function accountMenu(state, ctx) {
         !manual ? icon('check', 'icon-sm menu-check') : null),
       (state.app.accounts || []).map(accountId => {
         const checked = manual && id === accountId;
-        return h('button', { type: 'button', key: accountId, 'aria-pressed': String(checked), class: ['menu-item', { 'is-checked': checked }], onClick: () => choose('manual', accountId) },
-          avatar({ name: nameOf(accountId, state) || accountId.slice(-2), src: state.profiles[accountId]?.avatar, size: 'xs' }),
-          h('span', { class: 'menu-item-text' }, h('span', { class: 'ellipsis' }, nameOf(accountId, state) || 'Steam ' + accountId.slice(-6)), h('small', { class: 'muted mono' }, accountId)),
-          checked ? icon('check', 'icon-sm menu-check') : null);
+        const label = nameOf(accountId, state) || 'Steam ' + accountId.slice(-6);
+        return h('div', { class: 'menu-account', key: accountId },
+          h('button', { type: 'button', 'aria-pressed': String(checked), class: ['menu-item', { 'is-checked': checked }], onClick: () => choose('manual', accountId) },
+            avatar({ name: nameOf(accountId, state) || accountId.slice(-2), src: state.profiles[accountId]?.avatar, size: 'xs' }),
+            h('span', { class: 'menu-item-text' }, h('span', { class: 'ellipsis' }, label), h('small', { class: 'muted mono' }, accountId)),
+            checked ? icon('check', 'icon-sm menu-check') : null),
+          iconButton({ icon: 'close', label: t('hideAccount', { name: label }), tipSide: 'left', className: 'menu-account-hide', onClick: () => hideAccount(accountId, true) }));
       }),
+      (state.app.hidden_accounts || []).length ? h('button', {
+        type: 'button', class: 'menu-item menu-item-quiet', 'aria-expanded': String(!!state.ui.showHidden),
+        onClick: () => store.merge('ui', { showHidden: !state.ui.showHidden }),
+      }, icon(state.ui.showHidden ? 'chevronDown' : 'chevronRight', 'icon-sm'),
+      h('span', { class: 'menu-item-text' }, t('hiddenAccounts', { count: state.app.hidden_accounts.length }))) : null,
+      state.ui.showHidden ? (state.app.hidden_accounts || []).map(accountId => h('div', { class: 'menu-account is-hidden', key: 'hidden:' + accountId },
+        h('span', { class: 'menu-item menu-item-static' },
+          avatar({ name: nameOf(accountId, state) || accountId.slice(-2), src: state.profiles[accountId]?.avatar, size: 'xs' }),
+          h('span', { class: 'menu-item-text' }, h('span', { class: 'ellipsis' }, nameOf(accountId, state) || 'Steam ' + accountId.slice(-6)), h('small', { class: 'muted mono' }, accountId))),
+        h('button', { type: 'button', class: 'btn btn-ghost btn-sm', onClick: () => hideAccount(accountId, false) }, t('restoreAccount')))) : null,
       h('button', { type: 'button', class: 'menu-item', onClick: () => { store.merge('ui', { accountInput: '', accountError: '' }); openDialog('account'); } },
         icon('plus'), h('span', { class: 'menu-item-text' }, t('otherAccount')))),
     h('div', { class: 'menu-section menu-row' },

@@ -110,6 +110,7 @@ class DemoHistory:
         self.owner_steam_id = SELF
         self.owner_mode = 'auto'
         self.known_accounts = [SELF, ALTERNATE]
+        self.hidden = set()
         self.language = 'ru'
         self.revision = 1
         self.empty = False
@@ -124,7 +125,8 @@ class DemoHistory:
         with self.lock:
             state = {'revision': str(self.revision), 'demo': True, 'demo_empty': self.empty,
                      'owner_steam_id': self.owner_steam_id, 'owner_mode': self.owner_mode,
-                     'accounts': list(self.known_accounts), 'active_season': current_season(),
+                     'accounts': list(self.known_accounts), 'hidden_accounts': sorted(self.hidden),
+                     'active_season': current_season(),
                      'season_end': season_end_date(current_season()).isoformat(),
                      'language': self.language, 'watch': copy.deepcopy(self.config),
                      'status': {'scanning': False, 'errors': []}, 'onboarding_complete': True,
@@ -166,6 +168,21 @@ class DemoHistory:
         else:
             self.owner_steam_id = SELF
         self.owner_mode = mode
+        self.revision += 1
+
+    def hide_account(self, steam_id, hidden=True):
+        if not valid_steam_id(int(steam_id)) if str(steam_id).isdigit() else True:
+            raise ValueError('Invalid Steam ID')
+        if hidden:
+            self.hidden.add(steam_id)
+            if steam_id in self.known_accounts:
+                self.known_accounts.remove(steam_id)
+            if steam_id == self.owner_steam_id:
+                self.owner_steam_id, self.owner_mode = SELF, 'auto'
+        else:
+            self.hidden.discard(steam_id)
+            if steam_id not in self.known_accounts:
+                self.known_accounts.append(steam_id)
         self.revision += 1
 
     def set_language(self, value):
@@ -355,7 +372,7 @@ def create_demo_server(port=0, window_mode=False):
         stone = next(row for row in RIVALS if row[1] == 'Stonebridge')
         live = DemoLive(history, SELF, stone[0], stone[1], stone[2], stone[3],
                         own=(owner_rank(history.final_score), history.final_score))
-        server = make_server([], history=history, radar=radar, lobbies=DemoLobbies(), app_version='next-0.13-demo',
+        server = make_server([], history=history, radar=radar, lobbies=DemoLobbies(), app_version='next-0.13.1-demo',
                              port=port, window_mode=window_mode, notifier=notifier,
                              live=live, casual=casual, players=players)
         return server, patches

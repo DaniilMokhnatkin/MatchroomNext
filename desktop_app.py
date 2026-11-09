@@ -13,7 +13,7 @@ import time
 import webbrowser
 from urllib.request import Request, urlopen
 
-APP_VERSION = 'next-0.13'
+APP_VERSION = 'next-0.13.1'
 AUTOSTART_NAME = 'FortsMatchroomNext'
 
 
