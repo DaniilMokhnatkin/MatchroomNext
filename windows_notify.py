@@ -174,7 +174,8 @@ class WindowsNotifier:
         icon = ICON
         if self.directory:
             icon = self.directory / 'notification-icon.png'
-            if not icon.is_file():
+            # Refresh the copy when the app ships a new icon.
+            if not icon.is_file() or icon.read_bytes() != ICON.read_bytes():
                 shutil.copyfile(ICON, icon)
         with winreg.CreateKey(winreg.HKEY_CURRENT_USER, rf'Software\Classes\AppUserModelId\{APP_ID}') as key:
             winreg.SetValueEx(key, 'DisplayName', 0, winreg.REG_SZ, APP_NAME)

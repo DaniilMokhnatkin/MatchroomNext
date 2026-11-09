@@ -13,7 +13,7 @@ import time
 import webbrowser
 from urllib.request import Request, urlopen
 
-APP_VERSION = 'next-0.12.4'
+APP_VERSION = 'next-0.13'
 AUTOSTART_NAME = 'FortsMatchroomNext'
 
 
@@ -208,13 +208,9 @@ def run(files=(), my_id=None, data_dir=None, no_browser=False, no_tray=False,
         if not no_tray:
             try:
                 import pystray
-                from PIL import Image, ImageDraw
-                image = Image.new('RGB', (64, 64), '#25251f')
-                draw = ImageDraw.Draw(image)
-                # A compact, code-drawn fortress / M mark, legible at 16 px.
-                draw.rectangle((12, 13, 22, 51), fill='#efeee7')
-                draw.rectangle((42, 13, 52, 51), fill='#efeee7')
-                draw.polygon([(22, 18), (32, 30), (42, 18), (42, 32), (32, 44), (22, 32)], fill='#cb4b2b')
+                from PIL import Image
+                # The same Matchroom Next mark as the window and the EXE.
+                image = Image.open(Path(__file__).with_name('forts_icon.png'))
                 def open_window(*_):
                     if use_browser or not app_window.launch(url, directory / 'window-profile'):
                         webbrowser.open(url)
