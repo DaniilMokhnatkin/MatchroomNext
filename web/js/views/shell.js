@@ -6,9 +6,9 @@ import { routeHash } from '../lib/router.js';
 import { activityValues } from '../domain/activity.js';
 import {
   ownerId, ownerRating, nameOf, toggleMenu, chooseAccount, openDialog, setRemoteLanguage, toggleDemoEmpty, dismissToast,
-  loadOwner, toast, store, hideAccount,
+  loadOwner, toast, store, hideAccount, installUpdate, dismissUpdate,
 } from '../app/controller.js';
-import { avatar, iconButton, kbd, segmented } from '../ui/components.js';
+import { avatar, iconButton, kbd, segmented, button } from '../ui/components.js';
 import { overviewView, overviewScope } from './overview.js';
 import { matchesView } from './matches.js';
 import { radarView, radarHeadline } from './radar.js';
@@ -181,6 +181,15 @@ function banners(state) {
   if (state.app.steam_throttle?.native_seconds > 0) {
     list.push(h('div', { class: 'banner banner-warning', key: 'steam' },
       icon('alert', 'icon-sm'), h('span', null, t('steamThrottled', { time: duration(state.app.steam_throttle.native_seconds) }))));
+  }
+  const update = state.update || {};
+  if ((update.available || update.busy || update.error) && state.app.update_install_available) {
+    list.push(h('div', { class: 'banner banner-update', key: 'update', role: 'status' },
+      icon(update.error ? 'alert' : 'download', 'icon-sm'),
+      h('span', null, update.error || (update.busy ? t('updateDownloading') : t('updateBanner', { version: update.version }))),
+      h('span', { class: 'banner-buttons' },
+        update.busy ? null : button({ label: t(update.error ? 'retry' : 'updateNow'), variant: 'primary', size: 'sm', onClick: installUpdate }),
+        update.busy ? null : button({ label: t('later'), variant: 'ghost', size: 'sm', onClick: dismissUpdate }))));
   }
   const live = liveHeadline(state);
   if (live.active && live.name && state.route.view !== 'live') {

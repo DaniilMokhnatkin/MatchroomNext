@@ -29,6 +29,7 @@ export const store = createStore({
   overviewUi: { season: null },
   radarUi: { tier: '', query: '', limit: 60, refreshing: false },
   casual: { revision: null, games: [], loaded: false },
+  update: { available: false, version: '', busy: false, error: '' },
   dossiers: {},
   replays: {},
   replayChartUi: {},
@@ -722,12 +723,42 @@ export async function checkUpdate() {
   store.merge('settings', { updateBusy: true, updateMessage: '', updateAvailable: false });
   try {
     const result = await api('/api/update');
+    store.merge('update', { available: !!result.available, version: result.version || '', error: '' });
     store.merge('settings', { updateAvailable: result.available, updateMessage: result.available ? t('updateAvailable') + ' ' + result.version : t('updateCurrent') });
   } catch { store.merge('settings', { updateMessage: t('updateCheckFailed') }); }
   finally { store.merge('settings', { updateBusy: false }); }
 }
 export async function installUpdate() {
   store.merge('settings', { updateBusy: true, updateMessage: t('updateDownloading') });
-  try { await api('/api/update', {}, { timeout: 180000 }); }
-  catch { store.merge('settings', { updateBusy: false, updateMessage: t('updateInstallFailed') }); }
+  store.merge('update', { busy: true, error: '' });
+  try {
+    // The service downloads, verifies the SHA-256, swaps the EXE and restarts Next.
+    await api('/api/update', {}, { timeout: 180000 });
+  } catch {
+    store.merge('settings', { updateBusy: false, updateMessage: t('updateInstallFailed') });
+    store.merge('update', { busy: false, error: t('updateInstallFailed') });
+  }
+}
+
+const UPDATE_EVERY_MS = 6 * 3600 * 1000;
+// "Later" hides the offer until Next starts again.
+let dismissedVersion = '';
+
+/** Quiet background check: on start, then every few hours; failures stay silent. */
+export function startUpdateChecks() {
+  const run = async () => {
+    const state = store.get();
+    if (state.app.demo || !state.app.update_install_available || state.update.busy) return;
+    try {
+      const result = await api('/api/update');
+      store.merge('update', { available: !!result.available && result.version !== dismissedVersion, version: result.version || '' });
+    } catch { /* offline or GitHub limits: try again later */ }
+  };
+  setTimeout(run, 15000);
+  setInterval(run, UPDATE_EVERY_MS);
+}
+
+export function dismissUpdate() {
+  dismissedVersion = store.get().update.version;
+  store.merge('update', { available: false });
 }

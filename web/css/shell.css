@@ -116,6 +116,10 @@
 .banner-demo { background: var(--accent-soft); color: var(--accent); }
 .banner-warning { background: var(--accent-soft); color: var(--accent); }
 .banner-error { background: var(--loss-soft); color: var(--loss); }
+.banner-update { background: var(--accent-soft); color: var(--fg-1); }
+.banner-update > .icon { color: var(--accent); }
+.banner-buttons { display: flex; gap: var(--sp-2); margin-left: auto; }
+.banner-buttons .btn { min-height: 26px; }
 .banner-action { margin-left: auto; color: var(--fg-2); font-size: var(--text-xs); text-decoration: underline; text-underline-offset: 3px; }
 .banner-action:hover { color: var(--fg-1); }
 

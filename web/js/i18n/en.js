@@ -396,6 +396,10 @@ export default {
   // Settings
   checkUpdates: 'Check for updates',
   installUpdate: 'Install and restart',
+  updateBanner: 'Matchroom Next {version} is out. It downloads and installs itself, then Next restarts.',
+  updateNow: 'Update',
+  later: 'Later',
+  retry: 'Retry',
   updateAvailable: 'Available version',
   updateCurrent: 'You have the latest version.',
   updateCheckFailed: 'Could not check for updates. Check your connection and try again.',

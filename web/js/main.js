@@ -5,7 +5,7 @@ import { setLanguage, t } from './lib/i18n.js';
 import { createRouter, VIEWS } from './lib/router.js';
 import {
   store, startPolling, addFiles, openSettings, openDialog, closeDialog, toggleMenu, loadMatchSteam, loadOwner,
-  refreshRadar, refreshLobbies, trackWindow, loadCasual, loadDossier, loadReplay,
+  refreshRadar, refreshLobbies, trackWindow, loadCasual, loadDossier, loadReplay, startUpdateChecks,
 } from './app/controller.js';
 import { appView } from './views/shell.js';
 import { stepMatch } from './views/matches.js';
@@ -155,4 +155,5 @@ document.addEventListener('drop', event => {
 
 router.start();
 startPolling();
+startUpdateChecks();
 if (boot.window) trackWindow();

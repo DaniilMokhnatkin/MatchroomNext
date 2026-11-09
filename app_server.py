@@ -132,6 +132,8 @@ def make_server(initial: list[dict], default_my_id: str | None = None, history=N
             value['portable'] = True
             value['autostart_enabled'] = bool(autostart_getter and autostart_getter())
             value['installer_available'] = bool(installer_path and Path(installer_path).is_file())
+            # One-click updates need the portable EXE and its shell to restart it.
+            value['update_install_available'] = bool(value['installer_available'] and update_parent_pid)
             from steam_data import activity
             value['game_activity'] = activity()
             from steam_service import throttle_state
