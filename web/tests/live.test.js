@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { stakes, compareRows, edge, mapRecord, phaseIndex } from '../js/domain/live.js';
-import { playable, filterGames, summarizeCasual, byMode, teammates, opponents } from '../js/domain/casual.js';
+import { playable, filterGames, summarizeCasual, byMode, teammates, opponents, gameDate } from '../js/domain/casual.js';
 
 test('stakes follow round(32 x E) and 32 back for a win', () => {
   assert.deepEqual(stakes(0.41), { win: 19, loss: 13 });
@@ -49,6 +49,15 @@ const ME = '1';
 const game = (id, result, mode, date, players = []) => ({
   id, result, mode, date, map: 'Pillars 3v3', duration: 600, multiplayer: true, self_id: ME,
   players: [{ steam_id: ME, role: 'self', name: 'Me' }, ...players],
+});
+
+test('lobby games use recorded timestamps for order, displayed date and day filters', () => {
+  const actual = new Date(2026, 10, 10, 18, 20);
+  const shifted = { ...game('latest', 'win', '4v4', '20261110_140000'), played_at_ns: actual.getTime() * 1e6 };
+  const older = game('older', 'win', '4v4', '20261110_170000');
+  assert.deepEqual(playable([older, shifted], ME).map(g => g.id), ['latest', 'older']);
+  assert.equal(gameDate(shifted).getTime(), actual.getTime());
+  assert.equal(filterGames([shifted], { days: 1, now: actual.getTime() + 23 * 3600000 }).length, 1);
 });
 
 test('lobby game stats', () => {

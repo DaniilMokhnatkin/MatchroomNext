@@ -7,7 +7,7 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import {
-  perspective, outcome, ratingChange, historicalRating, filterMatches, summarize, opponentStats, mapStats, validSteamId, modeLabel,
+  perspective, outcome, ratingChange, historicalRating, filterMatches, summarize, opponentStats, mapStats, validSteamId, modeLabel, sortMatches,
 } from '../js/domain/matches.js';
 import { filterLobbies, isWatchable, comparisonCandidate, tabCounts, activitySummary } from '../js/domain/lobbies.js';
 import { activityValues } from '../js/domain/activity.js';
@@ -26,6 +26,12 @@ const base = {
   rating_change: { steam_id: SELF, status: 'confirmed', delta: 26, before_score: 4300, after_score: 4326 },
 };
 const dateText = date => date.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
+
+test('newer legacy matches sort above older matches with filesystem timestamps', () => {
+  const older = { match_id: 'old', date: '20261109_200000', played_at_ns: new Date(2026, 10, 9, 20).getTime() * 1e6 };
+  const newer = { match_id: 'new', date: '20261110_200000' };
+  assert.deepEqual(sortMatches([older, newer]).map(m => m.match_id), ['new', 'old']);
+});
 
 test('result and rating ownership', () => {
   assert.equal(outcome(base, SELF), 'win');

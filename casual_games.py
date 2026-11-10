@@ -18,9 +18,9 @@ from pathlib import Path
 
 from forts_replay import HEADER_END, ReplayError, _last_state_block, header_length, parse_replay
 from match_history import is_ranked_replay
+from replay_files import SCAN_INTERVAL, file_played_at_ns, filename_epoch, ready_for_analysis, unchanged_replay
 
 STAMP = re.compile(r'_(20\d{6}_\d{6})')
-SETTLE_SECONDS = 90
 BATCH = 40
 
 
@@ -74,6 +74,7 @@ def game_facts(path: Path) -> dict:
         'players': players, 'self_id': own['steam_id'] if own else None,
         'my_side': own['side'] if own else None, 'winner_side': winner, 'result': result,
         'duration': seconds,
+        'path': str(path), 'played_at_ns': file_played_at_ns(path),
     }
 
 
@@ -87,6 +88,7 @@ class CasualGames:
         self.db.execute('CREATE TABLE IF NOT EXISTS skipped (key TEXT PRIMARY KEY, reason TEXT NOT NULL)')
         self.db.commit()
         self.lock = threading.RLock()
+        self._repair_times()
         self.known = {row[0] for row in self.db.execute('SELECT key FROM games UNION SELECT key FROM skipped')}
         self.revision = str(time.time_ns())
         self.status = {'scanning': False, 'pending': 0, 'imported': len(self.known), 'errors': 0, 'last_scan': None}
@@ -97,7 +99,26 @@ class CasualGames:
     def key(path: Path, size: int) -> str:
         return hashlib.sha1(f'{path.name.casefold()}|{size}'.encode('utf-8')).hexdigest()
 
-    def scan_once(self, now=None):
+    def _repair_times(self):
+        """Fill timing metadata for cached games without parsing them again."""
+        folders = [Path(folder) for folder in self.folders() or []]
+        for key, raw in self.db.execute('SELECT key, data FROM games').fetchall():
+            game = json.loads(raw)
+            if game.get('played_at_ns') or not game.get('file'):
+                continue
+            paths = ([Path(game['path'])] if game.get('path') else []) + [p / game['file'] for p in folders]
+            for path in paths:
+                try:
+                    if not path.is_file():
+                        continue
+                    game.update(played_at_ns=file_played_at_ns(path), path=str(path))
+                except OSError:
+                    continue
+                self.db.execute('UPDATE games SET data=? WHERE key=?', (json.dumps(game, ensure_ascii=True), key))
+                break
+        self.db.commit()
+
+    def scan_once(self, now=None, limit=None):
         now = time.time() if now is None else now
         if not self.enabled():
             return 0
@@ -114,27 +135,32 @@ class CasualGames:
                     stat = path.stat()
                 except OSError:
                     continue
-                if now - stat.st_mtime < SETTLE_SECONDS or stat.st_size < 17:
-                    continue
                 key = self.key(path, stat.st_size)
-                if key not in self.known:
-                    todo.append((stat.st_mtime, key, path))
+                if key not in self.known and ready_for_analysis(path, stat, now):
+                    todo.append((stat.st_mtime, key, path, stat))
         # Newest first, so the latest evenings appear before the old archive.
         todo.sort(reverse=True)
+        pending = len(todo)
+        if limit:
+            todo = todo[:limit]
         with self.lock:
-            self.status.update(scanning=bool(todo), pending=len(todo))
+            self.status.update(scanning=bool(todo), pending=pending)
         added = 0
-        for index, (_mtime, key, path) in enumerate(todo):
+        for index, (_mtime, key, path, stat) in enumerate(todo):
             if self.stop_event.is_set():
                 break
             try:
                 facts = game_facts(path)
+                if not unchanged_replay(path, stat):
+                    continue
                 facts['id'] = key
                 with self.lock:
                     self.db.execute('INSERT OR REPLACE INTO games VALUES (?,?,?)',
                                     (key, facts['date'], json.dumps(facts, ensure_ascii=True)))
                 added += 1
             except (OSError, ValueError) as exc:
+                if not unchanged_replay(path, stat):
+                    continue
                 with self.lock:
                     self.db.execute('INSERT OR REPLACE INTO skipped VALUES (?,?)', (key, str(exc)[:200]))
                     self.status['errors'] += 1
@@ -143,15 +169,20 @@ class CasualGames:
                 with self.lock:
                     self.db.commit()
                     self.revision = str(time.time_ns())
-                    self.status.update(pending=len(todo) - index - 1, imported=len(self.known))
+                    self.status.update(pending=pending - index - 1, imported=len(self.known))
         with self.lock:
-            self.status.update(scanning=False, pending=0, imported=len(self.known), last_scan=time.time())
+            # A changed/deleted last file can bypass the per-batch commit.
+            self.db.commit()
+            if added:
+                self.revision = str(time.time_ns())
+            self.status.update(scanning=False, pending=pending - len(todo), imported=len(self.known), last_scan=time.time())
         return added
 
     def games(self):
         with self.lock:
             rows = [json.loads(raw) for raw, in self.db.execute('SELECT data FROM games ORDER BY date DESC')]
-        return rows
+        return sorted(rows, key=lambda game: game.get('played_at_ns') or
+                      int((filename_epoch(game.get('date', '')) or 0) * 1_000_000_000), reverse=True)
 
     def snapshot(self, since=None):
         with self.lock:
@@ -164,10 +195,11 @@ class CasualGames:
         def run():
             while not self.stop_event.is_set():
                 try:
-                    self.scan_once()
+                    added = self.scan_once(limit=4)
                 except Exception:
                     logging.exception('Casual game scan failed')
-                self.stop_event.wait(20)
+                    added = 0
+                self.stop_event.wait(0.1 if added else SCAN_INTERVAL)
         self.thread = threading.Thread(target=run, daemon=True, name='casual-games')
         self.thread.start()
 

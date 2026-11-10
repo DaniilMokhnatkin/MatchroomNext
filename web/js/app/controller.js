@@ -215,8 +215,9 @@ export async function loadDossier(id, force = false) {
 
 export async function loadReplay(id, force = false) {
   const cached = store.get().replays[id];
-  if (!id || (cached && !force && (cached.loading || cached.data || Date.now() - (cached.at || 0) < 15000))) return;
-  store.merge('replays', { [id]: { loading: true } });
+  const retryMs = cached?.error === 'pending' ? POLL_MS : 15000;
+  if (!id || cached?.loading || (cached && !force && (cached.data || Date.now() - (cached.at || 0) < retryMs))) return;
+  store.merge('replays', { [id]: { ...(cached?.error === 'pending' ? cached : {}), loading: true } });
   const query = /^[0-9a-f]{40}$/.test(id) ? 'key=' + id : 'file=' + encodeURIComponent(id);
   try {
     const data = await api('/api/replay-analysis?' + query);
@@ -293,6 +294,9 @@ export async function sync(force = false) {
     if (store.get().connection !== 'stopped') store.set({ connection: 'lost', loaded: true });
   } finally {
     polling = false;
+    const current = store.get();
+    if (current.connection === 'ok' && current.route.view === 'replay'
+        && current.replays[current.route.id]?.error === 'pending') await loadReplay(current.route.id);
   }
 }
 

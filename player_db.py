@@ -25,10 +25,10 @@ from datetime import datetime
 from pathlib import Path
 
 from replay_analysis import baseline, compare, form_verdict, run_fwr, summarize
+from replay_files import SCAN_INTERVAL, file_played_at_ns, ready_for_analysis, unchanged_replay
 
 STAMP = re.compile(r'_(20\d{6}_\d{6})')
 SEASON = re.compile(r'^([1-9][0-9]{0,2})_')
-SETTLE_SECONDS = 90
 WORKERS = 3
 STEAM_ID = re.compile(r'^[0-9]{17}$')
 
@@ -103,6 +103,7 @@ class PlayerDB:
                 data TEXT NOT NULL);
         ''')
         self.db.commit()
+        self._repair_times()
         self.known = {row[0] for row in self.db.execute('SELECT key FROM analyses UNION SELECT key FROM failed')}
         self.status = {'scanning': False, 'pending': 0, 'analysed': len(self.known), 'errors': 0, 'available': True}
         self.revision = time.time_ns()
@@ -110,6 +111,26 @@ class PlayerDB:
         self.thread = None
 
     # ----- replay analysis -----
+    def _repair_times(self):
+        """Upgrade cached analysis dates and dossier order without rerunning FWR."""
+        for key, source, raw in self.db.execute('SELECT key, path, data FROM analyses').fetchall():
+            data = json.loads(raw)
+            if data.get('played_at_ns'):
+                continue
+            path = Path(source)
+            try:
+                stat = path.stat()
+                if self.key(path, stat.st_size) != key:
+                    continue
+                when = file_played_at_ns(path, stat)
+            except OSError:
+                continue
+            data.update(played_at_ns=when, played=when / 1_000_000_000)
+            self.db.execute('UPDATE analyses SET played=?, data=? WHERE key=?',
+                            (data['played'], json.dumps(data, ensure_ascii=True), key))
+            self.db.execute('UPDATE appearances SET played=? WHERE key=?', (data['played'], key))
+        self.db.commit()
+
     @staticmethod
     def key(path: Path, size: int) -> str:
         return hashlib.sha1(f'{path.name.casefold()}|{size}'.encode('utf-8')).hexdigest()
@@ -129,27 +150,30 @@ class PlayerDB:
                     stat = path.stat()
                 except OSError:
                     continue
-                if now - stat.st_mtime < SETTLE_SECONDS or stat.st_size < 17:
-                    continue
                 key = self.key(path, stat.st_size)
-                if key not in self.known:
-                    todo.append((stat.st_mtime, key, path))
+                if key not in self.known and ready_for_analysis(path, stat, now):
+                    todo.append((stat.st_mtime, key, path, stat))
         todo.sort(reverse=True)
+        pending = len(todo)
         if limit:
             todo = todo[:limit]
         with self.lock:
-            self.status.update(scanning=bool(todo), pending=len(todo))
+            self.status.update(scanning=bool(todo), pending=pending)
         added = 0
-        from concurrent.futures import ThreadPoolExecutor
+        from concurrent.futures import ThreadPoolExecutor, as_completed
         with ThreadPoolExecutor(max_workers=WORKERS) as pool:
             for start in range(0, len(todo), WORKERS * 4):
                 if self.stop_event.is_set():
                     break
                 chunk = todo[start:start + WORKERS * 4]
-                futures = [(key, path, pool.submit(self._prepare, path)) for _mtime, key, path in chunk]
-                for key, path, future in futures:
+                futures = {pool.submit(self._prepare, path): (key, path, stat) for _mtime, key, path, stat in chunk}
+                for future in as_completed(futures):
+                    key, path, stat = futures[future]
                     try:
-                        self._store(key, path, *future.result())
+                        result = future.result()
+                        if not unchanged_replay(path, stat):
+                            continue
+                        self._store(key, path, *result)
                         added += 1
                     except FileNotFoundError:
                         continue
@@ -159,15 +183,17 @@ class PlayerDB:
                             self.status.update(available=False, scanning=False, error=str(exc))
                         return added
                     except (OSError, ValueError, KeyError, TypeError, json.JSONDecodeError) as exc:
+                        if not unchanged_replay(path, stat):
+                            continue
                         with self.lock:
                             self.db.execute('INSERT OR REPLACE INTO failed VALUES (?,?)', (key, str(exc)[:200]))
                             self.db.commit()
                             self.status['errors'] += 1
                         self.known.add(key)
                 with self.lock:
-                    self.status.update(pending=max(0, len(todo) - start - len(chunk)), analysed=len(self.known))
+                    self.status.update(pending=max(0, pending - start - len(chunk)), analysed=len(self.known))
         with self.lock:
-            self.status.update(scanning=False, pending=0, analysed=len(self.known))
+            self.status.update(scanning=False, pending=pending - len(todo), analysed=len(self.known))
         return added
 
     def add_analysis(self, key, path: Path):
@@ -183,7 +209,8 @@ class PlayerDB:
         return (summarize(self.analyse(path), names),)
 
     def _store(self, key, path: Path, summary):
-        played = stamp_epoch(path.name) or path.stat().st_mtime
+        summary['played_at_ns'] = file_played_at_ns(path)
+        played = summary['played_at_ns'] / 1_000_000_000
         self.store_summary(key, path.name, str(path), played, summary)
 
     def store_summary(self, key, file_name, source, played, summary):
@@ -406,10 +433,13 @@ class PlayerDB:
         def run():
             while not self.stop_event.is_set():
                 try:
-                    self.scan_once()
+                    # Recheck priority after each small batch, so a new match
+                    # does not wait for the whole older archive to finish.
+                    added = self.scan_once(limit=WORKERS)
                 except Exception:
                     logging.exception('Replay analysis scan failed')
-                self.stop_event.wait(30)
+                    added = 0
+                self.stop_event.wait(0.1 if added else SCAN_INTERVAL)
         self.thread = threading.Thread(target=run, daemon=True, name='replay-analysis')
         self.thread.start()
 

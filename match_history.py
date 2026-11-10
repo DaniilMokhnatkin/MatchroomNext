@@ -85,21 +85,8 @@ def _match_epoch(value: str) -> float | None:
 
 
 def _replay_started_at(path: Path, filename: str) -> float | None:
-    """Use file creation time when it proves the replay was written live."""
-    match = re.search(r'_(20\d{6}_\d{6})', filename)
-    named_time = _match_epoch(match[1]) if match else None
-    if named_time is None:
-        return None
-    try:
-        stat = path.stat()
-        duration = stat.st_mtime - stat.st_ctime
-        # A replay that grew for several seconds records a match in progress.
-        # A copied or one-shot imported replay does not qualify.
-        if 10 <= duration <= 6 * 60 * 60 and abs(stat.st_ctime - named_time) <= 6 * 60 * 60:
-            return stat.st_ctime
-    except OSError:
-        pass
-    return None
+    from replay_files import recorded_start
+    return recorded_start(path, filename=filename)
 
 
 def discover_replays():
@@ -448,7 +435,8 @@ class History:
     def matches(self):
         with self.lock:
             matches = [json.loads(row[0]) for row in self.db.execute('SELECT data FROM matches')]
-        return sorted(matches, key=lambda record: (record.get('played_at_ns') or 0,
+        return sorted(matches, key=lambda record: (record.get('played_at_ns') or
+                                                    int((_match_epoch(record.get('date', '')) or 0) * 1_000_000_000),
                                                     record.get('date') or '',
                                                     record.get('imported_at') or 0), reverse=True)
 

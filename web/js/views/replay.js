@@ -180,7 +180,7 @@ export function replayHeadline(state) {
 export function replayView(state, ctx) {
   const id = state.route.id;
   const entry = state.replays[id];
-  if (!entry || entry.loading) return h('div', { class: 'panel' }, skeleton(5));
+  if (!entry || (entry.loading && !entry.error)) return h('div', { class: 'panel' }, skeleton(5));
   if (entry.error) {
     return emptyState({
       icon: 'activity', title: t(entry.error === 'pending' ? 'analysisPendingTitle' : 'analysisFailedTitle'),

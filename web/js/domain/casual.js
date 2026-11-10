@@ -1,16 +1,16 @@
 // Ordinary lobby games: records by mode, map, teammate and opponent.
+import { dateOf, sortMatches } from './matches.js';
 
 export const MODES = ['1v1', '2v2', '3v3', '4v4'];
 
 export function gameDate(game) {
-  const m = /^(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})(\d{2})$/.exec(game?.date || '');
-  return m ? new Date(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], +m[6]) : null;
+  return dateOf(game || {});
 }
 
 /** Multiplayer games recorded from our seat (not as an observer). */
 export function playable(games, ownId) {
-  return (games || []).filter(game => game.multiplayer && game.result !== 'observer'
-    && (!ownId || !game.self_id || game.self_id === ownId));
+  return sortMatches((games || []).filter(game => game.multiplayer && game.result !== 'observer'
+    && (!ownId || !game.self_id || game.self_id === ownId)));
 }
 
 export function modeOf(game) {

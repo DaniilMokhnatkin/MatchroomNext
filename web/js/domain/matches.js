@@ -66,7 +66,7 @@ export function dateOf(match) {
 }
 
 export function sortMatches(matches) {
-  return [...matches].sort((a, b) => (Number(b.played_at_ns) || 0) - (Number(a.played_at_ns) || 0)
+  return [...matches].sort((a, b) => (dateOf(b)?.getTime() || 0) - (dateOf(a)?.getTime() || 0)
     || String(b.date || '').localeCompare(String(a.date || '')));
 }
 
