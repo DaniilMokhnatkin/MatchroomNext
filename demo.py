@@ -372,7 +372,7 @@ def create_demo_server(port=0, window_mode=False):
         stone = next(row for row in RIVALS if row[1] == 'Stonebridge')
         live = DemoLive(history, SELF, stone[0], stone[1], stone[2], stone[3],
                         own=(owner_rank(history.final_score), history.final_score))
-        server = make_server([], history=history, radar=radar, lobbies=DemoLobbies(), app_version='next-0.13.2-demo',
+        server = make_server([], history=history, radar=radar, lobbies=DemoLobbies(), app_version='next-0.14.0-demo',
                              port=port, window_mode=window_mode, notifier=notifier,
                              live=live, casual=casual, players=players)
         return server, patches
